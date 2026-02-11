@@ -1,7 +1,9 @@
-/* ================= HOW IT WORKS ================= */
+/* howitworks.css - updated for dark mode support */
+
 .how {
   padding: 100px 20px;
-  background: #ffffff;
+  background: var(--bg);           /* ← use variable */
+  color: var(--text);              /* ← use variable */
   box-sizing: border-box;
 }
 
@@ -15,18 +17,18 @@
 .how-header h2 {
   font-size: clamp(1.75rem, 4vw, 2.25rem);
   line-height: 1.2;
-  color: #0f172a;
+  color: var(--text);              /* ← was #0f172a */
   margin-bottom: 15px;
   font-weight: 700;
 }
 
 .how-header p {
   font-size: clamp(0.9rem, 2vw, 1rem);
-  color: #64748b;
+  color: var(--text-muted);        /* ← was #64748b */
   line-height: 1.6;
 }
 
-/* ================= STEPS LAYOUT ================= */
+/* STEPS LAYOUT */
 .steps {
   display: flex;
   flex-wrap: wrap;
@@ -38,20 +40,18 @@
   box-sizing: border-box;
 }
 
-/* Individual Step */
 .step {
   flex: 1 1 260px;
   padding: 2rem;
   border-radius: 12px;
-  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  background: var(--surface);      /* or rgba(white,0.4) / rgba(30,41,59,0.4) */
+  border: 1px solid var(--border);
+  transition: box-shadow 0.3s ease, transform 0.3s ease, background 0.2s;
   box-sizing: border-box;
 }
 
 .step:hover {
-  border-radius: 12px;
-  box-shadow:
-    0 10px 15px -3px rgb(0 0 0 / 0.1),
-    0 4px 6px -4px rgb(0 0 0 / 0.1);
+  box-shadow: var(--shadow-sm);
   transform: translateY(-2px);
 }
 
@@ -63,8 +63,8 @@
 }
 
 .step-number {
-  color: #fff;
-  background: #2563eb;
+  color: white;
+  background: var(--blue);           /* reuse --blue from navbar */
   border-radius: 12px;
   display: flex;
   justify-content: center;
@@ -79,32 +79,26 @@
 .line {
   flex: 1;
   height: 4px;
-  background: #c7d7ff;
+  background: var(--border);         /* lighter/darker depending on theme */
   margin-left: 20px;
 }
 
-/* Last step: hide the line */
-/* .step:last-child .line {
-  display: none;
-} */
-
-/* ================= TEXT ================= */
+/* TEXT */
 .step h3 {
   font-size: clamp(1.1rem, 2vw, 1.25rem);
   line-height: 1.4;
   font-weight: 600;
   margin-bottom: 12px;
-  color: #0f172a;
+  color: var(--text);
 }
 
 .step p {
   font-size: clamp(0.875rem, 1.5vw, 0.9375rem);
-  color: #64748b;
+  color: var(--text-muted);
   margin-bottom: 20px;
   line-height: 1.625;
 }
 
-/* ================= LIST ================= */
 .step ul {
   list-style: none;
   padding: 0;
@@ -117,14 +111,16 @@
   gap: 10px;
   font-size: clamp(0.8125rem, 1.5vw, 0.875rem);
   margin-bottom: 12px;
-  color: #334155;
+  color: var(--text-muted);
 }
 
 .step ul li svg {
-  color: #2563eb;
+  color: var(--blue);                /* matches navbar blue */
   flex-shrink: 0;
 }
 
+/* ─────────────── Responsive (keep your existing media queries) ─────────────── */
+/* ... your existing @media rules ... */
 /* ================= RESPONSIVE ================= */
 
 /* Large Desktop */

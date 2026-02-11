@@ -1,57 +1,95 @@
+/* feature.css - with consistent dark mode using global variables */
+
 .features {
   padding: 80px 20px;
-  background: #f9fbff;
+  background: var(--bg);           /* light: white-ish / dark: slate-950-ish */
+  color: var(--text);
+}
+
+.heading {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.heading-h1 {
+  font-size: clamp(2.25rem, 5vw, 3.5rem);
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 16px;
+  line-height: 1.1;
+}
+
+.heading-paragraph {
+  max-width: 720px;
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: var(--text-muted);
 }
 
 .features-container {
-    
   max-width: 1200px;
-  margin: auto;
-  display: flex;          /* flex container */
-  flex-wrap: wrap;        /* wrap cards on smaller screens */
-  justify-content: center; /* center cards horizontally */
-  gap: 30px;              /* space between cards */
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
 }
 
 .feature-card {
-    margin-top: 50px;
-  background: #ffffff;
+  margin-top: 20px;               /* reduced a bit for better spacing */
+  background: var(--surface);     /* light: near-white / dark: near-slate-800 */
   padding: 40px 30px;
   border-radius: 20px;
-  flex: 1 1 320px;      
-  max-width: 400px;    
-  height: 380px;  
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease;
+  flex: 1 1 320px;
+  max-width: 400px;
+  min-height: 380px;              /* consistent height, but min- so it can grow */
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);   /* reuse from hero if defined, or fallback */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .feature-card:hover {
   transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12); /* light */
+}
+
+.dark .feature-card:hover {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35); /* darker shadow in dark mode */
 }
 
 .icon-box {
   width: 55px;
   height: 55px;
-  background: #eaf2ff;
+  background: rgba(37, 99, 235, 0.1);   /* light blue tint */
   border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #2563eb;
-  margin-bottom: 20px;
+  color: var(--blue);
+  margin-bottom: 24px;
+  transition: background 0.2s;
+}
+
+.dark .icon-box {
+  background: rgba(59, 130, 246, 0.15);   /* brighter blue in dark mode */
 }
 
 .feature-card h3 {
   font-size: 20px;
-  margin-bottom: 15px;
-  color: #0f172a;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: var(--text);
 }
 
 .feature-card p {
   font-size: 15px;
-  color: #64748b;
+  color: var(--text-muted);
   line-height: 1.6;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .feature-card ul {
@@ -65,27 +103,33 @@
   align-items: center;
   gap: 10px;
   font-size: 14px;
-  color: #334155;
-  margin-bottom: 10px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
 }
 
 .feature-card ul li svg {
-  color: #2563eb;
+  color: var(--blue);
+  flex-shrink: 0;
 }
 
-.heading{
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    align-items: center;
+/* Optional: make cards slightly more elevated in dark mode */
+.dark .feature-card {
+  background: rgba(30, 41, 59, 0.6);   /* semi-transparent slate if you want glass effect */
+  backdrop-filter: blur(8px);
 }
-.heading-h1{
-    color: black;
+
+/* Responsive tweaks */
+@media (max-width: 1024px) {
+  .features-container {
+    gap: 24px;
+  }
 }
-.heading-paragraph{
-    color: black;
-    margin-top: 12px;
-    text-align: center;
-    display: flex;
-   padding:5px ;
+
+@media (max-width: 640px) {
+  .features {
+    padding: 60px 16px;
+  }
+  .feature-card {
+    max-width: 100%;
+  }
 }
