@@ -1,0 +1,245 @@
+/* ================= HOW IT WORKS ================= */
+.how {
+  padding: 100px 20px;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+/* Header */
+.how-header {
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto 70px;
+}
+
+.how-header h2 {
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  line-height: 1.2;
+  color: #0f172a;
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+.how-header p {
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  color: #64748b;
+  line-height: 1.6;
+}
+
+/* ================= STEPS LAYOUT ================= */
+.steps {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 24px;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  box-sizing: border-box;
+}
+
+/* Individual Step */
+.step {
+  flex: 1 1 260px;
+  padding: 2rem;
+  border-radius: 12px;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  box-sizing: border-box;
+}
+
+.step:hover {
+  border-radius: 12px;
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
+  transform: translateY(-2px);
+}
+
+/* Step Top (number + line) */
+.step-top {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.step-number {
+  color: #fff;
+  background: #2563eb;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 56px;
+  height: 56px;
+  font-size: 18px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.line {
+  flex: 1;
+  height: 4px;
+  background: #c7d7ff;
+  margin-left: 20px;
+}
+
+/* Last step: hide the line */
+/* .step:last-child .line {
+  display: none;
+} */
+
+/* ================= TEXT ================= */
+.step h3 {
+  font-size: clamp(1.1rem, 2vw, 1.25rem);
+  line-height: 1.4;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #0f172a;
+}
+
+.step p {
+  font-size: clamp(0.875rem, 1.5vw, 0.9375rem);
+  color: #64748b;
+  margin-bottom: 20px;
+  line-height: 1.625;
+}
+
+/* ================= LIST ================= */
+.step ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.step ul li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: clamp(0.8125rem, 1.5vw, 0.875rem);
+  margin-bottom: 12px;
+  color: #334155;
+}
+
+.step ul li svg {
+  color: #2563eb;
+  flex-shrink: 0;
+}
+
+/* ================= RESPONSIVE ================= */
+
+/* Large Desktop */
+@media (max-width: 1200px) {
+  .steps {
+    gap: 20px;
+    padding: 2rem 1rem;
+  }
+
+  .step {
+    flex: 1 1 220px;
+    padding: 1.75rem;
+  }
+}
+
+/* Tablet - 2 columns */
+@media (max-width: 900px) {
+  .how {
+    padding: 70px 20px;
+  }
+
+  .how-header {
+    margin-bottom: 50px;
+  }
+
+  .steps {
+    gap: 20px;
+    padding: 1.5rem 0.5rem;
+    justify-content: center;
+  }
+
+  .step {
+    flex: 0 1 calc(50% - 10px); /* 2 columns */
+    min-width: 260px;
+    padding: 1.5rem;
+  }
+
+  /* Show line only within a row pair */
+  /* .step:nth-child(2n) .line {
+    display: none;
+  } */
+}
+
+/* Mobile - 1 column */
+@media (max-width: 640px) {
+  .how {
+    padding: 50px 16px;
+  }
+
+  .how-header {
+    margin-bottom: 40px;
+  }
+
+  .how-header h2 {
+    font-size: 1.75rem;
+  }
+
+  .steps {
+    flex-direction: column;
+    gap: 16px;
+    padding: 0;
+  }
+
+  .step {
+    flex: 1 1 100%;
+    width: 100%;
+    padding: 1.5rem;
+  }
+
+  /* Hide all lines on mobile - stacked layout */
+  .line {
+    /* display: none; */
+  }
+
+  .step-top {
+    margin-bottom: 20px;
+  }
+
+  .step-number {
+    width: 48px;
+    height: 48px;
+    font-size: 16px;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .how {
+    padding: 40px 12px;
+  }
+
+  .how-header {
+    margin-bottom: 30px;
+  }
+
+  .step {
+    padding: 1.25rem;
+  }
+
+  .step-number {
+    width: 44px;
+    height: 44px;
+    font-size: 15px;
+    border-radius: 10px;
+  }
+
+  .step ul li {
+    font-size: 0.8125rem;
+  }
+}
+
+/* Touch device */
+@media (hover: none) and (pointer: coarse) {
+  .step:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
