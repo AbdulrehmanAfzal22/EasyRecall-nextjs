@@ -8,11 +8,16 @@ import { Import } from "lucide-react";
 export default function Home() {
   return (
     <>
-     <Navbar />
-    <Hero />
-    <FeaturesSection/>
-<HowItWorks/>    
-    
+      <Navbar />
+      <Hero />
+
+      <section id="features" className="features">
+        <FeaturesSection />
+      </section>
+
+      <section id="how-it-works" className="features">
+        <HowItWorks />
+      </section>
     </>
   );
 }
