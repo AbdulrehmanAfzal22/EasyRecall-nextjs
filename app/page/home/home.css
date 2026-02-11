@@ -24,6 +24,8 @@
   --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
 }
 
+/* ─── Base ────────────────────────────────────────────── */
+
 .hero {
   position: relative;
   background: var(--bg);
@@ -36,6 +38,8 @@
   max-width: 1280px;
   margin: 0 auto;
 }
+
+/* ─── Theme toggle ────────────────────────────────────── */
 
 .theme-toggle {
   position: absolute;
@@ -55,6 +59,8 @@
   color: var(--text);
 }
 
+/* ─── Layout grid ─────────────────────────────────────── */
+
 .content-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -62,9 +68,13 @@
   align-items: center;
 }
 
+/* ─── Left content ────────────────────────────────────── */
+
 .left-content {
   max-width: 580px;
 }
+
+/* ─── Badges ──────────────────────────────────────────── */
 
 .badges {
   display: flex;
@@ -81,6 +91,7 @@
   background: rgba(99, 102, 241, 0.1);
   color: var(--primary);
   border: 1px solid rgba(99, 102, 241, 0.2);
+  white-space: nowrap;
 }
 
 .badge.ai {
@@ -93,27 +104,33 @@
   border-color: rgba(34, 197, 94, 0.2);
 }
 
+/* ─── Headline ────────────────────────────────────────── */
+
 .headline {
-  font-size: 3.5rem;
-  font-weight: 800;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 700;
   line-height: 1.1;
-  margin-bottom: 24px;
   letter-spacing: -0.02em;
+  margin-bottom: 24px;
 }
 
 .highlight {
   background: var(--gradient);
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
+/* ─── Subtitle ────────────────────────────────────────── */
+
 .subtitle {
-  font-size: 1.25rem;
+  font-size: clamp(1rem, 1.5vw, 1.25rem);
   line-height: 1.6;
   color: var(--text-muted);
   margin-bottom: 32px;
 }
+
+/* ─── Trust row ───────────────────────────────────────── */
 
 .trust {
   display: flex;
@@ -122,6 +139,7 @@
   margin-bottom: 40px;
   color: var(--text-muted);
   font-size: 0.95rem;
+  flex-wrap: wrap;
 }
 
 .avatars {
@@ -140,10 +158,17 @@
   font-weight: bold;
   font-size: 14px;
   border: 2px solid var(--bg);
+  flex-shrink: 0;
+}
+
+.avatar:not(:first-child) {
+  margin-left: -10px;
 }
 
 .avatar:nth-child(2) { background: #a855f7; }
 .avatar:nth-child(3) { background: #ec4899; }
+
+/* ─── CTA group ───────────────────────────────────────── */
 
 .cta-group {
   display: flex;
@@ -159,6 +184,7 @@
   cursor: pointer;
   transition: all 0.22s ease;
   border: none;
+  white-space: nowrap;
 }
 
 .btn.primary {
@@ -181,14 +207,13 @@
 
 .btn.secondary:hover {
   background: rgba(226, 232, 240, 0.6);
-  /* light mode */
 }
 
 .dark .btn.secondary:hover {
   background: rgba(51, 65, 85, 0.6);
 }
 
-/* ─────────────── Right side (video/mockup) ─────────────── */
+/* ─── Right content (mockup / video) ─────────────────── */
 
 .right-content {
   position: relative;
@@ -202,6 +227,7 @@
   box-shadow: var(--shadow-sm), 0 0 0 1px var(--border);
   aspect-ratio: 16 / 10;
   max-height: 520px;
+  width: 100%;
 }
 
 .video-placeholder {
@@ -215,6 +241,29 @@
   padding: 40px;
   background: linear-gradient(135deg, #4f46e5, #7c3aed);
   font-size: 1.1rem;
+}
+
+.demo-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-wrapper {
+  position: relative;
+  width: 100%;
+  height: 0;
+  padding-bottom: 56.25%;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.video-wrapper iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
 }
 
 .floating-label {
@@ -231,6 +280,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  z-index: 2;
 }
 
 .status-badge {
@@ -243,39 +293,245 @@
   padding: 6px 14px;
   border-radius: 999px;
   font-size: 0.85rem;
+  z-index: 2;
 }
 
-/* Responsive */
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+═══════════════════════════════════════════════════════ */
+
+/* ── Large desktop (1400px+) ──────────────────────────── */
+@media (min-width: 1400px) {
+  .hero {
+    padding: 100px 40px 140px;
+  }
+
+  .content-grid {
+    gap: 80px;
+  }
+}
+
+/* ── Standard laptop / desktop (1025px – 1399px) ─────── */
+@media (min-width: 1025px) and (max-width: 1399px) {
+  .hero {
+    padding: 80px 32px 120px;
+  }
+
+  .content-grid {
+    gap: 56px;
+  }
+
+  .headline {
+    font-size: 3rem;
+  }
+}
+
+/* ── Tablet landscape / small laptop (769px – 1024px) ─── */
 @media (max-width: 1024px) {
   .content-grid {
     grid-template-columns: 1fr;
-    gap: 64px;
+    gap: 48px;
   }
 
-  .headline {
-    font-size: 2.8rem;
+  .left-content {
+    max-width: 100%;
+    text-align: center;
   }
 
+  /* Centre badges, trust and CTAs */
+  .badges {
+    justify-content: center;
+  }
+
+  .trust {
+    justify-content: center;
+  }
+
+  .cta-group {
+    justify-content: center;
+  }
+
+  /* Video above text on tablet */
   .right-content {
     order: -1;
+    max-width: 720px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .mockup-container {
+    max-height: 400px;
   }
 }
 
-@media (max-width: 640px) {
+/* ── Tablet portrait (641px – 768px) ─────────────────── */
+@media (max-width: 768px) {
   .hero {
-    padding: 60px 16px 80px;
+    padding: 60px 20px 80px;
   }
 
-  .headline {
-    font-size: 2.4rem;
+  .content-grid {
+    gap: 40px;
+  }
+
+  .mockup-container {
+    max-height: 340px;
+    border-radius: 16px;
+  }
+
+  .floating-label {
+    top: 16px;
+    left: 16px;
+    font-size: 0.8rem;
+    padding: 6px 12px;
+  }
+
+  .status-badge {
+    bottom: 14px;
+    right: 14px;
+    font-size: 0.78rem;
+    padding: 5px 12px;
+  }
+
+  .trust {
+    gap: 10px;
+    font-size: 0.875rem;
+  }
+
+  .avatar {
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
+  }
+
+  .badge {
+    font-size: 13px;
+    padding: 5px 12px;
+  }
+}
+
+/* ── Mobile large (481px – 640px) ────────────────────── */
+@media (max-width: 640px) {
+  .hero {
+    padding: 52px 16px 72px;
   }
 
   .cta-group {
     flex-direction: column;
+    gap: 12px;
+    width: 100%;
   }
 
   .btn {
     width: 100%;
     text-align: center;
+    padding: 14px 24px;
+  }
+
+  .mockup-container {
+    max-height: 260px;
+    border-radius: 14px;
+  }
+
+  .video-placeholder {
+    font-size: 0.95rem;
+    padding: 24px;
+  }
+}
+
+/* ── Mobile standard (361px – 480px) ─────────────────── */
+@media (max-width: 480px) {
+  .hero {
+    padding: 44px 14px 64px;
+  }
+
+  .theme-toggle {
+    top: 16px;
+    right: 16px;
+  }
+
+  .badges {
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .badge {
+    font-size: 12px;
+    padding: 4px 10px;
+  }
+
+  .trust {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 28px;
+    font-size: 0.85rem;
+    text-align: center;
+  }
+
+  .mockup-container {
+    max-height: 220px;
+    border-radius: 12px;
+  }
+
+  .floating-label {
+    top: 12px;
+    left: 12px;
+    font-size: 0.72rem;
+    padding: 5px 10px;
+    gap: 6px;
+  }
+
+  .status-badge {
+    bottom: 10px;
+    right: 10px;
+    font-size: 0.72rem;
+    padding: 4px 10px;
+  }
+
+  .subtitle {
+    margin-bottom: 24px;
+  }
+}
+
+/* ── Mobile small (≤360px) ───────────────────────────── */
+@media (max-width: 360px) {
+  .hero {
+    padding: 40px 12px 56px;
+  }
+
+  .content-grid {
+    gap: 28px;
+  }
+
+  .badges {
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+
+  .badge {
+    font-size: 11px;
+    padding: 4px 9px;
+  }
+
+  .btn {
+    font-size: 0.92rem;
+    padding: 13px 20px;
+  }
+
+  .avatar {
+    width: 26px;
+    height: 26px;
+    font-size: 11px;
+  }
+
+  .mockup-container {
+    max-height: 190px;
+    border-radius: 10px;
+  }
+
+  .floating-label,
+  .status-badge {
+    display: none; /* too cramped on tiny screens */
   }
 }

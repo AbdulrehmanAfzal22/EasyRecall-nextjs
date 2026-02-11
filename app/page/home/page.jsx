@@ -2,14 +2,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Moon, Sun } from "lucide-react";
+
 import "./home.css";
 
 export default function Hero() {
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
-    // Load saved theme or system preference
     const saved = localStorage.getItem("theme");
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
@@ -38,18 +37,19 @@ export default function Hero() {
     <section className="hero">
       <div className="hero-container">
 
-        {/* Theme toggle (top-right corner) */}
+        {/* Theme toggle – uncomment if you want it visible */}
         {/* <button
           onClick={toggleTheme}
           className="theme-toggle"
           aria-label="Toggle dark/light mode"
+          title="Toggle theme"
         >
           {isDark ? <Sun size={20} /> : <Moon size={20} />}
         </button> */}
 
         <div className="content-grid">
 
-          {/* Left - Text content */}
+          {/* ─── Left side – Text & CTAs ─── */}
           <div className="left-content">
             <div className="badges">
               <span className="badge ai">✦ AI-Powered Study Tool</span>
@@ -71,7 +71,6 @@ export default function Hero() {
 
             <div className="trust">
               <div className="avatars">
-                {/* You can replace with real avatar images */}
                 <div className="avatar">M</div>
                 <div className="avatar">A</div>
                 <div className="avatar">S</div>
@@ -85,24 +84,49 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Right - Video / Mockup area */}
+          {/* ─── Right side – Video / mockup area ─── */}
           <div className="right-content">
             <div className="mockup-container">
-              {/* You can replace this div with <video>, <iframe> or screenshot */}
+
+              {/* === Replace everything below this line with your real video === */}
+
+              {/* Option A: Self-hosted video (recommended for best performance) */}
+              {/* <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="demo-video"
+                poster="/images/poster.jpg"   // optional
+              >
+                <source src="/videos/your-demo.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video> */}
+
+              {/* Option B: YouTube embed (easy & good for existing videos) */}
+              {/* <div className="video-wrapper">
+                <iframe
+                  src="https://www.youtube.com/embed/XXXXXXXXXXX?autoplay=1&mute=1&loop=1&playlist=XXXXXXXXXXX&controls=0&modestbranding=1"
+                  title="EasyRecall Demo"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div> */}
+
+              {/* === Placeholder (keep only if you haven't added video yet) === */}
               <div className="video-placeholder">
                 <span>Video / Interactive Demo Here</span>
-                <p>(paste your video embed / player code here)</p>
+                <p>Paste your &lt;video&gt; or &lt;iframe&gt; code here</p>
               </div>
 
-              {/* Optional floating label like in screenshot */}
-              <div className="floating-label">
+              {/* Optional elements from your original design */}
+              {/* <div className="floating-label">
                 <div className="icon">📚</div>
                 <span>Smart Learning</span>
-              </div>
+              </div> */}
 
-              <div className="status-badge">
-                Showing 1 result
-              </div>
+              <div className="status-badge">Showing 1 result</div>
+
             </div>
           </div>
 
