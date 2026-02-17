@@ -532,6 +532,6 @@
 
   .floating-label,
   .status-badge {
-    display: none; /* too cramped on tiny screens */
+    display: none; 
   }
 }

@@ -10,19 +10,19 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   /* ── Theme init ───────────────────────────────────── */
-  useEffect(() => {
-    const saved = localStorage.getItem("theme");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+useEffect(() => {
+  const saved = localStorage.getItem("theme");
 
-    if (saved === "dark" || (!saved && prefersDark)) {
-      document.documentElement.classList.add("dark");
-      setIsDark(true);
-    } else {
-      document.documentElement.classList.remove("dark");
-      setIsDark(false);
-    }
-  }, []);
-
+  if (saved === "light") {
+    document.documentElement.classList.remove("dark");
+    setIsDark(false);
+  } else {
+    // Default = dark
+    document.documentElement.classList.add("dark");
+    localStorage.setItem("theme", "dark");
+    setIsDark(true);
+  }
+}, []);
   /* ── Lock body scroll when mobile menu is open ────── */
   useEffect(() => {
     if (menuOpen) {
@@ -92,11 +92,11 @@ export default function Navbar() {
               <a href="#how-it-works" className="nav-link">How it Works</a>
               <a href="#pricing"     className="nav-link">Pricing</a>
               <a href="#faq"         className="nav-link">FAQ</a>
-              <a href="/blog"        className="nav-link">Blog</a>
-              <div className="free-tools">
+              {/* <a href="/blog"        className="nav-link">Blog</a> */}
+              {/* <div className="free-tools">
                 Free Tools
                 <span className="green-dot">●</span>
-              </div>
+              </div> */}
             </div>
 
             {/* ── RIGHT: Actions ────────────────────── */}
@@ -140,20 +140,13 @@ export default function Navbar() {
         aria-hidden={!menuOpen}
       >
         <nav className="mobile-nav-links" aria-label="Mobile navigation">
-          <a
-            href="#features"
-            className="mobile-nav-link"
-            onClick={handleMobileLinkClick}
-          >
-            Features
-          </a>
-          <a
-            href="#how-it-works"
-            className="mobile-nav-link"
-            onClick={handleMobileLinkClick}
-          >
-            How it Works
-          </a>
+       <a href="#features" className="mobile-nav-link" onClick={handleMobileLinkClick}>
+  Features
+</a>
+
+<a href="#how-it-works" className="mobile-nav-link" onClick={handleMobileLinkClick}>
+  How it Works
+</a>
           <a
             href="#pricing"
             className="mobile-nav-link"
@@ -168,18 +161,18 @@ export default function Navbar() {
           >
             FAQ
           </a>
-          <a
+          {/* <a
             href="/blog"
             className="mobile-nav-link"
             onClick={handleMobileLinkClick}
           >
             Blog
-          </a>
+          </a> */}
 
-          <div className="mobile-free-tools">
+          {/* <div className="mobile-free-tools">
             Free Tools
             <span className="green-dot">●</span>
-          </div>
+          </div> */}
         </nav>
 
         <div className="mobile-divider" />

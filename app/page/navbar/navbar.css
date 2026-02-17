@@ -24,14 +24,17 @@
 
 /* ─── Base navbar ─────────────────────────────────── */
 .navbar {
-  position: sticky;
+  position: fixed;   /* change from sticky */
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 1000;
   background: var(--bg);
   border-bottom: 1px solid var(--border);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
+
 
 .navbar-container {
   max-width: 1400px;
