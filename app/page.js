@@ -5,7 +5,7 @@ import Hero from "./page/home/page";
 import FeaturesSection from "./page/feature/page";
 import HowItWorks from "./page/How-its-work/page";
 import Pricing from "./page/pricing/pricing";
-
+import FAQ from "./page/faq/page";
 
 export default function Home() {
   return (
@@ -21,9 +21,15 @@ export default function Home() {
         <HowItWorks />
       </section>
 
-      <section id="pricing" className="pricing">
+   <section id="pricing" className="pricing">
         <Pricing />
       </section>
+
+<section id="faq" className="faq">
+        <FAQ />
+      </section>
+
+   
     </>
   );
 }
