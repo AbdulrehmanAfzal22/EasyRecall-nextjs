@@ -20,7 +20,7 @@ html {
 }
 
 body {
-  color: var(--foreground);
+  color: #6a91d4;
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;

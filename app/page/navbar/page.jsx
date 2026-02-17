@@ -92,11 +92,11 @@ useEffect(() => {
               <a href="#how-it-works" className="nav-link">How it Works</a>
               <a href="#pricing"     className="nav-link">Pricing</a>
               <a href="#faq"         className="nav-link">FAQ</a>
-              <a href="/blog"        className="nav-link">Blog</a>
-              <div className="free-tools">
+              {/* <a href="/blog"        className="nav-link">Blog</a> */}
+              {/* <div className="free-tools">
                 Free Tools
                 <span className="green-dot">●</span>
-              </div>
+              </div> */}
             </div>
 
             {/* ── RIGHT: Actions ────────────────────── */}
@@ -161,18 +161,18 @@ useEffect(() => {
           >
             FAQ
           </a>
-          <a
+          {/* <a
             href="/blog"
             className="mobile-nav-link"
             onClick={handleMobileLinkClick}
           >
             Blog
-          </a>
+          </a> */}
 
-          <div className="mobile-free-tools">
+          {/* <div className="mobile-free-tools">
             Free Tools
             <span className="green-dot">●</span>
-          </div>
+          </div> */}
         </nav>
 
         <div className="mobile-divider" />

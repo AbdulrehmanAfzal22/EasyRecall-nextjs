@@ -4,7 +4,9 @@ import Navbar from "./page/navbar/page";
 import Hero from "./page/home/page";
 import FeaturesSection from "./page/feature/page";
 import HowItWorks from "./page/How-its-work/page";
-import { Import } from "lucide-react";
+import Pricing from "./page/pricing/pricing";
+
+
 export default function Home() {
   return (
     <>
@@ -17,6 +19,10 @@ export default function Home() {
 
       <section id="how-it-works" className="features">
         <HowItWorks />
+      </section>
+
+      <section id="pricing" className="pricing">
+        <Pricing />
       </section>
     </>
   );

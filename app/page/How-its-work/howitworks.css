@@ -5,6 +5,7 @@
   background: var(--bg);           /* ← use variable */
   color: var(--text);              /* ← use variable */
   box-sizing: border-box;
+      margin-top: -150px;
 }
 
 /* Header */
