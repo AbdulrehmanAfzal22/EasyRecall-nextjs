@@ -1,0 +1,39 @@
+/* Add this to your existing CSS */
+
+:root {
+  --main-bg: #f8fafc;
+  --text-color: #0f172a;
+}
+
+.dark {
+  --main-bg: #0f172a;
+  --text-color: #f1f5f9;
+}
+
+.dashboard-shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--main-bg);
+  color: var(--text-color);
+}
+
+.dashboard-main {
+  flex: 1;
+  min-width: 0;
+  padding: 40px;
+  overflow-y: auto;
+  height: 100vh; /* 👈 main scrolls independently */
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .dashboard-main {
+    padding: 32px 28px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-main {
+    padding: 24px 16px;
+  }
+}

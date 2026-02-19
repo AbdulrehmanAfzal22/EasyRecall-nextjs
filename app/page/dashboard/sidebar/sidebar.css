@@ -1,0 +1,98 @@
+:root {
+  --sidebar-bg:        #ffffff;
+  --sidebar-border:    #e2e8f0;
+  --sidebar-text:      #64748b;
+  --sidebar-text-hover:#0f172a;
+  --sidebar-active-bg: rgba(99,102,241,0.08);
+  --sidebar-active-txt:#6366f1;
+  --sidebar-btn-bg:    #f1f5f9;
+  --sidebar-btn-hover: #e2e8f0;
+}
+
+.dark {
+  --sidebar-bg:        #0d1526;
+  --sidebar-border:    #1e293b;
+  --sidebar-text:      #94a3b8;
+  --sidebar-text-hover:#f1f5f9;
+  --sidebar-active-bg: rgba(99,102,241,0.15);
+  --sidebar-active-txt:#818cf8;
+  --sidebar-btn-bg:    #1e293b;
+  --sidebar-btn-hover: #334155;
+}
+
+.sidebar {
+  width: 240px;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  min-height: 100vh;
+  padding: 20px 16px;
+  transition: width 0.25s cubic-bezier(0.4,0,0.2,1), background 0.25s ease, border-color 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar.collapsed { width: 64px; }
+
+.sidebar-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-shrink: 0;
+}
+
+.sidebar.collapsed .sidebar-top-row {
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.sidebar-icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--sidebar-border);
+  background: var(--sidebar-btn-bg);
+  color: var(--sidebar-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.25s ease;
+  flex-shrink: 0;
+}
+
+.sidebar-icon-btn:hover {
+  background: var(--sidebar-btn-hover);
+  color: var(--sidebar-text-hover);
+}
+
+.sidebar-nav { display: flex; flex-direction: column; gap: 4px; }
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--sidebar-text);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: 'Inter', ui-sans-serif, sans-serif;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.sidebar-link:hover   { background: var(--sidebar-active-bg); color: var(--sidebar-text-hover); }
+.sidebar-link.active  { background: var(--sidebar-active-bg); color: var(--sidebar-active-txt); }
+
+.sidebar.collapsed .sidebar-link { justify-content: center; padding: 10px; }
+
+.sidebar-icon  { flex-shrink: 0; }
+.sidebar-label { overflow: hidden; text-overflow: ellipsis; }
+
+@media (max-width: 768px) { .sidebar { display: none; } }
