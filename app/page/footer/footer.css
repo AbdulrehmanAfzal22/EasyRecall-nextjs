@@ -1,0 +1,147 @@
+/* Footer.css */
+
+/* ─── CSS variables (mirrors hero.css + navbar.css) ─
+   Declaring here so Footer works even if loaded alone.
+   If your global CSS already declares these on :root,
+   this is safely overridden by the same values.
+─────────────────────────────────────────────────── */
+:root {
+  --bg:         #ffffff;
+  --border:     #e2e8f0;
+  --text:       #0f172a;
+  --text-muted: #475569;
+}
+
+.dark {
+  --bg:         #0f172a;
+  --border:     #334155;
+  --text:       #f1f5f9;
+  --text-muted: #94a3b8;
+}
+
+/* ─── Base footer ────────────────────────────────── */
+.footer {
+  width: 100%;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.footer-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.footer-inner {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* ─── Left block ─────────────────────────────────── */
+.footer-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.footer-copy,
+.footer-region {
+  color: var(--text-muted);
+  font-size: 13.5px;
+  font-weight: 400;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  white-space: nowrap;
+}
+
+.footer-dot {
+  color: var(--text-muted);
+  font-size: 13px;
+  opacity: 0.5;
+}
+
+.footer-eu {
+  font-size: 10px;
+  font-weight: 600;
+  vertical-align: super;
+  letter-spacing: 0.04em;
+  opacity: 0.75;
+}
+
+/* ─── Right block ────────────────────────────────── */
+.footer-right {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.footer-email {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--text-muted);
+  font-size: 13.5px;
+  font-weight: 400;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  text-decoration: none;
+  transition: color 0.15s ease;
+  white-space: nowrap;
+}
+
+.footer-email:hover {
+  color: var(--text);
+}
+
+.footer-email-icon {
+  flex-shrink: 0;
+  opacity: 0.75;
+  transition: opacity 0.15s ease;
+}
+
+.footer-email:hover .footer-email-icon {
+  opacity: 1;
+}
+
+/* ─── Responsive ─────────────────────────────────── */
+@media (min-width: 1200px) {
+  .footer-container {
+    padding: 0 40px;
+  }
+}
+
+@media (max-width: 1024px) and (min-width: 769px) {
+  .footer-container {
+    padding: 0 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .footer-container {
+    padding: 0 16px;
+  }
+
+  .footer-inner {
+    height: auto;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 18px 0;
+    text-align: center;
+  }
+
+  .footer-left {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-copy,
+  .footer-region,
+  .footer-email {
+    font-size: 12.5px;
+  }
+}

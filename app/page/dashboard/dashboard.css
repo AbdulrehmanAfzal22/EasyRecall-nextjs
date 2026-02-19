@@ -1,0 +1,211 @@
+/* dashboard.css */
+
+:root {
+  --card-bg:    #ffffff;
+  --card-border:#e2e8f0;
+  --text:       #0f172a;
+  --text-muted: #64748b;
+  --primary:    #6366f1;
+}
+
+.dark {
+  --card-bg:    #1e293b;
+  --card-border:#334155;
+  --text:       #f1f5f9;
+  --text-muted: #94a3b8;
+  --primary:    #818cf8;
+}
+
+/* ─── Page wrapper ───────────────────────────────────── */
+.dash-page {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  max-width: 1100px;
+}
+
+/* ─── Header ─────────────────────────────────────────── */
+.dash-page {
+    display: flex;
+    flex-direction: column;
+    gap: 92px;
+}
+
+.dash-title {
+  font-size: clamp(1.6rem, 3vw, 2rem);
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.dash-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* ─── Stat cards ─────────────────────────────────────── */
+.dash-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.stat-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stat-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.stat-value {
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.stat-note {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* ─── Plan card ──────────────────────────────────────── */
+.plan-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    flex-direction: column;
+    gap: 24px;
+    padding: 91px 52px 40px;
+    display: flex;
+}
+
+.plan-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.plan-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.plan-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 4px 0 0;
+}
+
+.upgrade-btn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s ease;
+}
+
+.upgrade-btn:hover {
+  opacity: 0.88;
+}
+
+/* ─── Usage rows ─────────────────────────────────────── */
+.usage-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.usage-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.usage-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.usage-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.usage-count {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.usage-track {
+  height: 6px;
+  background: var(--card-border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.usage-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+/* ─── Plan footer ────────────────────────────────────── */
+.plan-footer {
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-muted);
+  padding-top: 4px;
+  border-top: 1px solid var(--card-border);
+}
+
+.plan-upgrade-link {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.plan-upgrade-link:hover {
+  text-decoration: underline;
+}
+
+/* ─── Responsive ─────────────────────────────────────── */
+@media (max-width: 768px) {
+  .dash-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .plan-card {
+    padding: 20px 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  .dash-stats {
+    grid-template-columns: 1fr;
+  }
+}

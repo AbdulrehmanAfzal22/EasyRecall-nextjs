@@ -6,11 +6,13 @@ import FeaturesSection from "./page/feature/page";
 import HowItWorks from "./page/How-its-work/page";
 import Pricing from "./page/pricing/pricing";
 import FAQ from "./page/faq/page";
-
+import Footer from "./page/footer/paje";
+import DashboardLayout from "./page/layout/page";
 export default function Home() {
   return (
     <>
-      <Navbar />
+    <DashboardLayout/>
+      {/* <Navbar />
       <Hero />
 
       <section id="features" className="features">
@@ -28,7 +30,9 @@ export default function Home() {
 <section id="faq" className="faq">
         <FAQ />
       </section>
-
+<section id="footer" className="footer">
+        <Footer />
+      </section> */}
    
     </>
   );
