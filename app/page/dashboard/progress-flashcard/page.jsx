@@ -1,7 +1,13 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { loadFlashcards, loadProgress, computeStats, clearProgress, saveSession } from "@/lib/flashcardStore";
+import {
+  loadFlashcards,
+  loadProgress,
+  computeStats,
+  clearProgress,
+  saveSession,
+} from "@/lib/flashcardStore";
 import "./progress.css";
 
 const RATING_META = [
@@ -52,7 +58,10 @@ export default function FlashcardProgress() {
           <span style={{ fontSize: 52 }}>📊</span>
           <h2>No data yet</h2>
           <p>Complete some flashcard reviews to see your progress here.</p>
-          <button className="ci-btn ci-primary" onClick={() => router.push("/page/dashboard/flashcard")}>
+          <button
+            className="ci-btn ci-primary"
+            onClick={() => router.push("/page/dashboard/flashcard")}
+          >
             Start Studying →
           </button>
         </div>
@@ -75,7 +84,10 @@ export default function FlashcardProgress() {
           <p>{stats.seen} of {stats.total} cards reviewed · {stats.mastered} mastered</p>
         </div>
         <div className="topbar-right">
-          <button className="ci-btn ci-ghost ci-btn-sm" onClick={() => router.push("/page/dashboard/flashcard")}>
+          <button
+            className="ci-btn ci-ghost ci-btn-sm"
+            onClick={() => router.push("/page/dashboard/flashcard")}
+          >
             ← Back to Cards
           </button>
         </div>
@@ -143,7 +155,6 @@ export default function FlashcardProgress() {
                 />
               );
             })}
-            {/* unseen */}
             <div
               className="fcp-bar-seg fcp-bar-seg--unseen"
               style={{ width: `${(stats.unseen / stats.total) * 100}%` }}
@@ -166,8 +177,18 @@ export default function FlashcardProgress() {
 
         {/* ── Tabs ── */}
         <div className="fcp-tabs">
-          <button className={`fcp-tab ${tab === "overview"   ? "fcp-tab--active" : ""}`} onClick={() => setTab("overview")}>Overview</button>
-          <button className={`fcp-tab ${tab === "breakdown"  ? "fcp-tab--active" : ""}`} onClick={() => setTab("breakdown")}>All Cards</button>
+          <button
+            className={`fcp-tab ${tab === "overview"  ? "fcp-tab--active" : ""}`}
+            onClick={() => setTab("overview")}
+          >
+            Overview
+          </button>
+          <button
+            className={`fcp-tab ${tab === "breakdown" ? "fcp-tab--active" : ""}`}
+            onClick={() => setTab("breakdown")}
+          >
+            All Cards
+          </button>
         </div>
 
         {/* ── Overview cards ── */}

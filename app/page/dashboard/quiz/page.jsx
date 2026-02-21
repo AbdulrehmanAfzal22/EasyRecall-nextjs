@@ -1,21 +1,30 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { loadQuiz, loadQuizProgress, saveMCQAnswer, saveTFAnswer, saveSAAnswer, computeQuizStats, clearQuizProgress } from "@/lib/quizStore";
+import {
+  loadQuiz,
+  loadQuizProgress,
+  saveMCQAnswer,
+  saveTFAnswer,
+  saveSAAnswer,
+  computeQuizStats,
+  clearQuizProgress,
+} from "@/lib/quizStore";
 import "./quiz.css";
 
 // ── Section config ────────────────────────────────────────────────────────
 
 const SECTIONS = [
-  { id: "mcq",   label: "Multiple Choice", icon: "📝", color: "#a78bfa", bg: "rgba(167,139,250,0.1)" },
-  { id: "tf",    label: "True / False",    icon: "✓✗",  color: "#38bdf8", bg: "rgba(56,189,248,0.1)"  },
-  { id: "sa",    label: "Short Answer",    icon: "💬", color: "#fb923c", bg: "rgba(251,146,60,0.1)"   },
+  { id: "mcq", label: "Multiple Choice", icon: "📝", color: "#a78bfa", bg: "rgba(167,139,250,0.1)" },
+  { id: "tf",  label: "True / False",    icon: "✓✗",  color: "#38bdf8", bg: "rgba(56,189,248,0.1)"  },
+  { id: "sa",  label: "Short Answer",    icon: "💬", color: "#fb923c", bg: "rgba(251,146,60,0.1)"   },
 ];
 
 // ── Accuracy scorer for short answers (keyword matching) ──────────────────
+
 function scoreShortAnswer(userAnswer, keyPoints) {
   if (!userAnswer.trim()) return 0;
-  const ua = userAnswer.toLowerCase();
+  const ua   = userAnswer.toLowerCase();
   const hits = keyPoints.filter((kp) => {
     const words = kp.toLowerCase().split(/\s+/).filter((w) => w.length > 3);
     return words.some((w) => ua.includes(w));
@@ -26,13 +35,13 @@ function scoreShortAnswer(userAnswer, keyPoints) {
 export default function QuizPage() {
   const router = useRouter();
 
-  const [quiz,        setQuiz]        = useState(null);
-  const [progress,    setProgress]    = useState({ mcq: {}, tf: {}, sa: {} });
-  const [stats,       setStats]       = useState(null);
-  const [activeTab,   setActiveTab]   = useState("mcq");
-  const [saInputs,    setSaInputs]    = useState({}); // {id: text}
-  const [revealed,    setRevealed]    = useState({}); // {id: true} — SA revealed
-  const [animate,     setAnimate]     = useState(null); // id of last answered
+  const [quiz,      setQuiz]      = useState(null);
+  const [progress,  setProgress]  = useState({ mcq: {}, tf: {}, sa: {} });
+  const [stats,     setStats]     = useState(null);
+  const [activeTab, setActiveTab] = useState("mcq");
+  const [saInputs,  setSaInputs]  = useState({});   // {id: text}
+  const [revealed,  setRevealed]  = useState({});   // {id: true} — SA revealed
+  const [animate,   setAnimate]   = useState(null); // id of last answered
   const sectionRef = useRef(null);
 
   useEffect(() => {
@@ -48,7 +57,7 @@ export default function QuizPage() {
   // ── Answer handlers ───────────────────────────────────────────────────────
 
   const handleMCQ = (q, selected) => {
-    if (progress.mcq[q.id]) return; // locked
+    if (progress.mcq[q.id]) return;
     const correct = selected.startsWith(q.correct);
     const updated = saveMCQAnswer(q.id, selected, correct);
     setProgress(updated);
@@ -87,6 +96,7 @@ export default function QuizPage() {
   };
 
   // ── Empty state ───────────────────────────────────────────────────────────
+
   if (!quiz) return (
     <>
       <div className="topbar">
@@ -107,12 +117,11 @@ export default function QuizPage() {
 
   const scoreColor = (s) => s >= 70 ? "#10b981" : s >= 40 ? "#f59e0b" : "#ef4444";
 
-  // per-section completion
   const mcqDone  = Object.keys(progress.mcq).length;
   const tfDone   = Object.keys(progress.tf).length;
   const saDone   = Object.keys(progress.sa).length;
-  const mcqTotal = quiz.mcq?.length        || 0;
-  const tfTotal  = quiz.trueFalse?.length  || 0;
+  const mcqTotal = quiz.mcq?.length         || 0;
+  const tfTotal  = quiz.trueFalse?.length   || 0;
   const saTotal  = quiz.shortAnswer?.length || 0;
   const total    = mcqTotal + tfTotal + saTotal;
   const answered = mcqDone + tfDone + saDone;
@@ -149,31 +158,35 @@ export default function QuizPage() {
           <div className="qz-section-pills">
             {SECTIONS.map((s) => {
               const done  = s.id === "mcq" ? mcqDone  : s.id === "tf" ? tfDone  : saDone;
-              const total = s.id === "mcq" ? mcqTotal : s.id === "tf" ? tfTotal : saTotal;
-              const pct   = total === 0 ? 0 : Math.round((done / total) * 100);
+              const tot   = s.id === "mcq" ? mcqTotal : s.id === "tf" ? tfTotal : saTotal;
+              const pct   = tot === 0 ? 0 : Math.round((done / tot) * 100);
               return (
-                <div key={s.id} className={`qz-pill ${activeTab === s.id ? "qz-pill--active" : ""}`}
-                  style={{ "--sc": s.color, "--sbg": s.bg }} onClick={() => setActiveTab(s.id)}>
+                <div
+                  key={s.id}
+                  className={`qz-pill ${activeTab === s.id ? "qz-pill--active" : ""}`}
+                  style={{ "--sc": s.color, "--sbg": s.bg }}
+                  onClick={() => setActiveTab(s.id)}
+                >
                   <span className="qz-pill-icon">{s.icon}</span>
                   <span className="qz-pill-label">{s.label}</span>
                   <div className="qz-pill-track">
                     <div className="qz-pill-fill" style={{ width: `${pct}%`, background: s.color }} />
                   </div>
-                  <span className="qz-pill-count">{done}/{total}</span>
+                  <span className="qz-pill-count">{done}/{tot}</span>
                 </div>
               );
             })}
           </div>
         </div>
 
-        {/* ── Score summary (if at least some answered) ── */}
+        {/* ── Score summary ── */}
         {answered > 0 && (
           <div className="qz-score-strip">
             {[
-              { label: "MCQ Accuracy",   val: mcqDone  === 0 ? "—" : `${Math.round((Object.values(progress.mcq).filter(v=>v.correct).length / mcqDone) * 100)}%`,  color: "#a78bfa" },
-              { label: "T/F Accuracy",   val: tfDone   === 0 ? "—" : `${Math.round((Object.values(progress.tf).filter(v=>v.correct).length  / tfDone) * 100)}%`,   color: "#38bdf8" },
-              { label: "Avg SA Score",   val: saDone   === 0 ? "—" : `${Math.round(Object.values(progress.sa).reduce((a,v)=>a+(v.score||0),0) / saDone)}%`,        color: "#fb923c" },
-              { label: "Overall",        val: `${stats?.overallScore ?? 0}%`, color: scoreColor(stats?.overallScore ?? 0) },
+              { label: "MCQ Accuracy", val: mcqDone === 0 ? "—" : `${Math.round((Object.values(progress.mcq).filter(v=>v.correct).length / mcqDone) * 100)}%`, color: "#a78bfa" },
+              { label: "T/F Accuracy", val: tfDone  === 0 ? "—" : `${Math.round((Object.values(progress.tf).filter(v=>v.correct).length  / tfDone)  * 100)}%`, color: "#38bdf8" },
+              { label: "Avg SA Score", val: saDone  === 0 ? "—" : `${Math.round(Object.values(progress.sa).reduce((a,v)=>a+(v.score||0),0) / saDone)}%`,       color: "#fb923c" },
+              { label: "Overall",      val: `${stats?.overallScore ?? 0}%`, color: scoreColor(stats?.overallScore ?? 0) },
             ].map((s) => (
               <div key={s.label} className="qz-score-chip">
                 <span className="qz-score-val" style={{ color: s.color }}>{s.val}</span>
@@ -198,8 +211,8 @@ export default function QuizPage() {
               </div>
               <div className="qz-questions">
                 {quiz.mcq?.map((q, qi) => {
-                  const ans     = progress.mcq[q.id];
-                  const locked  = !!ans;
+                  const ans    = progress.mcq[q.id];
+                  const locked = !!ans;
                   return (
                     <div key={q.id} className={`qz-question-card ${animate === q.id ? "qz-question-card--pop" : ""}`}>
                       <div className="qz-q-header">
@@ -213,14 +226,14 @@ export default function QuizPage() {
                       <p className="qz-q-text">{q.question}</p>
                       <div className="qz-options">
                         {q.options?.map((opt, oi) => {
-                          const letter  = opt.charAt(0);
+                          const letter     = opt.charAt(0);
                           const isSelected = ans?.selected?.charAt(0) === letter;
                           const isCorrect  = letter === q.correct;
                           let state = "";
                           if (locked) {
-                            if (isCorrect)          state = "correct";
-                            else if (isSelected)    state = "wrong";
-                            else                    state = "dim";
+                            if (isCorrect)       state = "correct";
+                            else if (isSelected) state = "wrong";
+                            else                 state = "dim";
                           }
                           return (
                             <button
@@ -231,7 +244,7 @@ export default function QuizPage() {
                             >
                               <span className="qz-option-letter">{letter}</span>
                               <span className="qz-option-text">{opt.slice(3)}</span>
-                              {locked && isCorrect && <span className="qz-option-tick">✓</span>}
+                              {locked && isCorrect  && <span className="qz-option-tick">✓</span>}
                               {locked && isSelected && !isCorrect && <span className="qz-option-tick">✗</span>}
                             </button>
                           );
@@ -277,14 +290,14 @@ export default function QuizPage() {
                       <p className="qz-q-text qz-q-text--statement">"{q.statement}"</p>
                       <div className="qz-tf-row">
                         {[true, false].map((val) => {
-                          const label    = val ? "True" : "False";
-                          const isAns    = ans?.selected === val;
-                          const isRight  = q.correct === val;
+                          const label   = val ? "True" : "False";
+                          const isAns   = ans?.selected === val;
+                          const isRight = q.correct === val;
                           let state = "idle";
                           if (locked) {
-                            if (isRight)       state = "correct";
-                            else if (isAns)    state = "wrong";
-                            else               state = "dim";
+                            if (isRight)    state = "correct";
+                            else if (isAns) state = "wrong";
+                            else            state = "dim";
                           }
                           return (
                             <button
@@ -333,7 +346,10 @@ export default function QuizPage() {
                       <div className="qz-q-header">
                         <span className="qz-q-num">Q{qi + 1}</span>
                         {locked && score !== null && (
-                          <span className="qz-sa-score-badge" style={{ color: scoreColor(score), borderColor: `${scoreColor(score)}44`, background: `${scoreColor(score)}18` }}>
+                          <span
+                            className="qz-sa-score-badge"
+                            style={{ color: scoreColor(score), borderColor: `${scoreColor(score)}44`, background: `${scoreColor(score)}18` }}
+                          >
                             {score}% match
                           </span>
                         )}
@@ -391,7 +407,7 @@ export default function QuizPage() {
 
         {/* ── Bottom nav ── */}
         <div className="qz-bottom-nav">
-          {SECTIONS.map((s, i) => (
+          {SECTIONS.map((s) => (
             <button
               key={s.id}
               className={`qz-bottom-btn ${activeTab === s.id ? "qz-bottom-btn--active" : ""}`}

@@ -184,8 +184,12 @@ export default function ContentIntake() {
                   role="button" tabIndex={0}
                   onKeyDown={(e) => e.key === "Enter" && openPicker()}
                 >
-                  <input ref={inputRef} type="file" multiple accept=".txt,.md,.pdf,.doc,.docx,.ppt,.pptx"
-                    style={{ display: "none" }} onChange={(e) => { addFiles(e.target.files); e.target.value = ""; }} />
+                  <input
+                    ref={inputRef} type="file" multiple
+                    accept=".txt,.md,.pdf,.doc,.docx,.ppt,.pptx"
+                    style={{ display: "none" }}
+                    onChange={(e) => { addFiles(e.target.files); e.target.value = ""; }}
+                  />
                   <FloatingOrbs />
                   {files.length === 0 ? (
                     <div className="ci-drop-empty">
@@ -195,9 +199,20 @@ export default function ContentIntake() {
                         </svg>
                       </div>
                       <div className="ci-drop-title">{drag ? "Release to upload" : "Drag & drop your files here"}</div>
-                      <div className="ci-drop-subtitle">or <button className="ci-drop-browse-link" onClick={(e) => { e.stopPropagation(); openPicker(); }}>browse files</button> from your computer</div>
+                      <div className="ci-drop-subtitle">
+                        or{" "}
+                        <button
+                          className="ci-drop-browse-link"
+                          onClick={(e) => { e.stopPropagation(); openPicker(); }}
+                        >
+                          browse files
+                        </button>{" "}
+                        from your computer
+                      </div>
                       <div className="ci-drop-formats">
-                        {["PDF","DOCX","PPTX","TXT","MD"].map((f) => <span key={f} className="ci-format-chip">{f}</span>)}
+                        {["PDF","DOCX","PPTX","TXT","MD"].map((f) => (
+                          <span key={f} className="ci-format-chip">{f}</span>
+                        ))}
                       </div>
                       <div className="ci-drop-generates">
                         <span className="ci-generates-chip">🃏 Flashcards</span>
@@ -212,15 +227,22 @@ export default function ContentIntake() {
                         <div key={f.id} className="ci-file-card" style={{ "--fc": f.color }}>
                           <div className="ci-file-card-top">
                             <span className="ci-file-ext-badge">{f.label}</span>
-                            <button className="ci-file-remove" onClick={(e) => { e.stopPropagation(); removeFile(f.id); }}>✕</button>
+                            <button
+                              className="ci-file-remove"
+                              onClick={(e) => { e.stopPropagation(); removeFile(f.id); }}
+                            >✕</button>
                           </div>
                           <div className="ci-file-icon">{f.icon}</div>
                           <div className="ci-file-name" title={f.name}>{f.name}</div>
                           <div className="ci-file-size">{f.size}</div>
                         </div>
                       ))}
-                      <button className="ci-add-more-tile" onClick={(e) => { e.stopPropagation(); openPicker(); }}>
-                        <span className="ci-add-more-icon">+</span><span>Add more</span>
+                      <button
+                        className="ci-add-more-tile"
+                        onClick={(e) => { e.stopPropagation(); openPicker(); }}
+                      >
+                        <span className="ci-add-more-icon">+</span>
+                        <span>Add more</span>
                       </button>
                     </div>
                   )}
@@ -301,7 +323,11 @@ export default function ContentIntake() {
               </div>
             )}
 
-            {error && <div className="ci-error-box"><span className="ci-error-icon">⚠</span>{error}</div>}
+            {error && (
+              <div className="ci-error-box">
+                <span className="ci-error-icon">⚠</span>{error}
+              </div>
+            )}
           </>
         ) : (
           <div className="ci-success-state">
@@ -327,9 +353,13 @@ export default function ContentIntake() {
             </div>
             <div className="ci-success-actions">
               <button className="ci-generate-btn" onClick={() => router.push("/page/dashboard/quiz")}>
-                <span className="ci-generate-btn-icon">🧠</span>Take the Quiz<span className="ci-generate-btn-arrow">→</span>
+                <span className="ci-generate-btn-icon">🧠</span>
+                Take the Quiz
+                <span className="ci-generate-btn-arrow">→</span>
               </button>
-              <button className="ci-outline-btn" onClick={() => router.push("/page/dashboard/flashcard")}>🃏 Study Flashcards</button>
+              <button className="ci-outline-btn" onClick={() => router.push("/page/dashboard/flashcard")}>
+                🃏 Study Flashcards
+              </button>
               <button className="ci-text-btn" onClick={clearAll}>Upload new content</button>
             </div>
           </div>

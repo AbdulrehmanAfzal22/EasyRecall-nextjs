@@ -47,7 +47,7 @@ export default function FlashcardPage() {
   const [progress,   setProgress]   = useState({});
   const [rated,      setRated]      = useState(false);
   const [lastRating, setLastRating] = useState(null);
-  const [sliding,    setSliding]    = useState(false); // card exit animation
+  const [sliding,    setSliding]    = useState(false);
 
   // ─── load on mount ────────────────────────────────────────────────────────
 
@@ -102,7 +102,10 @@ export default function FlashcardPage() {
             <div className="fc-empty-icon">🃏</div>
             <h2>No flashcards yet</h2>
             <p>Generate flashcards from the Content Intake page first.</p>
-            <button className="ci-btn ci-primary" onClick={() => router.push("/page/dashboard/content-intake")}>
+            <button
+              className="ci-btn ci-primary"
+              onClick={() => router.push("/page/dashboard/content-intake")}
+            >
               Go to Content Intake →
             </button>
           </div>
@@ -129,7 +132,10 @@ export default function FlashcardPage() {
           </p>
         </div>
         <div className="topbar-right">
-          <button className="ci-btn ci-ghost ci-btn-sm" onClick={() => router.push("/page/dashboard/progress-flashcard")}>
+          <button
+            className="ci-btn ci-ghost ci-btn-sm"
+            onClick={() => router.push("/page/dashboard/progress-flashcard")}
+          >
             📊 Progress
           </button>
         </div>
@@ -149,8 +155,10 @@ export default function FlashcardPage() {
             {cards.map((_, i) => {
               const p = progress[i];
               const color = p
-                ? ["#ef4444","#f59e0b","#10b981"][p.rating]
-                : i === index ? "#a78bfa" : "rgba(255,255,255,0.15)";
+                ? ["#ef4444", "#f59e0b", "#10b981"][p.rating]
+                : i === index
+                  ? "var(--fc-dot-active)"
+                  : "var(--fc-dot-inactive)";
               return (
                 <button
                   key={i}
@@ -166,7 +174,7 @@ export default function FlashcardPage() {
 
         {/* ── Card ── */}
         <div className={`fc-scene ${sliding ? "fc-scene--sliding" : ""}`}>
-          <div className={`fc-wrapper fc-wrapper--page`}>
+          <div className="fc-wrapper fc-wrapper--page">
             <div className={`fc-card ${flipped ? "is-flipped" : ""}`}>
 
               {/* FRONT */}
@@ -207,7 +215,7 @@ export default function FlashcardPage() {
                 key={r.id}
                 className={`fc-rate-btn
                   ${rated && lastRating === r.id ? "fc-rate-btn--selected" : ""}
-                  ${rated && lastRating !== r.id ? "fc-rate-btn--faded" : ""}
+                  ${rated && lastRating !== r.id ? "fc-rate-btn--faded"    : ""}
                 `}
                 style={{ "--rc": r.color, "--rbg": r.bg, "--rbd": r.border }}
                 onClick={() => handleRate(r.id)}
@@ -244,7 +252,11 @@ export default function FlashcardPage() {
           <button className="fc-nav-btn" onClick={() => navigate(-1)} disabled={index === 0}>
             ← Prev
           </button>
-          <button className="fc-nav-btn" onClick={() => navigate(1)} disabled={index === cards.length - 1}>
+          <button
+            className="fc-nav-btn"
+            onClick={() => navigate(1)}
+            disabled={index === cards.length - 1}
+          >
             Next →
           </button>
         </div>

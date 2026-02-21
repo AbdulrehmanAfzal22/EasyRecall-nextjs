@@ -1,5 +1,230 @@
-/* content-intake.css — full replacement */
+/* content-intake.css — full replacement with dark theme support */
 /* Works alongside your existing dashboard global styles (topbar, page, etc.) */
+
+/* ─── CSS Variables ────────────────────────────────────────────────────── */
+
+:root {
+  /* Light theme */
+  --ci-bg-page:            #f8f7ff;
+  --ci-bg-dropzone:        rgba(99, 102, 241, 0.03);
+  --ci-bg-dropzone-active: rgba(99, 102, 241, 0.08);
+  --ci-bg-card:            #ffffff;
+  --ci-bg-card-hover:      #f5f4ff;
+  --ci-bg-config:          rgba(0, 0, 0, 0.03);
+  --ci-bg-stepper:         rgba(0, 0, 0, 0.05);
+  --ci-bg-loading:         rgba(99, 102, 241, 0.05);
+  --ci-bg-tab:             rgba(0, 0, 0, 0.03);
+  --ci-bg-tab-active:      rgba(99, 102, 241, 0.08);
+  --ci-bg-textarea:        #ffffff;
+  --ci-bg-format-chip:     rgba(0, 0, 0, 0.04);
+
+  --ci-border:             rgba(0, 0, 0, 0.1);
+  --ci-border-strong:      rgba(0, 0, 0, 0.14);
+  --ci-border-accent:      rgba(99, 102, 241, 0.3);
+  --ci-border-tab-active:  rgba(99, 102, 241, 0.45);
+
+  --ci-text-primary:       #0f172a;
+  --ci-text-secondary:     #475569;
+  --ci-text-muted:         #94a3b8;
+  --ci-text-faint:         #cbd5e1;
+  --ci-text-accent:        #6366f1;
+  --ci-text-accent-bright: #4f46e5;
+
+  --ci-accent-1:           #6366f1;
+  --ci-accent-2:           #8b5cf6;
+  --ci-accent-3:           #a78bfa;
+  --ci-accent-4:           #c4b5fd;
+
+  --ci-hero-title:         #0f172a;
+  --ci-hero-accent-from:   #6366f1;
+  --ci-hero-accent-to:     #8b5cf6;
+  --ci-eyebrow-color:      #6366f1;
+  --ci-eyebrow-bg:         rgba(99, 102, 241, 0.08);
+  --ci-eyebrow-border:     rgba(99, 102, 241, 0.2);
+
+  --ci-dropzone-border:    rgba(99, 102, 241, 0.2);
+  --ci-orb-1:              rgba(99, 102, 241, 0.08);
+  --ci-orb-2:              rgba(139, 92, 246, 0.06);
+
+  --ci-drop-icon-bg:       rgba(99, 102, 241, 0.08);
+  --ci-drop-icon-border:   rgba(99, 102, 241, 0.2);
+  --ci-drop-icon-glow:     rgba(99, 102, 241, 0.06);
+  --ci-drop-title:         #0f172a;
+  --ci-drop-subtitle:      #64748b;
+  --ci-format-chip-text:   #94a3b8;
+  --ci-format-chip-border: rgba(0, 0, 0, 0.08);
+
+  --ci-file-card-bg:       #ffffff;
+  --ci-file-card-border:   rgba(0, 0, 0, 0.08);
+  --ci-file-card-hover-bg: #f8f7ff;
+  --ci-file-name:          #1e293b;
+  --ci-file-size:          #94a3b8;
+  --ci-file-remove-bg:     rgba(0, 0, 0, 0.05);
+  --ci-file-remove-color:  #94a3b8;
+
+  --ci-add-more-border:    rgba(99, 102, 241, 0.2);
+  --ci-add-more-bg:        rgba(99, 102, 241, 0.02);
+  --ci-add-more-color:     rgba(99, 102, 241, 0.5);
+  --ci-add-more-icon-bg:   rgba(99, 102, 241, 0.08);
+
+  --ci-config-row-bg:      rgba(0, 0, 0, 0.02);
+  --ci-config-row-border:  rgba(0, 0, 0, 0.06);
+  --ci-config-label:       #94a3b8;
+  --ci-config-value:       #6366f1;
+  --ci-stepper-bg:         rgba(0, 0, 0, 0.04);
+  --ci-stepper-border:     rgba(0, 0, 0, 0.08);
+  --ci-stepper-btn-color:  #64748b;
+  --ci-stepper-val:        #4f46e5;
+
+  --ci-clear-border:       rgba(239, 68, 68, 0.2);
+  --ci-clear-color:        rgba(220, 38, 38, 0.6);
+
+  --ci-gen-btn-shadow:     rgba(99, 102, 241, 0.3);
+
+  --ci-loading-bg:         rgba(99, 102, 241, 0.05);
+  --ci-loading-border:     rgba(99, 102, 241, 0.15);
+  --ci-loading-label:      #64748b;
+  --ci-loading-dot:        #6366f1;
+  --ci-progress-track:     rgba(0, 0, 0, 0.06);
+  --ci-progress-pct:       rgba(99, 102, 241, 0.7);
+
+  --ci-error-bg:           rgba(239, 68, 68, 0.06);
+  --ci-error-border:       rgba(239, 68, 68, 0.2);
+  --ci-error-color:        #dc2626;
+
+  --ci-success-title:      #0f172a;
+  --ci-success-sub:        #64748b;
+
+  --ci-outline-btn-bg:     rgba(0, 0, 0, 0.03);
+  --ci-outline-btn-border: rgba(0, 0, 0, 0.12);
+  --ci-outline-btn-color:  #475569;
+  --ci-text-btn-color:     #94a3b8;
+
+  --ci-tab-color:          #64748b;
+  --ci-tab-active-color:   #6366f1;
+
+  --ci-textarea-border:    rgba(0, 0, 0, 0.1);
+  --ci-textarea-color:     #1e293b;
+  --ci-textarea-focus-border: rgba(99, 102, 241, 0.4);
+  --ci-textarea-placeholder: #94a3b8;
+  --ci-text-meta:          #94a3b8;
+
+  --ci-generates-chip-bg:  rgba(99, 102, 241, 0.07);
+  --ci-generates-chip-border: rgba(99, 102, 241, 0.18);
+  --ci-generates-chip-color: #6366f1;
+}
+
+/* ─── DARK THEME ────────────────────────────────────────────────────────── */
+
+.dark {
+  --ci-bg-page:            #060b18;
+  --ci-bg-dropzone:        rgba(99, 102, 241, 0.03);
+  --ci-bg-dropzone-active: rgba(99, 102, 241, 0.09);
+  --ci-bg-card:            rgba(255, 255, 255, 0.04);
+  --ci-bg-card-hover:      rgba(255, 255, 255, 0.07);
+  --ci-bg-config:          rgba(255, 255, 255, 0.03);
+  --ci-bg-stepper:         rgba(255, 255, 255, 0.06);
+  --ci-bg-loading:         rgba(99, 102, 241, 0.07);
+  --ci-bg-tab:             rgba(255, 255, 255, 0.03);
+  --ci-bg-tab-active:      rgba(99, 102, 241, 0.12);
+  --ci-bg-textarea:        rgba(255, 255, 255, 0.03);
+  --ci-bg-format-chip:     rgba(255, 255, 255, 0.05);
+
+  --ci-border:             rgba(255, 255, 255, 0.08);
+  --ci-border-strong:      rgba(255, 255, 255, 0.12);
+  --ci-border-accent:      rgba(167, 139, 250, 0.25);
+  --ci-border-tab-active:  rgba(99, 102, 241, 0.4);
+
+  --ci-text-primary:       #f1f5f9;
+  --ci-text-secondary:     #94a3b8;
+  --ci-text-muted:         #64748b;
+  --ci-text-faint:         rgba(255, 255, 255, 0.2);
+  --ci-text-accent:        #a78bfa;
+  --ci-text-accent-bright: #c4b5fd;
+
+  --ci-accent-1:           #7c3aed;
+  --ci-accent-2:           #a78bfa;
+  --ci-accent-3:           #c4b5fd;
+  --ci-accent-4:           #ddd6fe;
+
+  --ci-hero-title:         #ffffff;
+  --ci-hero-accent-from:   #c4b5fd;
+  --ci-hero-accent-to:     #7c3aed;
+  --ci-eyebrow-color:      #a78bfa;
+  --ci-eyebrow-bg:         rgba(167, 139, 250, 0.1);
+  --ci-eyebrow-border:     rgba(167, 139, 250, 0.2);
+
+  --ci-dropzone-border:    rgba(167, 139, 250, 0.25);
+  --ci-orb-1:              rgba(124, 58, 237, 0.15);
+  --ci-orb-2:              rgba(167, 139, 250, 0.12);
+
+  --ci-drop-icon-bg:       rgba(124, 58, 237, 0.15);
+  --ci-drop-icon-border:   rgba(124, 58, 237, 0.3);
+  --ci-drop-icon-glow:     rgba(124, 58, 237, 0.06);
+  --ci-drop-title:         #ffffff;
+  --ci-drop-subtitle:      rgba(255, 255, 255, 0.4);
+  --ci-format-chip-text:   rgba(255, 255, 255, 0.4);
+  --ci-format-chip-border: rgba(255, 255, 255, 0.1);
+
+  --ci-file-card-bg:       rgba(255, 255, 255, 0.04);
+  --ci-file-card-border:   rgba(255, 255, 255, 0.1);
+  --ci-file-card-hover-bg: rgba(255, 255, 255, 0.07);
+  --ci-file-name:          rgba(255, 255, 255, 0.8);
+  --ci-file-size:          rgba(255, 255, 255, 0.3);
+  --ci-file-remove-bg:     rgba(255, 255, 255, 0.07);
+  --ci-file-remove-color:  rgba(255, 255, 255, 0.4);
+
+  --ci-add-more-border:    rgba(167, 139, 250, 0.25);
+  --ci-add-more-bg:        rgba(124, 58, 237, 0.04);
+  --ci-add-more-color:     rgba(167, 139, 250, 0.6);
+  --ci-add-more-icon-bg:   rgba(124, 58, 237, 0.15);
+
+  --ci-config-row-bg:      rgba(255, 255, 255, 0.03);
+  --ci-config-row-border:  rgba(255, 255, 255, 0.07);
+  --ci-config-label:       rgba(255, 255, 255, 0.35);
+  --ci-config-value:       #c4b5fd;
+  --ci-stepper-bg:         rgba(255, 255, 255, 0.06);
+  --ci-stepper-border:     rgba(255, 255, 255, 0.1);
+  --ci-stepper-btn-color:  rgba(255, 255, 255, 0.6);
+  --ci-stepper-val:        #c4b5fd;
+
+  --ci-clear-border:       rgba(255, 80, 80, 0.2);
+  --ci-clear-color:        rgba(255, 130, 130, 0.6);
+
+  --ci-gen-btn-shadow:     rgba(124, 58, 237, 0.4);
+
+  --ci-loading-bg:         rgba(124, 58, 237, 0.07);
+  --ci-loading-border:     rgba(124, 58, 237, 0.2);
+  --ci-loading-label:      rgba(255, 255, 255, 0.5);
+  --ci-loading-dot:        #a78bfa;
+  --ci-progress-track:     rgba(255, 255, 255, 0.06);
+  --ci-progress-pct:       rgba(196, 181, 253, 0.7);
+
+  --ci-error-bg:           rgba(239, 68, 68, 0.08);
+  --ci-error-border:       rgba(239, 68, 68, 0.25);
+  --ci-error-color:        #fca5a5;
+
+  --ci-success-title:      #ffffff;
+  --ci-success-sub:        rgba(255, 255, 255, 0.4);
+
+  --ci-outline-btn-bg:     rgba(255, 255, 255, 0.04);
+  --ci-outline-btn-border: rgba(255, 255, 255, 0.12);
+  --ci-outline-btn-color:  rgba(255, 255, 255, 0.7);
+  --ci-text-btn-color:     rgba(255, 255, 255, 0.35);
+
+  --ci-tab-color:          rgba(255, 255, 255, 0.45);
+  --ci-tab-active-color:   #a78bfa;
+
+  --ci-textarea-border:    rgba(255, 255, 255, 0.08);
+  --ci-textarea-color:     rgba(255, 255, 255, 0.8);
+  --ci-textarea-focus-border: rgba(99, 102, 241, 0.45);
+  --ci-textarea-placeholder: rgba(255, 255, 255, 0.2);
+  --ci-text-meta:          rgba(255, 255, 255, 0.25);
+
+  --ci-generates-chip-bg:    rgba(124, 58, 237, 0.12);
+  --ci-generates-chip-border: rgba(167, 139, 250, 0.2);
+  --ci-generates-chip-color:  #c4b5fd;
+}
 
 /* ─── Page layout ──────────────────────────────────────────────────────── */
 
@@ -25,11 +250,11 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.14em;
-  color: #a78bfa;
+  color: var(--ci-eyebrow-color);
   margin-bottom: 14px;
   padding: 5px 12px;
-  background: rgba(167, 139, 250, 0.1);
-  border: 1px solid rgba(167, 139, 250, 0.2);
+  background: var(--ci-eyebrow-bg);
+  border: 1px solid var(--ci-eyebrow-border);
   border-radius: 50px;
 }
 
@@ -37,13 +262,14 @@
   font-size: clamp(26px, 4vw, 36px);
   font-weight: 800;
   line-height: 1.18;
-  color: #fff;
+  color: var(--ci-hero-title);
   letter-spacing: -0.8px;
   margin-bottom: 12px;
+  transition: color 0.25s ease;
 }
 
 .ci-hero-accent {
-  background: linear-gradient(135deg, #c4b5fd 0%, #a78bfa 40%, #7c3aed 100%);
+  background: linear-gradient(135deg, var(--ci-accent-3) 0%, var(--ci-accent-2) 40%, var(--ci-accent-1) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -51,9 +277,47 @@
 
 .ci-hero-sub {
   font-size: 15px;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--ci-text-secondary);
   line-height: 1.6;
   max-width: 520px;
+  transition: color 0.25s ease;
+}
+
+/* ─── Mode tabs ─────────────────────────────────────────────────────────── */
+
+.ci-mode-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.ci-mode-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  border: 1.5px solid var(--ci-border);
+  background: var(--ci-bg-tab);
+  color: var(--ci-tab-color);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ci-mode-tab:hover {
+  background: var(--ci-border);
+  color: var(--ci-text-primary);
+}
+
+.ci-mode-tab--active {
+  background: var(--ci-bg-tab-active);
+  border-color: var(--ci-border-tab-active);
+  color: var(--ci-tab-active-color);
 }
 
 /* ─── Drop zone ────────────────────────────────────────────────────────── */
@@ -61,11 +325,11 @@
 .ci-dropzone {
   position: relative;
   border-radius: 24px;
-  border: 2px dashed rgba(167, 139, 250, 0.25);
+  border: 2px dashed var(--ci-dropzone-border);
   background:
-    radial-gradient(ellipse 70% 60% at 50% 0%, rgba(124, 58, 237, 0.08) 0%, transparent 70%),
-    rgba(255, 255, 255, 0.02);
-  transition: border-color 0.3s ease, background 0.3s ease, transform 0.2s ease;
+    radial-gradient(ellipse 70% 60% at 50% 0%, rgba(99, 102, 241, 0.06) 0%, transparent 70%),
+    var(--ci-bg-dropzone);
+  transition: border-color 0.3s ease, background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
   cursor: pointer;
   overflow: hidden;
   min-height: 280px;
@@ -75,24 +339,24 @@
 }
 
 .ci-dropzone:focus-visible {
-  outline: 2px solid #a78bfa;
+  outline: 2px solid var(--ci-text-accent);
   outline-offset: 3px;
 }
 
 .ci-dropzone--active {
-  border-color: #a78bfa;
+  border-color: var(--ci-text-accent);
   background:
-    radial-gradient(ellipse 80% 70% at 50% 0%, rgba(124, 58, 237, 0.18) 0%, transparent 70%),
-    rgba(124, 58, 237, 0.06);
+    radial-gradient(ellipse 80% 70% at 50% 0%, rgba(99, 102, 241, 0.14) 0%, transparent 70%),
+    var(--ci-bg-dropzone-active);
   transform: scale(1.005);
-  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.12), 0 20px 60px rgba(124, 58, 237, 0.15);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1), 0 20px 60px rgba(99, 102, 241, 0.12);
 }
 
 .ci-dropzone--has-files {
   cursor: default;
   min-height: 240px;
   border-style: solid;
-  border-color: rgba(167, 139, 250, 0.2);
+  border-color: var(--ci-border);
 }
 
 /* ─── Floating orbs ────────────────────────────────────────────────────── */
@@ -112,12 +376,12 @@
   opacity: 0;
 }
 
-.ci-orb--1 { width: 180px; height: 180px; left: -40px; top: -40px;   background: radial-gradient(circle, rgba(124,58,237,0.15), transparent 70%); animation-duration: 14s; animation-delay: 0s;    opacity: 1; }
-.ci-orb--2 { width: 120px; height: 120px; right: 10%; bottom: -20px; background: radial-gradient(circle, rgba(167,139,250,0.12), transparent 70%); animation-duration: 18s; animation-delay: -4s;   opacity: 1; }
-.ci-orb--3 { width:  80px; height:  80px; left: 30%;  top: 20%;      background: radial-gradient(circle, rgba(196,181,253,0.1),  transparent 70%); animation-duration: 22s; animation-delay: -8s;   opacity: 1; }
-.ci-orb--4 { width: 140px; height: 140px; right: -30px; top: 10%;    background: radial-gradient(circle, rgba(124,58,237,0.1),   transparent 70%); animation-duration: 16s; animation-delay: -2s;   opacity: 1; }
-.ci-orb--5 { width:  60px; height:  60px; left: 60%;  bottom: 30%;   background: radial-gradient(circle, rgba(167,139,250,0.15), transparent 70%); animation-duration: 20s; animation-delay: -10s;  opacity: 1; }
-.ci-orb--6 { width: 100px; height: 100px; left: 15%;  bottom: 10%;   background: radial-gradient(circle, rgba(124,58,237,0.08),  transparent 70%); animation-duration: 25s; animation-delay: -6s;   opacity: 1; }
+.ci-orb--1 { width: 180px; height: 180px; left: -40px;  top: -40px;     background: radial-gradient(circle, var(--ci-orb-1), transparent 70%); animation-duration: 14s; animation-delay: 0s;    opacity: 1; }
+.ci-orb--2 { width: 120px; height: 120px; right: 10%;   bottom: -20px;  background: radial-gradient(circle, var(--ci-orb-2), transparent 70%); animation-duration: 18s; animation-delay: -4s;   opacity: 1; }
+.ci-orb--3 { width:  80px; height:  80px; left: 30%;    top: 20%;       background: radial-gradient(circle, var(--ci-orb-2), transparent 70%); animation-duration: 22s; animation-delay: -8s;   opacity: 1; }
+.ci-orb--4 { width: 140px; height: 140px; right: -30px; top: 10%;       background: radial-gradient(circle, var(--ci-orb-1), transparent 70%); animation-duration: 16s; animation-delay: -2s;   opacity: 1; }
+.ci-orb--5 { width:  60px; height:  60px; left: 60%;    bottom: 30%;    background: radial-gradient(circle, var(--ci-orb-2), transparent 70%); animation-duration: 20s; animation-delay: -10s;  opacity: 1; }
+.ci-orb--6 { width: 100px; height: 100px; left: 15%;    bottom: 10%;    background: radial-gradient(circle, var(--ci-orb-1), transparent 70%); animation-duration: 25s; animation-delay: -6s;   opacity: 1; }
 
 @keyframes ci-float {
   0%   { transform: translate(0px,   0px)   scale(1);    }
@@ -144,20 +408,20 @@
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  background: rgba(124, 58, 237, 0.15);
-  border: 1.5px solid rgba(124, 58, 237, 0.3);
+  background: var(--ci-drop-icon-bg);
+  border: 1.5px solid var(--ci-drop-icon-border);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #a78bfa;
+  color: var(--ci-text-accent);
   transition: all 0.3s ease;
-  box-shadow: 0 0 0 8px rgba(124, 58, 237, 0.06);
+  box-shadow: 0 0 0 8px var(--ci-drop-icon-glow);
 }
 
 .ci-dropzone--active .ci-drop-icon-ring {
-  background: rgba(124, 58, 237, 0.25);
-  border-color: #a78bfa;
-  box-shadow: 0 0 0 12px rgba(124, 58, 237, 0.1), 0 0 32px rgba(124, 58, 237, 0.3);
+  background: rgba(99, 102, 241, 0.2);
+  border-color: var(--ci-text-accent);
+  box-shadow: 0 0 0 12px rgba(99, 102, 241, 0.08), 0 0 32px rgba(99, 102, 241, 0.25);
   transform: scale(1.1);
 }
 
@@ -174,19 +438,21 @@
 .ci-drop-title {
   font-size: 20px;
   font-weight: 700;
-  color: #fff;
+  color: var(--ci-drop-title);
   letter-spacing: -0.3px;
+  transition: color 0.25s ease;
 }
 
 .ci-drop-subtitle {
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--ci-drop-subtitle);
+  transition: color 0.25s ease;
 }
 
 .ci-drop-browse-link {
   background: none;
   border: none;
-  color: #a78bfa;
+  color: var(--ci-text-accent);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -196,7 +462,7 @@
   transition: color 0.18s;
 }
 
-.ci-drop-browse-link:hover { color: #c4b5fd; }
+.ci-drop-browse-link:hover { color: var(--ci-text-accent-bright); }
 
 .ci-drop-formats {
   display: flex;
@@ -212,9 +478,29 @@
   letter-spacing: 0.1em;
   padding: 4px 10px;
   border-radius: 50px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.4);
+  background: var(--ci-bg-format-chip);
+  border: 1px solid var(--ci-format-chip-border);
+  color: var(--ci-format-chip-text);
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+.ci-drop-generates {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+.ci-generates-chip {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 50px;
+  background: var(--ci-generates-chip-bg);
+  border: 1px solid var(--ci-generates-chip-border);
+  color: var(--ci-generates-chip-color);
+  transition: all 0.25s ease;
 }
 
 /* ─── Drag overlay shimmer ──────────────────────────────────────────────── */
@@ -224,9 +510,9 @@
   inset: 0;
   border-radius: 22px;
   background: linear-gradient(135deg,
-    rgba(124, 58, 237, 0.08) 0%,
-    rgba(167, 139, 250, 0.12) 50%,
-    rgba(124, 58, 237, 0.08) 100%);
+    rgba(99, 102, 241, 0.06) 0%,
+    rgba(139, 92, 246, 0.1) 50%,
+    rgba(99, 102, 241, 0.06) 100%);
   background-size: 200% 200%;
   animation: ci-shimmer 1.5s linear infinite;
   pointer-events: none;
@@ -256,12 +542,13 @@
   flex-direction: column;
   gap: 6px;
   padding: 16px 14px 14px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--ci-file-card-bg);
+  border: 1px solid var(--ci-file-card-border);
   border-radius: 16px;
   width: 140px;
   transition: all 0.2s ease;
   animation: ci-card-in 0.3s cubic-bezier(0.4, 0, 0.2, 1) both;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
 .ci-file-card::before {
@@ -270,20 +557,20 @@
   inset: 0;
   border-radius: 15px;
   border: 1px solid transparent;
-  background: linear-gradient(135deg, var(--fc, #a78bfa), transparent) border-box;
+  background: linear-gradient(135deg, var(--fc, #6366f1), transparent) border-box;
   -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: destination-out;
   mask-composite: exclude;
-  opacity: 0.3;
+  opacity: 0.25;
   transition: opacity 0.2s;
 }
 
-.ci-file-card:hover::before { opacity: 0.6; }
+.ci-file-card:hover::before { opacity: 0.5; }
 
 .ci-file-card:hover {
-  background: rgba(255, 255, 255, 0.07);
+  background: var(--ci-file-card-hover-bg);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
 @keyframes ci-card-in {
@@ -303,18 +590,18 @@
   letter-spacing: 0.1em;
   padding: 3px 7px;
   border-radius: 50px;
-  color: var(--fc, #a78bfa);
-  background: color-mix(in srgb, var(--fc, #a78bfa) 15%, transparent);
-  border: 1px solid color-mix(in srgb, var(--fc, #a78bfa) 30%, transparent);
+  color: var(--fc, #6366f1);
+  background: color-mix(in srgb, var(--fc, #6366f1) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--fc, #6366f1) 25%, transparent);
 }
 
 .ci-file-remove {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.07);
+  background: var(--ci-file-remove-bg);
   border: none;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--ci-file-remove-color);
   font-size: 10px;
   cursor: pointer;
   display: flex;
@@ -325,8 +612,8 @@
 }
 
 .ci-file-remove:hover {
-  background: rgba(239, 68, 68, 0.2);
-  color: #f87171;
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
 }
 
 .ci-file-icon {
@@ -338,26 +625,29 @@
 .ci-file-name {
   font-size: 12px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--ci-file-name);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: 1.3;
+  transition: color 0.25s ease;
 }
 
 .ci-file-size {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.3);
+  color: var(--ci-file-size);
+  transition: color 0.25s ease;
 }
 
-/* Add more tile */
+/* ─── Add more tile ─────────────────────────────────────────────────────── */
+
 .ci-add-more-tile {
   width: 140px;
   min-height: 130px;
   border-radius: 16px;
-  border: 1.5px dashed rgba(167, 139, 250, 0.25);
-  background: rgba(124, 58, 237, 0.04);
-  color: rgba(167, 139, 250, 0.6);
+  border: 1.5px dashed var(--ci-add-more-border);
+  background: var(--ci-add-more-bg);
+  color: var(--ci-add-more-color);
   font-family: inherit;
   font-size: 13px;
   font-weight: 600;
@@ -371,9 +661,9 @@
 }
 
 .ci-add-more-tile:hover {
-  border-color: #a78bfa;
-  background: rgba(124, 58, 237, 0.1);
-  color: #a78bfa;
+  border-color: var(--ci-text-accent);
+  background: rgba(99, 102, 241, 0.08);
+  color: var(--ci-text-accent);
   transform: translateY(-2px);
 }
 
@@ -382,7 +672,7 @@
   line-height: 1;
   width: 36px;
   height: 36px;
-  background: rgba(124, 58, 237, 0.15);
+  background: var(--ci-add-more-icon-bg);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -396,11 +686,12 @@
   align-items: center;
   justify-content: space-between;
   padding: 14px 20px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: var(--ci-config-row-bg);
+  border: 1px solid var(--ci-config-row-border);
   border-radius: 16px;
   gap: 16px;
   flex-wrap: wrap;
+  transition: background 0.25s ease, border-color 0.25s ease;
 }
 
 .ci-config-left {
@@ -420,7 +711,8 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.35);
+  color: var(--ci-config-label);
+  transition: color 0.25s ease;
 }
 
 .ci-config-item {
@@ -432,13 +724,14 @@
 .ci-config-value {
   font-size: 16px;
   font-weight: 800;
-  color: #c4b5fd;
+  color: var(--ci-config-value);
+  transition: color 0.25s ease;
 }
 
 .ci-clear-btn {
   background: none;
-  border: 1px solid rgba(255, 80, 80, 0.2);
-  color: rgba(255, 130, 130, 0.6);
+  border: 1px solid var(--ci-clear-border);
+  color: var(--ci-clear-color);
   font-family: inherit;
   font-size: 12px;
   font-weight: 600;
@@ -449,9 +742,9 @@
 }
 
 .ci-clear-btn:hover {
-  background: rgba(239, 68, 68, 0.1);
-  border-color: rgba(239, 68, 68, 0.4);
-  color: #f87171;
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #ef4444;
 }
 
 /* ─── Stepper ───────────────────────────────────────────────────────────── */
@@ -459,11 +752,12 @@
 .ci-stepper {
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--ci-stepper-bg);
+  border: 1px solid var(--ci-stepper-border);
   border-radius: 50px;
   padding: 3px 5px;
   gap: 2px;
+  transition: background 0.25s ease, border-color 0.25s ease;
 }
 
 .ci-stepper-btn {
@@ -472,7 +766,7 @@
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--ci-stepper-btn-color);
   font-size: 17px;
   font-weight: 700;
   cursor: pointer;
@@ -484,16 +778,17 @@
 }
 
 .ci-stepper-btn:hover {
-  background: rgba(124, 58, 237, 0.3);
-  color: #c4b5fd;
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--ci-text-accent);
 }
 
 .ci-stepper-val {
   font-size: 16px;
   font-weight: 800;
-  color: #c4b5fd;
+  color: var(--ci-stepper-val);
   min-width: 34px;
   text-align: center;
+  transition: color 0.25s ease;
 }
 
 /* ─── Generate button ───────────────────────────────────────────────────── */
@@ -505,7 +800,7 @@
   gap: 10px;
   width: 100%;
   padding: 18px 32px;
-  background: linear-gradient(135deg, #9b59f5 0%, #7c3aed 60%, #6025c4 100%);
+  background: linear-gradient(135deg, #818cf8 0%, #6366f1 50%, #4f46e5 100%);
   border: none;
   border-radius: 18px;
   color: #fff;
@@ -517,6 +812,11 @@
   position: relative;
   overflow: hidden;
   transition: all 0.25s ease;
+  box-shadow: 0 12px 40px var(--ci-gen-btn-shadow), 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.dark .ci-generate-btn {
+  background: linear-gradient(135deg, #9b59f5 0%, #7c3aed 60%, #6025c4 100%);
   box-shadow: 0 12px 40px rgba(124, 58, 237, 0.4), 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
@@ -524,7 +824,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 60%);
+  background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 60%);
   opacity: 0;
   transition: opacity 0.25s;
 }
@@ -533,7 +833,7 @@
 
 .ci-generate-btn:hover {
   transform: translateY(-3px);
-  box-shadow: 0 20px 56px rgba(124, 58, 237, 0.55), 0 6px 16px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 20px 56px var(--ci-gen-btn-shadow), 0 6px 16px rgba(0, 0, 0, 0.2);
 }
 
 .ci-generate-btn:active { transform: translateY(-1px); }
@@ -545,12 +845,13 @@
 
 .ci-loading-block {
   padding: 22px 24px;
-  background: rgba(124, 58, 237, 0.07);
-  border: 1px solid rgba(124, 58, 237, 0.2);
+  background: var(--ci-loading-bg);
+  border: 1px solid var(--ci-loading-border);
   border-radius: 18px;
   display: flex;
   flex-direction: column;
   gap: 14px;
+  transition: background 0.25s ease, border-color 0.25s ease;
 }
 
 .ci-loading-header {
@@ -569,8 +870,9 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #a78bfa;
+  background: var(--ci-loading-dot);
   animation: ci-dot-bounce 1.2s ease-in-out infinite;
+  transition: background 0.25s ease;
 }
 
 .ci-loading-dots span:nth-child(2) { animation-delay: 0.2s; }
@@ -584,22 +886,28 @@
 .ci-loading-label {
   font-size: 13px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--ci-loading-label);
+  transition: color 0.25s ease;
 }
 
 .ci-progress-track {
   height: 8px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--ci-progress-track);
   border-radius: 99px;
   overflow: hidden;
+  transition: background 0.25s ease;
 }
 
 .ci-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #7c3aed, #a78bfa, #c4b5fd);
+  background: linear-gradient(90deg, #6366f1, #8b5cf6, #c4b5fd);
   border-radius: 99px;
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
+}
+
+.dark .ci-progress-fill {
+  background: linear-gradient(90deg, #7c3aed, #a78bfa, #c4b5fd);
 }
 
 .ci-progress-glow {
@@ -622,8 +930,9 @@
 .ci-progress-pct {
   font-size: 12px;
   font-weight: 700;
-  color: rgba(196, 181, 253, 0.7);
+  color: var(--ci-progress-pct);
   text-align: right;
+  transition: color 0.25s ease;
 }
 
 /* ─── Error ─────────────────────────────────────────────────────────────── */
@@ -633,12 +942,13 @@
   align-items: center;
   gap: 10px;
   padding: 14px 18px;
-  background: rgba(239, 68, 68, 0.08);
-  border: 1px solid rgba(239, 68, 68, 0.25);
+  background: var(--ci-error-bg);
+  border: 1px solid var(--ci-error-border);
   border-radius: 14px;
-  color: #fca5a5;
+  color: var(--ci-error-color);
   font-size: 14px;
   font-weight: 500;
+  transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
 }
 
 .ci-error-icon {
@@ -674,9 +984,9 @@
   animation: ci-ring-expand 1.8s ease-out infinite;
 }
 
-.ci-success-ring--1 { width: 100%; height: 100%; animation-delay: 0s;    }
-.ci-success-ring--2 { width: 130%; height: 130%; animation-delay: 0.3s;  }
-.ci-success-ring--3 { width: 160%; height: 160%; animation-delay: 0.6s;  }
+.ci-success-ring--1 { width: 100%; height: 100%; animation-delay: 0s;   }
+.ci-success-ring--2 { width: 130%; height: 130%; animation-delay: 0.3s; }
+.ci-success-ring--3 { width: 160%; height: 160%; animation-delay: 0.6s; }
 
 @keyframes ci-ring-expand {
   0%   { transform: scale(0.8); opacity: 0.8; }
@@ -693,7 +1003,7 @@
   justify-content: center;
   font-size: 28px;
   color: #fff;
-  box-shadow: 0 12px 36px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 12px 36px rgba(16, 185, 129, 0.35);
   animation: ci-check-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   z-index: 1;
 }
@@ -706,14 +1016,46 @@
 .ci-success-title {
   font-size: 28px;
   font-weight: 800;
-  color: #fff;
+  color: var(--ci-success-title);
   letter-spacing: -0.5px;
+  transition: color 0.25s ease;
 }
 
 .ci-success-sub {
   font-size: 15px;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--ci-success-sub);
+  transition: color 0.25s ease;
 }
+
+.ci-success-cards-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.ci-success-type-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 20px 28px;
+  background: var(--ci-bg-card);
+  border: 1px solid var(--ci-border);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ci-success-type-card:hover {
+  background: var(--ci-bg-tab-active);
+  border-color: var(--ci-border-accent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.12);
+}
+
+.ci-stc-icon  { font-size: 28px; }
+.ci-stc-label { font-size: 14px; font-weight: 700; color: var(--ci-text-primary); transition: color 0.25s ease; }
+.ci-stc-count { font-size: 12px; color: var(--ci-text-muted); transition: color 0.25s ease; }
 
 .ci-success-actions {
   display: flex;
@@ -734,10 +1076,10 @@
   gap: 8px;
   width: 100%;
   padding: 14px 24px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  background: var(--ci-outline-btn-bg);
+  border: 1.5px solid var(--ci-outline-btn-border);
   border-radius: 14px;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--ci-outline-btn-color);
   font-family: inherit;
   font-size: 14px;
   font-weight: 700;
@@ -746,15 +1088,15 @@
 }
 
 .ci-outline-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.2);
-  color: #fff;
+  background: var(--ci-border);
+  border-color: var(--ci-border-strong);
+  color: var(--ci-text-primary);
 }
 
 .ci-text-btn {
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.35);
+  color: var(--ci-text-btn-color);
   font-family: inherit;
   font-size: 13px;
   font-weight: 500;
@@ -763,49 +1105,13 @@
   transition: color 0.18s;
   text-decoration: underline;
   text-underline-offset: 3px;
-  text-decoration-color: rgba(255,255,255,0.15);
+  text-decoration-color: var(--ci-border);
 }
 
-.ci-text-btn:hover { color: rgba(255, 255, 255, 0.6); }
+.ci-text-btn:hover { color: var(--ci-text-secondary); }
 
+/* ─── Text panel ────────────────────────────────────────────────────────── */
 
-/* ── Mode tabs ── */
-.ci-mode-tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.ci-mode-tab {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 12px 20px;
-  border-radius: 12px;
-  border: 1.5px solid rgba(255,255,255,0.08);
-  background: rgba(255,255,255,0.03);
-  color: rgba(255,255,255,0.45);
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.ci-mode-tab:hover {
-  background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.7);
-}
-
-.ci-mode-tab--active {
-  background: rgba(99,102,241,0.12);
-  border-color: rgba(99,102,241,0.4);
-  color: #a78bfa;
-}
-
-/* ── Text panel ── */
 .ci-text-panel {
   display: flex;
   flex-direction: column;
@@ -814,28 +1120,29 @@
 
 .ci-text-area {
   width: 100%;
-  background: rgba(255,255,255,0.03);
-  border: 1.5px solid rgba(255,255,255,0.08);
+  background: var(--ci-bg-textarea);
+  border: 1.5px solid var(--ci-textarea-border);
   border-radius: 16px;
   padding: 20px;
   font-family: inherit;
   font-size: 14px;
   line-height: 1.7;
-  color: rgba(255,255,255,0.8);
+  color: var(--ci-textarea-color);
   resize: vertical;
   min-height: 280px;
-  transition: border-color 0.2s, background 0.2s;
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.25s ease;
+  box-sizing: border-box;
 }
 
 .ci-text-area::placeholder {
-  color: rgba(255,255,255,0.2);
+  color: var(--ci-textarea-placeholder);
   line-height: 1.6;
 }
 
 .ci-text-area:focus {
   outline: none;
-  border-color: rgba(99,102,241,0.45);
-  background: rgba(255,255,255,0.05);
+  border-color: var(--ci-textarea-focus-border);
+  background: var(--ci-bg-tab);
 }
 
 .ci-text-footer {
@@ -849,10 +1156,12 @@
 
 .ci-text-meta {
   font-size: 12px;
-  color: rgba(255,255,255,0.25);
+  color: var(--ci-text-meta);
+  transition: color 0.25s ease;
 }
 
-/* ── Responsive ── */
+/* ─── Responsive ────────────────────────────────────────────────────────── */
+
 @media (max-width: 680px) {
   .ci-mode-tab {
     font-size: 13px;
@@ -870,11 +1179,12 @@
     align-items: flex-start;
   }
 }
-/* ─── Responsive ────────────────────────────────────────────────────────── */
 
 @media (max-width: 600px) {
   .ci-files-grid { gap: 8px; padding: 16px; }
   .ci-file-card, .ci-add-more-tile { width: calc(50% - 4px); }
   .ci-config-row { flex-direction: column; align-items: flex-start; }
   .ci-hero-title { font-size: 22px; }
+  .ci-success-cards-row { flex-direction: column; width: 100%; }
+  .ci-success-type-card { flex-direction: row; justify-content: flex-start; padding: 16px 20px; }
 }
