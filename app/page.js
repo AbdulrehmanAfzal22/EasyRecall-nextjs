@@ -13,20 +13,13 @@ import ContentIntake from "./page/dashboard/content-intake/page";
 import Sidebar from "./page/dashboard/sidebar/page";
 import Dashboard from "./page/dashboard/dash-home/page";
 // import  DemoApp from "./page/demo/page"
+// import AuthPage from "./page/signup/page"
 export default function Home() {
   return (
 
     <>
-    <Dashboard/>
-    {/* <Sidebar/>
-    <Dashboard/> */}
-    {/* <DashboardLayout/> */}
-    {/* <ContentIntake/> */}
-    {/* <DemoApp/> */}
-        {/* <Flashcard/> */}
-
-    {/* <DashboardLayout/> */}
-      {/* <Navbar />
+   
+      <Navbar />
       <Hero />
 
       <section id="features" className="features">
@@ -46,7 +39,9 @@ export default function Home() {
       </section>
 <section id="footer" className="footer">
         <Footer />
-      </section> */}
+      </section>
+    {/* <AuthPage/> */}
+      
    
     </>
   );

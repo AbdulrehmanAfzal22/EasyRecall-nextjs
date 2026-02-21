@@ -9,21 +9,18 @@ export default function Navbar() {
   const [isDark, setIsDark] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  /* ── Theme init ───────────────────────────────────── */
-useEffect(() => {
-  const saved = localStorage.getItem("theme");
+  useEffect(() => {
+    const saved = localStorage.getItem("theme");
+    if (saved === "light") {
+      document.documentElement.classList.remove("dark");
+      setIsDark(false);
+    } else {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+      setIsDark(true);
+    }
+  }, []);
 
-  if (saved === "light") {
-    document.documentElement.classList.remove("dark");
-    setIsDark(false);
-  } else {
-    // Default = dark
-    document.documentElement.classList.add("dark");
-    localStorage.setItem("theme", "dark");
-    setIsDark(true);
-  }
-}, []);
-  /* ── Lock body scroll when mobile menu is open ────── */
   useEffect(() => {
     if (menuOpen) {
       document.body.classList.add("menu-open");
@@ -33,7 +30,6 @@ useEffect(() => {
     return () => document.body.classList.remove("menu-open");
   }, [menuOpen]);
 
-  /* ── Close menu on Escape key ─────────────────────── */
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "Escape") setMenuOpen(false);
@@ -42,7 +38,6 @@ useEffect(() => {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  /* ── Close menu when resizing to desktop ─────────── */
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth > 768) setMenuOpen(false);
@@ -51,7 +46,6 @@ useEffect(() => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  /* ── Theme toggle ─────────────────────────────────── */
   const toggleTheme = useCallback(() => {
     if (isDark) {
       document.documentElement.classList.remove("dark");
@@ -64,7 +58,6 @@ useEffect(() => {
     }
   }, [isDark]);
 
-  /* ── Close mobile menu on link click ─────────────── */
   const handleMobileLinkClick = () => setMenuOpen(false);
 
   return (
@@ -88,20 +81,14 @@ useEffect(() => {
 
             {/* ── CENTER: Desktop nav ───────────────── */}
             <div className="nav-links-desktop">
-              <a href="#features"    className="nav-link">Features</a>
+              <a href="#features"     className="nav-link">Features</a>
               <a href="#how-it-works" className="nav-link">How it Works</a>
-              <a href="#pricing"     className="nav-link">Pricing</a>
-              <a href="#faq"         className="nav-link">FAQ</a>
-              {/* <a href="/blog"        className="nav-link">Blog</a> */}
-              {/* <div className="free-tools">
-                Free Tools
-                <span className="green-dot">●</span>
-              </div> */}
+              <a href="#pricing"      className="nav-link">Pricing</a>
+              <a href="#faq"          className="nav-link">FAQ</a>
             </div>
 
             {/* ── RIGHT: Actions ────────────────────── */}
             <div className="right-section">
-              {/* Theme toggle — visible on all breakpoints */}
               <button
                 onClick={toggleTheme}
                 className="theme-btn"
@@ -111,11 +98,12 @@ useEffect(() => {
                 {isDark ? <Sun size={20} /> : <Moon size={20} />}
               </button>
 
-              {/* Desktop-only sign-in & CTA */}
-              <a href="/sign-in"     className="signin-link">Sign in</a>
-              <a href="/get-started" className="cta-button">Get Started</a>
+              {/* Sign in → opens Sign Up tab (default) */}
+              <a href="/page/signup" className="signin-link">Sign in</a>
 
-              {/* Hamburger — hidden on desktop via CSS */}
+              {/* Get Started → opens Log In tab */}
+              <a href="/page/signup?tab=login" className="cta-button">Get Started</a>
+
               <button
                 className={`hamburger-btn${menuOpen ? " open" : ""}`}
                 onClick={() => setMenuOpen((prev) => !prev)}
@@ -140,58 +128,17 @@ useEffect(() => {
         aria-hidden={!menuOpen}
       >
         <nav className="mobile-nav-links" aria-label="Mobile navigation">
-       <a href="#features" className="mobile-nav-link" onClick={handleMobileLinkClick}>
-  Features
-</a>
-
-<a href="#how-it-works" className="mobile-nav-link" onClick={handleMobileLinkClick}>
-  How it Works
-</a>
-          <a
-            href="#pricing"
-            className="mobile-nav-link"
-            onClick={handleMobileLinkClick}
-          >
-            Pricing
-          </a>
-          <a
-            href="#faq"
-            className="mobile-nav-link"
-            onClick={handleMobileLinkClick}
-          >
-            FAQ
-          </a>
-          {/* <a
-            href="/blog"
-            className="mobile-nav-link"
-            onClick={handleMobileLinkClick}
-          >
-            Blog
-          </a> */}
-
-          {/* <div className="mobile-free-tools">
-            Free Tools
-            <span className="green-dot">●</span>
-          </div> */}
+          <a href="#features"     className="mobile-nav-link" onClick={handleMobileLinkClick}>Features</a>
+          <a href="#how-it-works" className="mobile-nav-link" onClick={handleMobileLinkClick}>How it Works</a>
+          <a href="#pricing"      className="mobile-nav-link" onClick={handleMobileLinkClick}>Pricing</a>
+          <a href="#faq"          className="mobile-nav-link" onClick={handleMobileLinkClick}>FAQ</a>
         </nav>
 
         <div className="mobile-divider" />
 
         <div className="mobile-actions">
-          <a
-            href="/sign-in"
-            className="mobile-signin-link"
-            onClick={handleMobileLinkClick}
-          >
-            Sign in
-          </a>
-          <a
-            href="/get-started"
-            className="mobile-cta-button"
-            onClick={handleMobileLinkClick}
-          >
-            Get Started
-          </a>
+          <a href="/page/signup"            className="mobile-signin-link"  onClick={handleMobileLinkClick}>Sign in</a>
+          <a href="/page/signup?tab=login"  className="mobile-cta-button"   onClick={handleMobileLinkClick}>Get Started</a>
         </div>
       </div>
     </>
