@@ -11,7 +11,7 @@ import "./sidebar.css";
 
 const NAV_ITEMS = [
   { label: "Dashboard", href: "/page/dashboard/dash-home", icon: LayoutDashboard },
-  { label: "Documents", href: "/dashboard/documents", icon: FileText },
+  { label: "Documents", href: "/page/dashboard/content-intake", icon: FileText },
   { label: "Flashcard Decks", href: "/dashboard/flashcards", icon: Layers },
   { label: "Quizzes", href: "/dashboard/quizzes", icon: BrainCircuit },
   { label: "Quiz Attempts", href: "/dashboard/attempts", icon: ClipboardList },

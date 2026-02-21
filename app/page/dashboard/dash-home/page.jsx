@@ -13,7 +13,7 @@ const MODULES = [
 export default function Dashboard() {
   return (
     <>
-    <Sidebar/>
+    {/* <Sidebar/> */}
       {/* TOPBAR */}
       {/* <div className="topbar">
         <div className="topbar-left">

@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef } from "react";
-import { FileText, X, CheckCircle, Loader2, Check } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { FileText, X, CheckCircle, Loader2, Check, AlertCircle } from "lucide-react";
 
 const SAMPLE_FILES = [
   { name: "Biology_Chapter3.pdf", size: "842KB", type: "pdf" },
@@ -22,12 +23,15 @@ function formatSize(bytes) {
 }
 
 export default function ContentIntake() {
+  const router = useRouter();
   const [files, setFiles]           = useState([]);
   const [drag, setDrag]             = useState(false);
   const [processing, setProcessing] = useState(false);
   const [progress, setProgress]     = useState(0);
   const [done, setDone]             = useState(false);
   const [topics, setTopics]         = useState([]);
+  const [generating, setGenerating] = useState(false);
+  const [error, setError]           = useState("");
   const inputRef = useRef();
 
   const addFiles = (incoming) => {
@@ -54,6 +58,7 @@ export default function ContentIntake() {
     if (!files.length) return;
     setProcessing(true);
     setProgress(0);
+    setError("");
     let p = 0;
     const iv = setInterval(() => {
       p += Math.random() * 18 + 4;
@@ -68,6 +73,49 @@ export default function ContentIntake() {
       }
       setProgress(Math.min(p, 100));
     }, 220);
+  };
+
+  const handleGenerateFlashcards = async () => {
+    const selectedTopics = topics.filter((t) => t.selected);
+    if (!selectedTopics.length) {
+      setError("Please select at least one topic");
+      return;
+    }
+
+    setGenerating(true);
+    setError("");
+
+    try {
+      // Create sample content from selected topics
+      const content = selectedTopics
+        .map((t) => `Topic: ${t.name}\nConcepts: ${t.concepts}`)
+        .join("\n\n");
+
+      const response = await fetch("/api/generate-flashcards", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content,
+          fileNames: files.map((f) => f.name).join(", "),
+          numCards: Math.min(selectedTopics.length * 3, 20),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to generate flashcards");
+      }
+
+      // Store flashcards in localStorage and navigate
+      localStorage.setItem("generatedFlashcards", JSON.stringify(data.flashcards));
+      router.push("/page/flashcard");
+    } catch (err) {
+      setError(err.message || "Error generating flashcards. Please check your OpenAI API key.");
+      console.error("Flashcard generation error:", err);
+    } finally {
+      setGenerating(false);
+    }
   };
 
   const toggleTopic = (i) =>
@@ -178,11 +226,28 @@ export default function ContentIntake() {
               <button
                 className="ci-btn ci-ghost"
                 style={{ marginLeft: "auto" }}
-                onClick={() => { setDone(false); setFiles([]); setTopics([]); }}
+                onClick={() => { setDone(false); setFiles([]); setTopics([]); setError(""); }}
               >
                 Upload more
               </button>
             </div>
+
+            {error && (
+              <div style={{
+                marginTop: 20,
+                padding: 12,
+                backgroundColor: "#fee",
+                border: "1px solid #f99",
+                borderRadius: 8,
+                display: "flex",
+                gap: 8,
+                alignItems: "center",
+                color: "#c33",
+              }}>
+                <AlertCircle size={18} />
+                <span>{error}</span>
+              </div>
+            )}
 
             <div className="topics-section">
               <div className="topics-label">Extracted Topics — select to include</div>
@@ -198,7 +263,19 @@ export default function ContentIntake() {
                 ))}
               </div>
               <div style={{ marginTop: 24 }}>
-                <button className="ci-btn ci-primary">Build Study Plan →</button>
+                <button
+                  className="ci-btn ci-primary"
+                  onClick={handleGenerateFlashcards}
+                  disabled={generating}
+                >
+                  {generating ? (
+                    <>
+                      <Loader2 size={15} style={{ animation: "spin 0.7s linear infinite" }} /> Generating Flashcards…
+                    </>
+                  ) : (
+                    "Generate Flashcards with AI →"
+                  )}
+                </button>
               </div>
             </div>
           </>

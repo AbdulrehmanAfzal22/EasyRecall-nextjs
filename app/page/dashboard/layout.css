@@ -1,0 +1,21 @@
+.dashboard-wrapper {
+  display: flex;
+  min-height: 100vh;
+}
+
+.dashboard-content {
+  flex: 1;
+  /* padding: 20px; */
+  overflow-y: auto;
+}
+
+/* Optional theme */
+.dark {
+  background: #0f172a;
+  color: white;
+}
+
+.light {
+  background: #f8fafc;
+  color: black;
+}
