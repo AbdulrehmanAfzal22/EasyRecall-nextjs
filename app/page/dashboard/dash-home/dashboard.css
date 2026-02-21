@@ -295,3 +295,62 @@ body {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .page {
+    padding: 20px 16px;
+  }
+
+  .hero {
+    padding: 24px 20px;
+    flex-direction: column-reverse;
+    gap: 16px;
+    text-align: center;
+  }
+
+  .hero-emoji {
+    font-size: 60px;
+  }
+
+  .hero-title {
+    font-size: 26px;
+  }
+
+  .hero-sub {
+    font-size: 13px;
+    margin: 0 auto 20px;
+  }
+
+  .stats-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .modules-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .module-card {
+    padding: 16px 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 22px;
+  }
+
+  .stat-num {
+    font-size: 26px;
+  }
+
+  .stats-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .stat-card {
+    padding: 16px 12px;
+  }
+}

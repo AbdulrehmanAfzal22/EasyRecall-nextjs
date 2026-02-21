@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import Sidebar from "../dashboard/sidebar/page";
-import "./layout.css";
+import { useState, useEffect } from "react";
+import Sidebar from "./sidebar/page";
+import "./layout-sidebar.css";
 
 export default function DashboardLayout({ children }) {
   const [isDark, setIsDark] = useState(true);
@@ -13,7 +13,6 @@ export default function DashboardLayout({ children }) {
         isDark={isDark}
         onToggleTheme={() => setIsDark((prev) => !prev)}
       />
-
       <main className="dashboard-content">
         {children}
       </main>

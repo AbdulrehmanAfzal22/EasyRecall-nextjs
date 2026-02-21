@@ -1,0 +1,370 @@
+/* flashcard.css — extends your existing design system */
+
+/* ── Page shell ─────────────────────────────────────────────────────────── */
+
+.fc-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding-bottom: 60px;
+}
+
+/* ── Empty state ────────────────────────────────────────────────────────── */
+
+.fc-empty-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.fc-empty-card {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 40px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 24px;
+  max-width: 360px;
+}
+
+.fc-empty-icon   { font-size: 52px; }
+.fc-empty-card h2 { font-size: 20px; font-weight: 700; color: #fff; }
+.fc-empty-card p  { font-size: 14px; color: rgba(255,255,255,0.45); }
+
+/* ── Header progress bar ────────────────────────────────────────────────── */
+
+.fc-header-bar {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fc-progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fc-progress-track {
+  flex: 1;
+  height: 6px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.fc-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #9b59f5, #7c3aed);
+  border-radius: 99px;
+  transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+
+.fc-pct-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.35);
+  min-width: 36px;
+  text-align: right;
+}
+
+/* ── Dot indicators ─────────────────────────────────────────────────────── */
+
+.fc-dots-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.fc-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  padding: 0;
+}
+
+.fc-dot--active {
+  width: 22px;
+  border-radius: 99px;
+}
+
+/* ── Card scene (for slide animation) ──────────────────────────────────── */
+
+.fc-scene {
+  width: 100%;
+  max-width: 480px;
+  transition: opacity 0.28s ease, transform 0.28s ease;
+}
+
+.fc-scene--sliding {
+  opacity: 0;
+  transform: translateX(28px);
+}
+
+/* ── Card wrapper & flip ────────────────────────────────────────────────── */
+
+.fc-wrapper {
+  width: 320px;
+  height: 280px;
+  perspective: 1200px;
+}
+
+/* Full-width version used on the page */
+.fc-wrapper--page {
+  width: 100%;
+  height: 300px;
+}
+
+.fc-card {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(0.4, 0.2, 0.2, 1);
+  border-radius: 24px;
+}
+
+.fc-card.is-flipped {
+  transform: rotateY(180deg);
+}
+
+/* ── Card faces ─────────────────────────────────────────────────────────── */
+
+.fc-front,
+.fc-back {
+  backface-visibility: hidden;
+  background: linear-gradient(150deg, #9b59f5 0%, #7c3aed 45%, #6025c4 100%);
+  border-radius: 24px;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 28px 30px;
+  display: flex;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  width: 100%;
+  box-shadow: 0 24px 64px rgba(100,40,200,0.32), 0 6px 20px rgba(0,0,0,0.18);
+}
+
+.fc-front::before, .fc-back::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.07);
+  pointer-events: none;
+}
+
+.fc-front::after, .fc-back::after {
+  content: '';
+  position: absolute;
+  bottom: -50px; left: -40px;
+  width: 160px; height: 160px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+  pointer-events: none;
+}
+
+.fc-back { transform: rotateY(180deg); }
+
+/* ── Card typography ────────────────────────────────────────────────────── */
+
+.fc-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+  margin-bottom: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.fc-title {
+  font-family: 'Clash Display', 'Cabinet Grotesk', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.25;
+  margin-bottom: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.fc-title--answer {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+/* ── Flip button ────────────────────────────────────────────────────────── */
+
+.fc-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.15);
+  border: 1.5px solid rgba(255,255,255,0.25);
+  color: #fff;
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 11px 24px;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  backdrop-filter: blur(6px);
+  position: relative;
+  z-index: 1;
+  width: fit-content;
+}
+
+.fc-button:hover {
+  background: rgba(255,255,255,0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+}
+
+/* ── Rating block ───────────────────────────────────────────────────────── */
+
+.fc-ratings-block {
+  width: 100%;
+  max-width: 480px;
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.fc-ratings-block--visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.fc-ratings-heading {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.35);
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.fc-ratings-row {
+  display: flex;
+  gap: 10px;
+}
+
+/* Each rating button */
+.fc-rate-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 16px 8px;
+  background: var(--rbg);
+  border: 1.5px solid var(--rbd);
+  border-radius: 16px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.fc-rate-btn:hover {
+  transform: translateY(-3px);
+  filter: brightness(1.2);
+}
+
+.fc-rate-btn--selected {
+  border-color: var(--rc);
+  box-shadow: 0 0 0 2px var(--rc), 0 8px 24px rgba(0,0,0,0.2);
+  transform: translateY(-2px) scale(1.03);
+}
+
+.fc-rate-btn--faded { opacity: 0.35; }
+
+.fc-rate-emoji { font-size: 24px; line-height: 1; }
+
+.fc-rate-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--rc);
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* ── Post-rate row ──────────────────────────────────────────────────────── */
+
+.fc-post-rate-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+  padding: 0 2px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fc-rated-badge {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ── Nav row ────────────────────────────────────────────────────────────── */
+
+.fc-nav-row {
+  display: flex;
+  gap: 10px;
+}
+
+.fc-nav-btn {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.55);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 22px;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+
+.fc-nav-btn:hover:not(:disabled) {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
+
+.fc-nav-btn:disabled {
+  opacity: 0.2;
+  cursor: not-allowed;
+}
+
+/* ── Shared button helpers (add to your global ci-btn styles) ──────────── */
+
+.ci-btn-sm {
+  padding: 8px 16px;
+  font-size: 13px;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}

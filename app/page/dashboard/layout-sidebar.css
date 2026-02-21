@@ -1,0 +1,32 @@
+.dashboard-wrapper {
+  display: flex;
+  min-height: 100vh;
+  overflow-x: hidden; /* ADD THIS */
+  width: 100%;        /* ADD THIS */
+}
+
+.dashboard-content {
+  flex: 1;
+  overflow-y: auto;
+  transition: margin-left 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+
+
+@media (max-width: 900px) {
+  .dashboard-content {
+    margin-left: 64px;
+    width: calc(100% - 64px); /* ADD THIS */
+    max-width: calc(100% - 64px); /* ADD THIS */
+    overflow-x: hidden; /* ADD THIS */
+  }
+}
+
+.dark {
+  background: #0f172a;
+  color: white;
+}
+
+.light {
+  background: #f8fafc;
+  color: black;
+}

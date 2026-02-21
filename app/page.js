@@ -4,28 +4,18 @@ import Navbar from "./page/navbar/page";
 import Hero from "./page/home/page";
 import FeaturesSection from "./page/feature/page";
 import HowItWorks from "./page/How-its-work/page";
-import Pricing from "./page/pricing/pricing";
+import Pricing from "./page/dashboard/pricing/pricing";
 import FAQ from "./page/faq/page";
 import Footer from "./page/footer/page";
-import DashboardLayout from "./page/dashboard/layout/page";
-import Flashcard from "./page/flashcard/page";
-import ContentIntake from "./page/dashboard/content-intake/page";
-import Sidebar from "./page/dashboard/sidebar/page";
-import Dashboard from "./page/dashboard/dash-home/page";
-// import  DemoApp from "./page/demo/page"
+
+import DashboardLayout from "./page/dashboard/layout";
+
 export default function Home() {
   return (
 
     <>
-    <Dashboard/>
-    {/* <Sidebar/>
-    <Dashboard/> */}
-    {/* <DashboardLayout/> */}
-    {/* <ContentIntake/> */}
-    {/* <DemoApp/> */}
-        {/* <Flashcard/> */}
-
-    {/* <DashboardLayout/> */}
+    <DashboardLayout/>
+ 
       {/* <Navbar />
       <Hero />
 
@@ -46,8 +36,8 @@ export default function Home() {
       </section>
 <section id="footer" className="footer">
         <Footer />
-      </section> */}
-   
+      </section>
+    */}
     </>
   );
 }
