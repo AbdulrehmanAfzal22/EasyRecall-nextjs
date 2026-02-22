@@ -1,44 +1,52 @@
 "use client";
 import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { auth } from "../../../../lib/firebase";
+import { saveDocument } from "../../../../lib/service";
+
 import { saveFlashcards } from "../store-flahscard/page";
-import { saveQuiz } from "@/lib/quizStore";
+import { saveQuiz } from "../../../../lib/quizStore";
 import "./content-intake.css";
 
+// ── File type icons and utilities ──
 const FILE_ICONS = {
-  pdf:  { icon: "📄", color: "#ef4444", label: "PDF"  },
-  doc:  { icon: "📝", color: "#3b82f6", label: "DOC"  },
-  docx: { icon: "📝", color: "#3b82f6", label: "DOCX" },
-  ppt:  { icon: "📊", color: "#f97316", label: "PPT"  },
-  pptx: { icon: "📊", color: "#f97316", label: "PPTX" },
-  txt:  { icon: "📃", color: "#a78bfa", label: "TXT"  },
-  md:   { icon: "✦",  color: "#a78bfa", label: "MD"   },
+  pdf: "📄", txt: "📝", md: "📝", doc: "📘", docx: "📘",
+  ppt: "📊", pptx: "📊", xls: "📊", xlsx: "📊",
 };
 
-function getFileType(name) {
+const getFileType = (name) => {
   const ext = name.split(".").pop().toLowerCase();
-  return FILE_ICONS[ext] || { icon: "📁", color: "#6b7280", label: ext.toUpperCase() };
-}
+  return {
+    ext,
+    icon: FILE_ICONS[ext] || "📎",
+    label: ext.toUpperCase(),
+    color: ({
+      pdf: "#e74c3c", txt: "#3498db", md: "#3498db",
+      doc: "#27ae60", docx: "#27ae60",
+      ppt: "#e67e22", pptx: "#e67e22",
+    })[ext] || "#95a5a6",
+  };
+};
 
-function formatSize(bytes) {
-  if (bytes < 1024)    return bytes + " B";
-  if (bytes < 1048576) return (bytes / 1024).toFixed(0) + " KB";
-  return (bytes / 1048576).toFixed(1) + " MB";
-}
+const formatSize = (bytes) => {
+  if (bytes < 1024)        return bytes + " B";
+  if (bytes < 1024 ** 2)  return (bytes / 1024).toFixed(1) + " KB";
+  return (bytes / (1024 ** 2)).toFixed(1) + " MB";
+};
 
-function FloatingOrbs() {
-  return (
-    <div className="ci-orbs" aria-hidden="true">
-      {[...Array(6)].map((_, i) => <div key={i} className={`ci-orb ci-orb--${i + 1}`} />)}
-    </div>
-  );
-}
+const FloatingOrbs = () => (
+  <div className="floating-orbs">
+    <div className="floating-orb orb-1" />
+    <div className="floating-orb orb-2" />
+    <div className="floating-orb orb-3" />
+  </div>
+);
 
 export default function ContentIntake() {
   const router = useRouter();
   const inputRef = useRef();
 
-  const [inputMode,   setInputMode]   = useState("file"); // "file" | "text"
+  const [inputMode,   setInputMode]   = useState("file");
   const [pastedText,  setPastedText]  = useState("");
   const [files,       setFiles]       = useState([]);
   const [rawFiles,    setRawFiles]    = useState([]);
@@ -50,7 +58,9 @@ export default function ContentIntake() {
   const [done,        setDone]        = useState(false);
   const [cardCount,   setCardCount]   = useState(0);
   const [error,       setError]       = useState("");
+  const [saving,      setSaving]      = useState(false);
 
+  // ── Drag/drop handlers ──
   const handleDragEnter = useCallback((e) => {
     e.preventDefault();
     setDragCount((c) => { if (c === 0) setDrag(true); return c + 1; });
@@ -59,7 +69,7 @@ export default function ContentIntake() {
     e.preventDefault();
     setDragCount((c) => { const n = c - 1; if (n === 0) setDrag(false); return n; });
   }, []);
-  const handleDragOver  = useCallback((e) => { e.preventDefault(); }, []);
+  const handleDragOver  = useCallback((e) => e.preventDefault(), []);
   const handleDrop      = useCallback((e) => {
     e.preventDefault(); setDrag(false); setDragCount(0);
     addFiles(e.dataTransfer.files);
@@ -67,7 +77,12 @@ export default function ContentIntake() {
 
   const addFiles = (incoming) => {
     const arr  = Array.from(incoming);
-    const meta = arr.map((f) => ({ id: Math.random().toString(36).slice(2), name: f.name, size: formatSize(f.size), ...getFileType(f.name) }));
+    const meta = arr.map((f) => ({
+      id:   Math.random().toString(36).slice(2),
+      name: f.name,
+      size: formatSize(f.size),
+      ...getFileType(f.name),
+    }));
     setFiles((prev) => [...prev, ...meta]);
     setRawFiles((prev) => [...prev, ...arr]);
     setDone(false); setError("");
@@ -84,12 +99,17 @@ export default function ContentIntake() {
     setPastedText("");
     setDone(false); setError("");
   };
+
   const openPicker = () => inputRef.current?.click();
 
+  // ── Generate flashcards + save to Firebase ──
   const handleGenerate = async () => {
-    setError(""); setGenerating(true); setGenProgress(0);
+    setError(""); setGenerating(true); setGenProgress(0); setSaving(false);
     let p = 0;
-    const ticker = setInterval(() => { p += Math.random() * 10 + 3; setGenProgress(Math.min(p, 87)); }, 280);
+    const ticker = setInterval(() => {
+      p += Math.random() * 10 + 3;
+      setGenProgress(Math.min(p, 87));
+    }, 280);
 
     try {
       let combined = "", fileNames = "";
@@ -107,22 +127,51 @@ export default function ContentIntake() {
         if (!combined.trim()) throw new Error("Files appear to be empty or unreadable.");
       }
 
+      // ── Call API ──
       const res  = await fetch("/api/generate-flashcards", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: combined, fileNames, numCards }),
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ content: combined, fileNames, numCards }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Generation failed");
 
+      // ── Save locally for frontend views ──
       saveFlashcards(data.flashcards, { fileNames, numCards, topic: fileNames });
       if (data.quiz) saveQuiz(data.quiz, { fileNames, topic: fileNames });
+
+      // ── Save to Firebase (only serialisable data — no File objects) ──
+      const uid = auth.currentUser?.uid;
+      if (uid) {
+        setSaving(true);
+        try {
+          console.log("📁 Saving to Firebase for user:", uid);
+          await saveDocument(uid, {
+            file:          null,
+            extractedText: combined,
+            flashcards:    data.flashcards,
+            quiz:          data.quiz ?? null,
+            topic:         fileNames,
+          });
+          console.log("✅ Firebase save successful");
+        } catch (firebaseErr) {
+          console.error("❌ Firebase save error:", firebaseErr);
+        } finally {
+          setSaving(false);
+        }
+      } else {
+        console.warn("⚠️ User not authenticated, skipping Firebase save");
+      }
 
       clearInterval(ticker);
       setGenProgress(100);
       await new Promise((r) => setTimeout(r, 500));
-      setDone(true); setCardCount(data.count);
+      setDone(true);
+      setCardCount(data.count);
+
     } catch (e) {
-      clearInterval(ticker); setError(e.message);
+      clearInterval(ticker);
+      setError(e.message);
     } finally {
       setGenerating(false);
     }
@@ -134,6 +183,7 @@ export default function ContentIntake() {
 
   const wordCount = pastedText.trim() ? pastedText.trim().split(/\s+/).length : 0;
 
+  // ── UI ──
   return (
     <>
       <div className="topbar">
@@ -198,7 +248,9 @@ export default function ContentIntake() {
                           <path d="M12 4v12M6 10l6-6 6 6"/><path d="M4 20h16"/>
                         </svg>
                       </div>
-                      <div className="ci-drop-title">{drag ? "Release to upload" : "Drag & drop your files here"}</div>
+                      <div className="ci-drop-title">
+                        {drag ? "Release to upload" : "Drag & drop your files here"}
+                      </div>
                       <div className="ci-drop-subtitle">
                         or{" "}
                         <button
@@ -312,7 +364,11 @@ export default function ContentIntake() {
               <div className="ci-loading-block">
                 <div className="ci-loading-header">
                   <div className="ci-loading-dots"><span /><span /><span /></div>
-                  <span className="ci-loading-label">Generating flashcards + MCQ + True/False + Short Answer…</span>
+                  <span className="ci-loading-label">
+                    {saving
+                      ? "Saving to your account…"
+                      : "Generating flashcards + MCQ + True/False + Short Answer…"}
+                  </span>
                 </div>
                 <div className="ci-progress-track">
                   <div className="ci-progress-fill" style={{ width: `${genProgress}%` }}>

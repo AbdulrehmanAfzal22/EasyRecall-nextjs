@@ -89,7 +89,7 @@ function Home({ onNav, stats }) {
       <div className="home-hero">
         <div>
           <p className="hero-greeting">Good morning — let's study smarter</p>
-          <h1 className="hero-title">Welcome to<br/>Memorise</h1>
+          <h1 className="hero-title">Welcome to<br/>EasyRecall</h1>
           <p className="hero-sub">Input once → recall repeatedly → remember efficiently. Your AI-driven study companion that builds real memory.</p>
           <button className="btn btn-primary btn-lg" onClick={() => onNav("upload")}>
             Get Started <Icon name="arrow" />
@@ -151,7 +151,7 @@ function Upload({ onDone }) {
       <div className="section-header">
         <div className="section-label">Module 1</div>
         <div className="section-title">Content Intake</div>
-        <div className="section-desc">Upload your notes, slides, or chapters. Memorise automatically extracts topics and generates all study tools — no manual setup needed.</div>
+        <div className="section-desc">Upload your notes, slides, or chapters.  automatically extracts topics and generates all study tools — no manual setup needed.</div>
       </div>
 
       {!done ? (

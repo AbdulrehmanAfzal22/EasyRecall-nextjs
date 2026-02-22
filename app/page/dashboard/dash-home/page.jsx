@@ -1,7 +1,10 @@
 "use client";
+
 import { Upload, Layers, Target, ClipboardList, BarChart2, ArrowRight } from "lucide-react";
-import Sidebar from "../sidebar/page";
-import "./dashboard.css"
+import { useUserStats } from "../../../hooks/useUserStats";
+import { auth } from "../../../../lib/firebase";
+import "./dashboard.css";
+
 const MODULES = [
   { icon: Upload,        name: "Content Intake",  desc: "Upload notes, slides, or chapters to generate study material automatically." },
   { icon: Layers,        name: "Flashcards",       desc: "Spaced repetition cards adapted to your recall performance." },
@@ -11,26 +14,27 @@ const MODULES = [
 ];
 
 export default function Dashboard() {
+  const user = auth.currentUser;
+  const stats = useUserStats();
+
+  // Get user's first name from email or display name
+  const getUserName = () => {
+    if (!user) return "there";
+    if (user.displayName) return user.displayName.split(" ")[0];
+    if (user.email) return user.email.split("@")[0];
+    return "there";
+  };
+
   return (
     <>
-    {/* <Sidebar/> */}
-      {/* TOPBAR */}
-      {/* <div className="topbar">
-        <div className="topbar-left">
-          <h1>Dashboard</h1>
-          <p>Input once · recall repeatedly · remember efficiently</p>
-        </div>
-      </div> */}
-
-      {/* PAGE */}
       <div className="page">
-
         {/* HERO */}
         <div className="hero">
-          
           <div>
-            <p className="hero-greeting">Good morning — let's study smarter</p>
-            <h2 className="hero-title">Welcome to<br />Memorise</h2>
+            <p className="hero-greeting">
+              Good {getTimeOfDay()} {user ? `${getUserName()}` : ""} — let's study smarter
+            </p>
+            <h2 className="hero-title">Welcome to<br />EasyRecall</h2>
             <p className="hero-sub">
               Input once → recall repeatedly → remember efficiently.<br />
               Your AI-driven study companion that builds real memory.
@@ -40,12 +44,35 @@ export default function Dashboard() {
           <div className="hero-emoji">🧠</div>
         </div>
 
-        {/* STATS */}
+        {/* STATS - NOW REAL-TIME */}
         <div className="stats-row">
-          <div className="stat-card"><div className="stat-num">47</div><div className="stat-label">Cards Reviewed</div></div>
-          <div className="stat-card"><div className="stat-num yellow">5</div><div className="stat-label">Day Streak</div></div>
-          <div className="stat-card"><div className="stat-num green">32</div><div className="stat-label">Mastered</div></div>
-          <div className="stat-card"><div className="stat-num blue">68%</div><div className="stat-label">Readiness</div></div>
+          <div className="stat-card">
+            <div className="stat-num">
+              {stats.loading ? "—" : stats.cardsReviewed}
+            </div>
+            <div className="stat-label">Cards Reviewed Today</div>
+          </div>
+          
+          <div className="stat-card">
+            <div className="stat-num yellow">
+              {stats.loading ? "—" : stats.dayStreak}
+            </div>
+            <div className="stat-label">Day Streak</div>
+          </div>
+          
+          <div className="stat-card">
+            <div className="stat-num green">
+              {stats.loading ? "—" : stats.mastered}
+            </div>
+            <div className="stat-label">Mastered</div>
+          </div>
+          
+          <div className="stat-card">
+            <div className="stat-num blue">
+              {stats.loading ? "—" : `${stats.readiness}%`}
+            </div>
+            <div className="stat-label">Readiness</div>
+          </div>
         </div>
 
         {/* MODULES */}
@@ -66,8 +93,15 @@ export default function Dashboard() {
             </button>
           ))}
         </div>
-
       </div>
     </>
   );
+}
+
+// Helper function to get time of day greeting
+function getTimeOfDay() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "morning";
+  if (hour < 18) return "afternoon";
+  return "evening";
 }

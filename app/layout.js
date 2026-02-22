@@ -11,11 +11,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-
-
-
-import './globals.css';
-
 export const metadata = {
   title: 'EasyRecall',
   description: '...',
@@ -24,24 +19,37 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body>
-        {/* Prevents white flash on dark mode — runs before first paint */}
+      <head>
+        {/* CRITICAL: Run theme detection synchronously before paint */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
                 try {
-                  var saved = localStorage.getItem('theme');
+                  const saved = localStorage.getItem('theme');
+                  const html = document.documentElement;
+                  
                   if (saved === 'light') {
-                    document.documentElement.classList.remove('dark');
+                    html.classList.remove('dark');
+                  } else if (saved === 'dark') {
+                    html.classList.add('dark');
                   } else {
-                    document.documentElement.classList.add('dark');
+                    // Use system preference if no saved theme
+                    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                      html.classList.add('dark');
+                    } else {
+                      html.classList.remove('dark');
+                    }
                   }
-                } catch(e) {}
+                } catch(e) {
+                  console.error('Theme script error:', e);
+                }
               })();
             `,
           }}
         />
+      </head>
+      <body>
         {children}
       </body>
     </html>

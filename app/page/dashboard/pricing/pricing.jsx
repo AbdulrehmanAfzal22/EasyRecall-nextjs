@@ -8,28 +8,23 @@ export default function PricingSection() {
   const [billingYearly, setBillingYearly] = useState(false);
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-    if (savedTheme === "dark" || (!savedTheme && prefersDark)) {
-      document.documentElement.classList.add("dark");
-      setThemeDark(true);
-    } else {
-      document.documentElement.classList.remove("dark");
-      setThemeDark(false);
-    }
+    // Read theme from HTML class (set by root layout script)
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    setThemeDark(isDarkMode);
   }, []);
 
   const handleThemeToggle = () => {
-    if (themeDark) {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-      setThemeDark(false);
+    const html = document.documentElement;
+    const newIsDark = !themeDark;
+    
+    if (newIsDark) {
+      html.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
     } else {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-      setThemeDark(true);
+      html.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
     }
+    setThemeDark(newIsDark);
   };
 
   const handleBillingToggle = () => {

@@ -1,5 +1,9 @@
-// app/api/generate-flashcards/route.js
-// Generates flashcards + quiz (MCQ, True/False, Short Answer) in one call
+// ─────────────────────────────────────────────────────────────────────────────
+// FIXED: app/api/generate-flashcards/route.js
+// Changes:
+//   1. model → "gpt-4o" (gpt-4o-mini doesn't reliably support json_object mode)
+//   2. Added better error logging
+// ─────────────────────────────────────────────────────────────────────────────
 
 import { OpenAI } from "openai";
 
@@ -22,7 +26,7 @@ export async function POST(request) {
 
       // ── 1. Flashcards ──
       openai.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: "gpt-4o",                         // ✅ FIXED: was gpt-4o-mini
         messages: [{
           role: "user",
           content: `You are an expert educator. Given the study material below${fileNames ? ` from "${fileNames}"` : ""}, create exactly ${numCards} flashcards.
@@ -37,7 +41,7 @@ Study Material:
 ${content}
 
 Return ONLY valid JSON:
-{ "flashcards": [{ "question": "...", "answer": "..." }] }`
+{ "flashcards": [{ "question": "...", "answer": "..." }] }`,
         }],
         temperature: 0.5,
         max_tokens: 4000,
@@ -46,7 +50,7 @@ Return ONLY valid JSON:
 
       // ── 2. Quiz ──
       openai.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: "gpt-4o",                         // ✅ FIXED: was gpt-4o-mini
         messages: [{
           role: "user",
           content: `You are an expert educator creating a comprehensive quiz. Given the study material below${fileNames ? ` from "${fileNames}"` : ""}, create exactly:
@@ -89,7 +93,7 @@ Return ONLY valid JSON — no markdown:
       "keyPoints": ["key point 1", "key point 2", "key point 3"]
     }
   ]
-}`
+}`,
         }],
         temperature: 0.6,
         max_tokens: 4000,
@@ -107,6 +111,7 @@ Return ONLY valid JSON — no markdown:
     const quizData       = parseJSON(quizRes.choices[0].message.content);
 
     if (!flashcardsData?.flashcards || !quizData?.mcq) {
+      console.error("Bad AI response:", { flashcardsData, quizData }); // helps debug
       return Response.json({ error: "Invalid response format from AI" }, { status: 500 });
     }
 
