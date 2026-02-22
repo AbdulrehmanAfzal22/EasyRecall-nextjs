@@ -128,13 +128,39 @@ export default function ContentIntake() {
       }
 
       // ── Call API ──
-      const res  = await fetch("/api/generate-flashcards", {
-        method:  "POST",
-        headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ content: combined, fileNames, numCards }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Generation failed");
+      let res, data;
+      try {
+        res = await fetch("/api/generate-flashcards", {
+          method:  "POST",
+          headers: { "Content-Type": "application/json" },
+          body:    JSON.stringify({ content: combined, fileNames, numCards }),
+          // Add timeout signal (60 seconds)
+          signal: AbortSignal.timeout(60000),
+        });
+      } catch (fetchError) {
+        // Handle network errors, timeouts, etc.
+        if (fetchError.name === "AbortError" || fetchError.name === "TimeoutError") {
+          throw new Error("Request timed out. The AI generation is taking too long. Please try with shorter content or fewer cards.");
+        }
+        if (fetchError.name === "TypeError" && fetchError.message.includes("fetch")) {
+          throw new Error("Connection error: Unable to reach the server. Please check your internet connection and try again.");
+        }
+        throw new Error(`Network error: ${fetchError.message}`);
+      }
+      
+      try {
+        data = await res.json();
+      } catch (jsonError) {
+        // If response is not JSON, it might be an HTML error page
+        const text = await res.text();
+        throw new Error(`Server error (${res.status}): ${text.substring(0, 200)}`);
+      }
+      
+      if (!res.ok) {
+        const errorMsg = data.error || "Generation failed";
+        const errorDetails = data.details ? ` ${data.details}` : "";
+        throw new Error(`${errorMsg}${errorDetails}`);
+      }
 
       // ── Save locally for frontend views ──
       saveFlashcards(data.flashcards, { fileNames, numCards, topic: fileNames });

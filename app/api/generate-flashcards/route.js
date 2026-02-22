@@ -7,11 +7,18 @@
 
 import { OpenAI } from "openai";
 
+// Configure route for longer timeout (Vercel: up to 60s on Pro, Netlify: varies)
+export const maxDuration = 60; // seconds
+
 export async function POST(request) {
   try {
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
-      return Response.json({ error: "OpenAI API key not configured" }, { status: 500 });
+      console.error("OPENAI_API_KEY is missing in environment variables");
+      return Response.json({ 
+        error: "OpenAI API key not configured. Please check your environment variables.",
+        details: "The OPENAI_API_KEY environment variable is missing or empty."
+      }, { status: 500 });
     }
 
     // Initialize OpenAI client inside the handler (lazy initialization)
@@ -131,6 +138,41 @@ Return ONLY valid JSON — no markdown:
 
   } catch (error) {
     console.error("Generation error:", error);
-    return Response.json({ error: error.message || "Failed to generate content" }, { status: 500 });
+    
+    // Provide more specific error messages
+    let errorMessage = "Failed to generate content";
+    let errorDetails = error.message || "Unknown error";
+    
+    if (error instanceof Error) {
+      // Network/connection errors
+      if (error.message.includes("fetch") || error.message.includes("network") || error.message.includes("ECONNREFUSED")) {
+        errorMessage = "Connection error: Unable to reach OpenAI API";
+        errorDetails = "Please check your internet connection and try again.";
+      }
+      // API key errors
+      else if (error.message.includes("API key") || error.message.includes("401") || error.message.includes("authentication")) {
+        errorMessage = "Authentication error: Invalid OpenAI API key";
+        errorDetails = "Please verify your OPENAI_API_KEY environment variable is correct.";
+      }
+      // Rate limit errors
+      else if (error.message.includes("rate limit") || error.message.includes("429")) {
+        errorMessage = "Rate limit exceeded";
+        errorDetails = "Too many requests. Please wait a moment and try again.";
+      }
+      // Timeout errors
+      else if (error.message.includes("timeout") || error.message.includes("ETIMEDOUT")) {
+        errorMessage = "Request timeout";
+        errorDetails = "The request took too long. Please try with shorter content or fewer cards.";
+      }
+      else {
+        errorMessage = error.message || errorMessage;
+      }
+    }
+    
+    return Response.json({ 
+      error: errorMessage,
+      details: errorDetails,
+      type: error.constructor?.name || "Error"
+    }, { status: 500 });
   }
 }
