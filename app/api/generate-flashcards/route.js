@@ -7,13 +7,16 @@
 
 import { OpenAI } from "openai";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
 export async function POST(request) {
   try {
-    if (!process.env.OPENAI_API_KEY) {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
       return Response.json({ error: "OpenAI API key not configured" }, { status: 500 });
     }
+
+    // Initialize OpenAI client inside the handler (lazy initialization)
+    // This prevents build-time errors when the API key is not available
+    const openai = new OpenAI({ apiKey });
 
     const { content, fileNames, numCards = 10 } = await request.json();
 
