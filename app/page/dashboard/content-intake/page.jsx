@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { auth } from "../../../../lib/firebase";
 import { saveDocument } from "../../../../lib/service";
 
-import { saveFlashcards } from "../store-flahscard/page";
+import { saveFlashcards } from "@/lib/flashcardStore";
 import { saveQuiz } from "../../../../lib/quizStore";
 import "./content-intake.css";
 
