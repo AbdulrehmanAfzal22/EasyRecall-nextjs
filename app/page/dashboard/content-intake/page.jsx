@@ -1,44 +1,44 @@
 "use client";
 import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { saveFlashcards } from "../store-flahscard/page";
-import { saveQuiz } from "@/lib/quizStore";
+import { auth } from "../../../../lib/firebase";
+import { saveDocument } from "../../../../lib/service";
+import { saveFlashcards } from "@/lib/flashcardStore";
+import { saveQuiz } from "../../../../lib/quizStore";
+import { saveSegments } from "../../../../lib/segmentStore";
 import "./content-intake.css";
 
+// ── File type icons and utilities ──────────────────────────────────────────
 const FILE_ICONS = {
-  pdf:  { icon: "📄", color: "#ef4444", label: "PDF"  },
-  doc:  { icon: "📝", color: "#3b82f6", label: "DOC"  },
-  docx: { icon: "📝", color: "#3b82f6", label: "DOCX" },
-  ppt:  { icon: "📊", color: "#f97316", label: "PPT"  },
-  pptx: { icon: "📊", color: "#f97316", label: "PPTX" },
-  txt:  { icon: "📃", color: "#a78bfa", label: "TXT"  },
-  md:   { icon: "✦",  color: "#a78bfa", label: "MD"   },
+  pdf: "📄", txt: "📝", md: "📝", doc: "📘", docx: "📘",
+  ppt: "📊", pptx: "📊", xls: "📊", xlsx: "📊",
 };
 
-function getFileType(name) {
+const getFileType = (name) => {
   const ext = name.split(".").pop().toLowerCase();
-  return FILE_ICONS[ext] || { icon: "📁", color: "#6b7280", label: ext.toUpperCase() };
-}
+  return {
+    ext,
+    icon: FILE_ICONS[ext] || "📎",
+    label: ext.toUpperCase(),
+    color: ({
+      pdf: "#e74c3c", txt: "#3498db", md: "#3498db",
+      doc: "#27ae60", docx: "#27ae60",
+      ppt: "#e67e22", pptx: "#e67e22",
+    })[ext] || "#95a5a6",
+  };
+};
 
-function formatSize(bytes) {
-  if (bytes < 1024)    return bytes + " B";
-  if (bytes < 1048576) return (bytes / 1024).toFixed(0) + " KB";
-  return (bytes / 1048576).toFixed(1) + " MB";
-}
-
-function FloatingOrbs() {
-  return (
-    <div className="ci-orbs" aria-hidden="true">
-      {[...Array(6)].map((_, i) => <div key={i} className={`ci-orb ci-orb--${i + 1}`} />)}
-    </div>
-  );
-}
+const formatSize = (bytes) => {
+  if (bytes < 1024)       return bytes + " B";
+  if (bytes < 1024 ** 2) return (bytes / 1024).toFixed(1) + " KB";
+  return (bytes / (1024 ** 2)).toFixed(1) + " MB";
+};
 
 export default function ContentIntake() {
   const router = useRouter();
   const inputRef = useRef();
 
-  const [inputMode,   setInputMode]   = useState("file"); // "file" | "text"
+  const [inputMode,   setInputMode]   = useState("file");
   const [pastedText,  setPastedText]  = useState("");
   const [files,       setFiles]       = useState([]);
   const [rawFiles,    setRawFiles]    = useState([]);
@@ -49,8 +49,11 @@ export default function ContentIntake() {
   const [genProgress, setGenProgress] = useState(0);
   const [done,        setDone]        = useState(false);
   const [cardCount,   setCardCount]   = useState(0);
+  const [segmentCount, setSegmentCount] = useState(0);
   const [error,       setError]       = useState("");
+  const [saving,      setSaving]      = useState(false);
 
+  // ── Drag / drop ────────────────────────────────────────────────────────
   const handleDragEnter = useCallback((e) => {
     e.preventDefault();
     setDragCount((c) => { if (c === 0) setDrag(true); return c + 1; });
@@ -59,7 +62,7 @@ export default function ContentIntake() {
     e.preventDefault();
     setDragCount((c) => { const n = c - 1; if (n === 0) setDrag(false); return n; });
   }, []);
-  const handleDragOver  = useCallback((e) => { e.preventDefault(); }, []);
+  const handleDragOver  = useCallback((e) => e.preventDefault(), []);
   const handleDrop      = useCallback((e) => {
     e.preventDefault(); setDrag(false); setDragCount(0);
     addFiles(e.dataTransfer.files);
@@ -67,7 +70,10 @@ export default function ContentIntake() {
 
   const addFiles = (incoming) => {
     const arr  = Array.from(incoming);
-    const meta = arr.map((f) => ({ id: Math.random().toString(36).slice(2), name: f.name, size: formatSize(f.size), ...getFileType(f.name) }));
+    const meta = arr.map((f) => ({
+      id:   Math.random().toString(36).slice(2),
+      name: f.name, size: formatSize(f.size), ...getFileType(f.name),
+    }));
     setFiles((prev) => [...prev, ...meta]);
     setRawFiles((prev) => [...prev, ...arr]);
     setDone(false); setError("");
@@ -84,45 +90,110 @@ export default function ContentIntake() {
     setPastedText("");
     setDone(false); setError("");
   };
+
   const openPicker = () => inputRef.current?.click();
 
+  // ── Generate: flashcards + segments in parallel ─────────────────────
   const handleGenerate = async () => {
-    setError(""); setGenerating(true); setGenProgress(0);
+    setError(""); setGenerating(true); setGenProgress(0); setSaving(false);
+
     let p = 0;
-    const ticker = setInterval(() => { p += Math.random() * 10 + 3; setGenProgress(Math.min(p, 87)); }, 280);
+    const ticker = setInterval(() => {
+      p += Math.random() * 8 + 3;
+      setGenProgress(Math.min(p, 85));
+    }, 280);
 
     try {
+      // ── Read content ──
       let combined = "", fileNames = "";
-
       if (inputMode === "text") {
         combined  = pastedText.trim();
         fileNames = "Pasted text";
         if (!combined) throw new Error("Please paste some text content first.");
       } else {
         for (const file of rawFiles) {
-          const text = await file.text();
-          combined  += (combined ? "\n\n" : "") + text;
+          combined  += (combined ? "\n\n" : "") + await file.text();
           fileNames += (fileNames ? ", " : "") + file.name;
         }
         if (!combined.trim()) throw new Error("Files appear to be empty or unreadable.");
       }
 
-      const res  = await fetch("/api/generate-flashcards", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: combined, fileNames, numCards }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Generation failed");
+      // ── Fire both APIs in parallel ──
+      const [flashRes, segRes] = await Promise.allSettled([
+        fetch("/api/generate-flashcards", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ content: combined, fileNames, numCards }),
+          signal: AbortSignal.timeout(60000),
+        }),
+        fetch("/api/extract-segments", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ content: combined, fileName: fileNames }),
+          signal: AbortSignal.timeout(90000),
+        }),
+      ]);
 
-      saveFlashcards(data.flashcards, { fileNames, numCards, topic: fileNames });
-      if (data.quiz) saveQuiz(data.quiz, { fileNames, topic: fileNames });
+      // ── Handle flashcards ──
+      if (flashRes.status === "rejected") {
+        throw new Error(`Flashcard generation failed: ${flashRes.reason?.message}`);
+      }
+      const flashResponse = flashRes.value;
+      let flashData;
+      try { flashData = await flashResponse.json(); }
+      catch { throw new Error(`Server error (${flashResponse.status}) — try again.`); }
+      if (!flashResponse.ok) {
+        throw new Error(flashData.error || "Flashcard generation failed.");
+      }
+
+      // ── Handle segments (non-blocking — failure is OK) ──
+      let segmentData = null;
+      if (segRes.status === "fulfilled") {
+        try {
+          const segResponse = segRes.value;
+          if (segResponse.ok) {
+            segmentData = await segResponse.json();
+          }
+        } catch (_) { /* silently skip */ }
+      }
+
+      // ── Save flashcards & quiz ──
+      saveFlashcards(flashData.flashcards, { fileNames, numCards, topic: fileNames });
+      if (flashData.quiz) saveQuiz(flashData.quiz, { fileNames, topic: fileNames });
+
+      // ── Save segments ──
+      if (segmentData?.groups) {
+        saveSegments(segmentData, { fileNames, topic: fileNames });
+        setSegmentCount(segmentData.stats?.totalSegments ?? segmentData.groups.flatMap(g => g.segments).length);
+      }
+
+      // ── Firebase save ──
+      const uid = auth.currentUser?.uid;
+      if (uid) {
+        setSaving(true);
+        try {
+          await saveDocument(uid, {
+            file: null, extractedText: combined,
+            flashcards: flashData.flashcards,
+            quiz: flashData.quiz ?? null,
+            topic: fileNames,
+          });
+        } catch (e) {
+          console.error("❌ Firebase save error:", e);
+        } finally {
+          setSaving(false);
+        }
+      }
 
       clearInterval(ticker);
       setGenProgress(100);
-      await new Promise((r) => setTimeout(r, 500));
-      setDone(true); setCardCount(data.count);
+      await new Promise((r) => setTimeout(r, 450));
+      setDone(true);
+      setCardCount(flashData.count);
+
     } catch (e) {
-      clearInterval(ticker); setError(e.message);
+      clearInterval(ticker);
+      setError(e.message);
     } finally {
       setGenerating(false);
     }
@@ -134,6 +205,7 @@ export default function ContentIntake() {
 
   const wordCount = pastedText.trim() ? pastedText.trim().split(/\s+/).length : 0;
 
+  // ── Render ─────────────────────────────────────────────────────────────
   return (
     <>
       <div className="topbar">
@@ -148,10 +220,10 @@ export default function ContentIntake() {
           <div className="ci-hero-eyebrow">Powered by GPT-4o</div>
           <h2 className="ci-hero-title">
             Drop your study material.<br />
-            <span className="ci-hero-accent">Get flashcards &amp; quiz instantly.</span>
+            <span className="ci-hero-accent">Get flashcards, quiz &amp; insights.</span>
           </h2>
           <p className="ci-hero-sub">
-            Upload files or paste text. We generate flashcards + a full quiz automatically.
+            Upload files or paste text. We extract topics, key concepts, flashcards and a full quiz automatically.
           </p>
         </div>
 
@@ -179,18 +251,21 @@ export default function ContentIntake() {
                 <div
                   className={`ci-dropzone ${drag ? "ci-dropzone--active" : ""} ${files.length ? "ci-dropzone--has-files" : ""}`}
                   onDragEnter={handleDragEnter} onDragLeave={handleDragLeave}
-                  onDragOver={handleDragOver} onDrop={handleDrop}
+                  onDragOver={handleDragOver}   onDrop={handleDrop}
                   onClick={files.length === 0 ? openPicker : undefined}
                   role="button" tabIndex={0}
                   onKeyDown={(e) => e.key === "Enter" && openPicker()}
                 >
-                  <input
-                    ref={inputRef} type="file" multiple
+                  <input ref={inputRef} type="file" multiple
                     accept=".txt,.md,.pdf,.doc,.docx,.ppt,.pptx"
                     style={{ display: "none" }}
                     onChange={(e) => { addFiles(e.target.files); e.target.value = ""; }}
                   />
-                  <FloatingOrbs />
+
+                  <div className="ci-orbs">
+                    {[1,2,3,4,5,6].map(n => <div key={n} className={`ci-orb ci-orb--${n}`} />)}
+                  </div>
+
                   {files.length === 0 ? (
                     <div className="ci-drop-empty">
                       <div className="ci-drop-icon-ring">
@@ -198,13 +273,13 @@ export default function ContentIntake() {
                           <path d="M12 4v12M6 10l6-6 6 6"/><path d="M4 20h16"/>
                         </svg>
                       </div>
-                      <div className="ci-drop-title">{drag ? "Release to upload" : "Drag & drop your files here"}</div>
+                      <div className="ci-drop-title">
+                        {drag ? "Release to upload" : "Drag & drop your files here"}
+                      </div>
                       <div className="ci-drop-subtitle">
                         or{" "}
-                        <button
-                          className="ci-drop-browse-link"
-                          onClick={(e) => { e.stopPropagation(); openPicker(); }}
-                        >
+                        <button className="ci-drop-browse-link"
+                          onClick={(e) => { e.stopPropagation(); openPicker(); }}>
                           browse files
                         </button>{" "}
                         from your computer
@@ -218,7 +293,7 @@ export default function ContentIntake() {
                         <span className="ci-generates-chip">🃏 Flashcards</span>
                         <span className="ci-generates-chip">📝 MCQ</span>
                         <span className="ci-generates-chip">✓✗ True / False</span>
-                        <span className="ci-generates-chip">💬 Short Answer</span>
+                        <span className="ci-generates-chip">📌 Segments</span>
                       </div>
                     </div>
                   ) : (
@@ -227,20 +302,16 @@ export default function ContentIntake() {
                         <div key={f.id} className="ci-file-card" style={{ "--fc": f.color }}>
                           <div className="ci-file-card-top">
                             <span className="ci-file-ext-badge">{f.label}</span>
-                            <button
-                              className="ci-file-remove"
-                              onClick={(e) => { e.stopPropagation(); removeFile(f.id); }}
-                            >✕</button>
+                            <button className="ci-file-remove"
+                              onClick={(e) => { e.stopPropagation(); removeFile(f.id); }}>✕</button>
                           </div>
                           <div className="ci-file-icon">{f.icon}</div>
                           <div className="ci-file-name" title={f.name}>{f.name}</div>
                           <div className="ci-file-size">{f.size}</div>
                         </div>
                       ))}
-                      <button
-                        className="ci-add-more-tile"
-                        onClick={(e) => { e.stopPropagation(); openPicker(); }}
-                      >
+                      <button className="ci-add-more-tile"
+                        onClick={(e) => { e.stopPropagation(); openPicker(); }}>
                         <span className="ci-add-more-icon">+</span>
                         <span>Add more</span>
                       </button>
@@ -259,7 +330,7 @@ export default function ContentIntake() {
                       <button className="ci-clear-btn" onClick={clearAll}>Clear all</button>
                     </div>
                     <div className="ci-config-right">
-                      <span className="ci-config-label">Flashcards to generate</span>
+                      <span className="ci-config-label">Flashcards</span>
                       <div className="ci-stepper">
                         <button className="ci-stepper-btn" onClick={() => setNumCards((n) => Math.max(3, n - 1))}>−</button>
                         <span className="ci-stepper-val">{numCards}</span>
@@ -288,7 +359,7 @@ export default function ContentIntake() {
                       : "Start typing or paste your content above"}
                   </span>
                   <div className="ci-config-right">
-                    <span className="ci-config-label">Flashcards to generate</span>
+                    <span className="ci-config-label">Flashcards</span>
                     <div className="ci-stepper">
                       <button className="ci-stepper-btn" onClick={() => setNumCards((n) => Math.max(3, n - 1))}>−</button>
                       <span className="ci-stepper-val">{numCards}</span>
@@ -303,16 +374,21 @@ export default function ContentIntake() {
             {canGenerate && !generating && (
               <button className="ci-generate-btn" onClick={handleGenerate}>
                 <span className="ci-generate-btn-icon">⚡</span>
-                Generate Flashcards + Quiz
+                Generate Flashcards + Quiz + Segments
                 <span className="ci-generate-btn-arrow">→</span>
               </button>
             )}
 
+            {/* ── Progress ── */}
             {generating && (
               <div className="ci-loading-block">
                 <div className="ci-loading-header">
                   <div className="ci-loading-dots"><span /><span /><span /></div>
-                  <span className="ci-loading-label">Generating flashcards + MCQ + True/False + Short Answer…</span>
+                  <span className="ci-loading-label">
+                    {saving
+                      ? "Saving to your account…"
+                      : "Generating flashcards · quiz · content segments…"}
+                  </span>
                 </div>
                 <div className="ci-progress-track">
                   <div className="ci-progress-fill" style={{ width: `${genProgress}%` }}>
@@ -323,6 +399,7 @@ export default function ContentIntake() {
               </div>
             )}
 
+            {/* ── Error ── */}
             {error && (
               <div className="ci-error-box">
                 <span className="ci-error-icon">⚠</span>{error}
@@ -330,6 +407,7 @@ export default function ContentIntake() {
             )}
           </>
         ) : (
+          /* ── Success state ──────────────────────────────────────────── */
           <div className="ci-success-state">
             <div className="ci-success-burst">
               <div className="ci-success-ring ci-success-ring--1" />
@@ -338,26 +416,49 @@ export default function ContentIntake() {
               <div className="ci-success-checkmark">✓</div>
             </div>
             <h3 className="ci-success-title">Study material ready!</h3>
-            <p className="ci-success-sub">{cardCount} flashcards · 15 quiz questions generated</p>
+            <p className="ci-success-sub">
+              {cardCount} flashcards · 15 quiz questions
+              {segmentCount > 0 ? ` · ${segmentCount} segments` : ""}
+            </p>
+
             <div className="ci-success-cards-row">
-              <div className="ci-success-type-card" onClick={() => router.push("/page/dashboard/flashcard")}>
+              <div className="ci-success-type-card"
+                onClick={() => router.push("/page/dashboard/flashcard")}>
                 <span className="ci-stc-icon">🃏</span>
                 <span className="ci-stc-label">Flashcards</span>
                 <span className="ci-stc-count">{cardCount} cards</span>
               </div>
-              <div className="ci-success-type-card" onClick={() => router.push("/page/dashboard/quiz")}>
+              <div className="ci-success-type-card"
+                onClick={() => router.push("/page/dashboard/quiz")}>
                 <span className="ci-stc-icon">📝</span>
                 <span className="ci-stc-label">Quiz</span>
                 <span className="ci-stc-count">15 questions</span>
               </div>
+              {segmentCount > 0 && (
+                <div className="ci-success-type-card"
+                  onClick={() => router.push("/page/dashboard/segments")}>
+                  <span className="ci-stc-icon">📌</span>
+                  <span className="ci-stc-label">Segments</span>
+                  <span className="ci-stc-count">{segmentCount} units</span>
+                </div>
+              )}
             </div>
+
             <div className="ci-success-actions">
-              <button className="ci-generate-btn" onClick={() => router.push("/page/dashboard/quiz")}>
-                <span className="ci-generate-btn-icon">🧠</span>
-                Take the Quiz
-                <span className="ci-generate-btn-arrow">→</span>
+              {segmentCount > 0 && (
+                <button className="ci-generate-btn"
+                  onClick={() => router.push("/page/dashboard/segments")}>
+                  <span className="ci-generate-btn-icon">📌</span>
+                  Explore Content Segments
+                  <span className="ci-generate-btn-arrow">→</span>
+                </button>
+              )}
+              <button className="ci-outline-btn"
+                onClick={() => router.push("/page/dashboard/quiz")}>
+                🧠 Take the Quiz
               </button>
-              <button className="ci-outline-btn" onClick={() => router.push("/page/dashboard/flashcard")}>
+              <button className="ci-outline-btn"
+                onClick={() => router.push("/page/dashboard/flashcard")}>
                 🃏 Study Flashcards
               </button>
               <button className="ci-text-btn" onClick={clearAll}>Upload new content</button>

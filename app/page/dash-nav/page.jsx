@@ -1,11 +1,11 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { Moon, Sun } from "lucide-react";
-import "./navbar.css";
+import "./dash-nav.css";
 import Image from "next/image";
 import logo from "../../../public/assets/logo.png";
 
-export default function Navbar() {
+export default function Dash() {
   const [isDark, setIsDark] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -76,12 +76,12 @@ export default function Navbar() {
             </div>
 
             {/* ── CENTER: Desktop nav ───────────────── */}
-            <div className="nav-links-desktop">
+            {/* <div className="nav-links-desktop">
               <a href="#features"     className="nav-link">Features</a>
               <a href="#how-it-works" className="nav-link">How it Works</a>
               <a href="#pricing"      className="nav-link">Pricing</a>
               <a href="#faq"          className="nav-link">FAQ</a>
-            </div>
+            </div> */}
 
             {/* ── RIGHT: Actions ────────────────────── */}
             <div className="right-section">
@@ -95,10 +95,10 @@ export default function Navbar() {
               </button>
 
               {/* Sign in → opens Sign Up tab (default) */}
-              <a href="/page/signup" className="signin-link">Sign in</a>
+              {/* <a href="/page/signup" className="signin-link">Sign in</a> */}
 
               {/* Get Started → opens Log In tab */}
-              <a href="/page/signup?tab=login" className="cta-button">Get Started</a>
+              <a href="/" className="cta-button">Back</a>
 
               <button
                 className={`hamburger-btn${menuOpen ? " open" : ""}`}
@@ -123,12 +123,12 @@ export default function Navbar() {
         className={`mobile-menu${menuOpen ? " open" : ""}`}
         aria-hidden={!menuOpen}
       >
-        <nav className="mobile-nav-links" aria-label="Mobile navigation">
+        {/* <nav className="mobile-nav-links" aria-label="Mobile navigation">
           <a href="#features"     className="mobile-nav-link" onClick={handleMobileLinkClick}>Features</a>
           <a href="#how-it-works" className="mobile-nav-link" onClick={handleMobileLinkClick}>How it Works</a>
           <a href="#pricing"      className="mobile-nav-link" onClick={handleMobileLinkClick}>Pricing</a>
           <a href="#faq"          className="mobile-nav-link" onClick={handleMobileLinkClick}>FAQ</a>
-        </nav>
+        </nav> */}
 
         <div className="mobile-divider" />
 

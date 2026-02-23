@@ -1,8 +1,22 @@
 "use client";
 import { useState, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import './signup.css';
-import Navbar from '../navbar/page';
+// import Navbar from '../navbar/page';
+import Dash from '../dash-nav/page';
+import { auth } from '../../../lib/firebase';
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+  sendPasswordResetEmail,
+  updateProfile,
+} from 'firebase/auth';
+
+const googleProvider = new GoogleAuthProvider();
+
+// ── Icons ─────────────────────────────────────────────────────────────────
 
 const EyeIcon = () => (
   <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
@@ -19,36 +33,246 @@ const EyeOffIcon = () => (
   </svg>
 );
 
+const GoogleIcon = () => (
+  <svg viewBox="0 0 24 24" width="18" height="18">
+    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.51h5.84c-.25 1.31-.98 2.42-2.07 3.16v2.63h3.35c1.96-1.81 3.09-4.47 3.09-7.25z"/>
+    <path fill="#34A853" d="M12 23c2.97 0 5.46-.99 7.28-2.73l-3.35-2.63c-1.01.68-2.29 1.08-3.93 1.08-3.02 0-5.58-2.04-6.49-4.79H.96v2.67C2.75 20.19 6.7 23 12 23z"/>
+    <path fill="#FBBC05" d="M5.51 14.21c-.23-.68-.36-1.41-.36-2.21s.13-1.53.36-2.21V7.34H.96C.35 8.85 0 10.39 0 12s.35 3.15.96 4.66l4.55-2.45z"/>
+    <path fill="#EA4335" d="M12 4.98c1.64 0 3.11.56 4.27 1.66l3.19-3.19C17.46 1.01 14.97 0 12 0 6.7 0 2.75 2.81.96 7.34l4.55 2.45C6.42 7.02 8.98 4.98 12 4.98z"/>
+  </svg>
+);
+
+const AlertIcon = () => (
+  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
+    <circle cx="12" cy="12" r="10"/>
+    <line x1="12" y1="8" x2="12" y2="12"/>
+    <line x1="12" y1="16" x2="12.01" y2="16"/>
+  </svg>
+);
+
+const CheckIcon = () => (
+  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5">
+    <polyline points="20 6 9 17 4 12"/>
+  </svg>
+);
+
+// ── Firebase error → friendly message ─────────────────────────────────────
+
+function friendlyError(code) {
+  const map = {
+    'auth/user-not-found':       'No account found with this email.',
+    'auth/wrong-password':       'Incorrect password. Try again or reset it.',
+    'auth/invalid-credential':   'Incorrect email or password.',
+    'auth/email-already-in-use': 'An account with this email already exists.',
+    'auth/weak-password':        'Password must be at least 6 characters.',
+    'auth/invalid-email':        'Please enter a valid email address.',
+    'auth/popup-closed-by-user': 'Google sign-in was cancelled.',
+    'auth/popup-blocked':        'Pop-up blocked. Please allow pop-ups and try again.',
+    'auth/too-many-requests':    'Too many attempts. Please wait a moment and try again.',
+    'auth/network-request-failed': 'Network error. Check your connection and try again.',
+    'auth/operation-not-allowed': 'This sign-in method is not enabled. Contact support.',
+  };
+  return map[code] || 'Something went wrong. Please try again.';
+}
+
+// ── Client-side validation ────────────────────────────────────────────────
+
+function validateSignup({ name, email, password }) {
+  const errors = {};
+  if (!name || name.trim().length < 2)
+    errors.name = 'Name must be at least 2 characters.';
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+    errors.email = 'Enter a valid email address.';
+  if (!password || password.length < 6)
+    errors.password = 'Password must be at least 6 characters.';
+  else if (!/[A-Z]/.test(password) && !/[0-9]/.test(password))
+    errors.password = 'Password should include a number or capital letter.';
+  return errors;
+}
+
+function validateLogin({ email, password }) {
+  const errors = {};
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+    errors.email = 'Enter a valid email address.';
+  if (!password)
+    errors.password = 'Please enter your password.';
+  return errors;
+}
+
+// ── Reusable field component ──────────────────────────────────────────────
+
+function Field({ id, label, name, type = 'text', placeholder, value, onChange, error, extra, autoComplete }) {
+  const [showPw, setShowPw] = useState(false);
+  const isPw = type === 'password';
+  const inputType = isPw ? (showPw ? 'text' : 'password') : type;
+
+  return (
+    <div className={`form-group ${error ? 'has-error' : ''}`}>
+      <div className="label-row">
+        <label htmlFor={id}>{label}</label>
+        {extra}
+      </div>
+      <div className="input-wrapper">
+        <input
+          id={id}
+          name={name}
+          type={inputType}
+          placeholder={placeholder}
+          value={value}
+          onChange={onChange}
+          autoComplete={autoComplete}
+          className={error ? 'input-error' : ''}
+        />
+        {isPw && (
+          <button type="button" className="eye-btn" onClick={() => setShowPw((v) => !v)}
+            aria-label={showPw ? 'Hide password' : 'Show password'}>
+            {showPw ? <EyeOffIcon /> : <EyeIcon />}
+          </button>
+        )}
+      </div>
+      {error && (
+        <span className="field-error">
+          <AlertIcon /> {error}
+        </span>
+      )}
+    </div>
+  );
+}
+
+// ── Password strength bar ─────────────────────────────────────────────────
+
+function PasswordStrength({ password }) {
+  if (!password) return null;
+  let score = 0;
+  if (password.length >= 6)  score++;
+  if (password.length >= 10) score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/[0-9]/.test(password)) score++;
+  if (/[^A-Za-z0-9]/.test(password)) score++;
+
+  const label = ['', 'Weak', 'Fair', 'Good', 'Strong', 'Very strong'][score];
+  const color = ['', '#ef4444', '#f97316', '#eab308', '#22c55e', '#10b981'][score];
+  const pct   = `${(score / 5) * 100}%`;
+
+  return (
+    <div className="pw-strength">
+      <div className="pw-strength-bar">
+        <div className="pw-strength-fill" style={{ width: pct, background: color }} />
+      </div>
+      <span className="pw-strength-label" style={{ color }}>{label}</span>
+    </div>
+  );
+}
+
+// ── Main auth inner ───────────────────────────────────────────────────────
+
 function AuthPageInner() {
   const searchParams = useSearchParams();
-  const [isLogin, setIsLogin] = useState(false);
-  const [showLoginPw, setShowLoginPw] = useState(false);
-  const [showSignupPw, setShowSignupPw] = useState(false);
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [forgotEmail, setForgotEmail] = useState('');
-  const [forgotSent, setForgotSent] = useState(false);
+  const router       = useRouter();
+
+  const [isLogin,        setIsLogin]        = useState(false);
+  const [showForgot,     setShowForgot]     = useState(false);
+  const [forgotEmail,    setForgotEmail]    = useState('');
+  const [forgotSent,     setForgotSent]     = useState(false);
+  const [loading,        setLoading]        = useState(false);
+  const [googleLoading,  setGoogleLoading]  = useState(false);
+  const [globalError,    setGlobalError]    = useState('');
+  const [fieldErrors,    setFieldErrors]    = useState({});
+  const [successMsg,     setSuccessMsg]     = useState('');
+
+  // form values — controlled
+  const [name,     setName]     = useState('');
+  const [email,    setEmail]    = useState('');
+  const [password, setPassword] = useState('');
 
   useEffect(() => {
-    if (searchParams.get('tab') === 'login') {
-      setIsLogin(true);
-    }
+    if (searchParams.get('tab') === 'login') setIsLogin(true);
   }, [searchParams]);
 
-  const handleSubmit = (e) => {
+  // clear errors when switching tabs
+  useEffect(() => {
+    setGlobalError('');
+    setFieldErrors({});
+    setSuccessMsg('');
+    setName(''); setEmail(''); setPassword('');
+  }, [isLogin, showForgot]);
+
+  // ── Email / password submit ────────────────────────────────────────────
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const data = Object.fromEntries(new FormData(e.target));
-    console.log(isLogin ? 'Login attempt' : 'Signup attempt', data);
+    setGlobalError('');
+    setSuccessMsg('');
+
+    // Client-side validation
+    const errs = isLogin
+      ? validateLogin({ email, password })
+      : validateSignup({ name, email, password });
+
+    if (Object.keys(errs).length > 0) {
+      setFieldErrors(errs);
+      return;
+    }
+    setFieldErrors({});
+    setLoading(true);
+
+    try {
+      if (isLogin) {
+        await signInWithEmailAndPassword(auth, email.trim(), password);
+      } else {
+        const cred = await createUserWithEmailAndPassword(auth, email.trim(), password);
+        if (name.trim()) {
+          await updateProfile(cred.user, { displayName: name.trim() });
+        }
+      }
+      router.push('/page/dashboard/dash-home');
+    } catch (err) {
+      console.error('Auth error:', err.code, err.message);
+      setGlobalError(friendlyError(err.code));
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleForgotSubmit = (e) => {
-    e.preventDefault();
-    console.log('Password reset for:', forgotEmail);
-    setForgotSent(true);
+  // ── Google ─────────────────────────────────────────────────────────────
+
+  const handleGoogle = async () => {
+    setGlobalError('');
+    setGoogleLoading(true);
+    try {
+      await signInWithPopup(auth, googleProvider);
+      router.push('/page/dashboard/dash-home');
+    } catch (err) {
+      console.error('Google auth error:', err.code, err.message);
+      setGlobalError(friendlyError(err.code));
+    } finally {
+      setGoogleLoading(false);
+    }
   };
 
-  const handleGoogle = () => alert('Google Sign-In → redirecting...');
+  // ── Forgot password ────────────────────────────────────────────────────
 
-  if (showForgotPassword) {
+  const handleForgotSubmit = async (e) => {
+    e.preventDefault();
+    setGlobalError('');
+    if (!forgotEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(forgotEmail)) {
+      setGlobalError('Enter a valid email address.');
+      return;
+    }
+    setLoading(true);
+    try {
+      await sendPasswordResetEmail(auth, forgotEmail.trim());
+      setForgotSent(true);
+    } catch (err) {
+      setGlobalError(friendlyError(err.code));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ── Forgot screen ──────────────────────────────────────────────────────
+
+  if (showForgot) {
     return (
       <div className="auth-page">
         <div className="auth-card">
@@ -58,40 +282,39 @@ function AuthPageInner() {
           <div className="auth-content">
             {forgotSent ? (
               <div className="forgot-success">
-                <div className="success-icon">✉️</div>
-                <h2>Check your email</h2>
+                <div className="success-burst">
+                  <div className="success-ring" />
+                  <div className="success-check"><CheckIcon /></div>
+                </div>
+                <h2>Check your inbox</h2>
                 <p>We sent a reset link to <strong>{forgotEmail}</strong></p>
-                <button
-                  type="button"
-                  className="btn primary"
-                  style={{ marginTop: '16px' }}
-                  onClick={() => {
-                    setShowForgotPassword(false);
-                    setForgotSent(false);
-                    setForgotEmail('');
-                  }}
-                >
+                <button type="button" className="btn primary" style={{ marginTop: 20 }}
+                  onClick={() => { setShowForgot(false); setForgotSent(false); setForgotEmail(''); setIsLogin(true); }}>
                   Back to Log In
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleForgotSubmit} className="auth-form">
+              <form onSubmit={handleForgotSubmit} className="auth-form" noValidate>
                 <h2>Forgot Password</h2>
-                <p className="forgot-subtitle">Enter your email and we&apos;ll send you a reset link.</p>
+                <p className="auth-subtitle">Enter your email and we'll send you a reset link.</p>
+
+                {globalError && (
+                  <div className="auth-error-box">
+                    <AlertIcon /> {globalError}
+                  </div>
+                )}
+
                 <div className="form-group">
                   <label htmlFor="forgot-email">Email</label>
-                  <input
-                    id="forgot-email"
-                    type="email"
-                    placeholder="name@example.com"
-                    value={forgotEmail}
-                    onChange={(e) => setForgotEmail(e.target.value)}
-                    required
-                  />
+                  <input id="forgot-email" type="email" placeholder="name@example.com"
+                    value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} required />
                 </div>
-                <button type="submit" className="btn primary">Send Reset Link</button>
-                <p className="toggle-text" style={{ marginTop: '14px' }}>
-                  <button type="button" className="text-link" onClick={() => setShowForgotPassword(false)}>
+
+                <button type="submit" className="btn primary" disabled={loading}>
+                  {loading ? <><span className="btn-spinner" /> Sending…</> : 'Send Reset Link'}
+                </button>
+                <p className="toggle-text" style={{ marginTop: 14 }}>
+                  <button type="button" className="text-link" onClick={() => { setShowForgot(false); setGlobalError(''); }}>
                     ← Back to Log In
                   </button>
                 </p>
@@ -103,143 +326,118 @@ function AuthPageInner() {
     );
   }
 
+  // ── Main screen ────────────────────────────────────────────────────────
+
   return (
     <>
-      <Navbar />
+      <Dash />
       <div className="auth-page">
         <div className="auth-card">
+
+          {/* Tabs */}
           <div className="auth-tabs">
-            <button
-              className={`tab ${!isLogin ? 'active' : ''}`}
-              onClick={() => setIsLogin(false)}
-              type="button"
-            >
+            <button className={`tab ${!isLogin ? 'active' : ''}`} onClick={() => setIsLogin(false)} type="button">
               Sign Up
             </button>
-            <button
-              className={`tab ${isLogin ? 'active' : ''}`}
-              onClick={() => setIsLogin(true)}
-              type="button"
-            >
+            <button className={`tab ${isLogin ? 'active' : ''}`} onClick={() => setIsLogin(true)} type="button">
               Log In
             </button>
           </div>
 
           <div className="auth-content">
+
+            {/* Global error box */}
+            {globalError && (
+              <div className="auth-error-box" role="alert">
+                <span className="auth-error-icon"><AlertIcon /></span>
+                <span>{globalError}</span>
+              </div>
+            )}
+
+            {/* Success message */}
+            {successMsg && (
+              <div className="auth-success-box" role="status">
+                <span className="auth-success-icon"><CheckIcon /></span>
+                <span>{successMsg}</span>
+              </div>
+            )}
+
+            {/* Google button — above form */}
+            <button
+              type="button"
+              onClick={handleGoogle}
+              className="btn google"
+              disabled={loading || googleLoading}
+            >
+              {googleLoading
+                ? <><span className="btn-spinner btn-spinner--dark" /> Connecting…</>
+                : <><GoogleIcon /> Continue with Google</>
+              }
+            </button>
+
+            <div className="divider"><span>or continue with email</span></div>
+
             {isLogin ? (
-              <form onSubmit={handleSubmit} className="auth-form">
-                <h2>Log In</h2>
-
-                <div className="form-group">
-                  <label htmlFor="login-email">Email</label>
-                  <input
-                    id="login-email"
-                    name="email"
-                    type="email"
-                    placeholder="name@example.com"
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <div className="label-row">
-                    <label htmlFor="login-password">Password</label>
-                    <button
-                      type="button"
-                      className="text-link forgot-inline"
-                      onClick={() => setShowForgotPassword(true)}
-                    >
+              /* ── LOGIN ── */
+              <form onSubmit={handleSubmit} className="auth-form" noValidate>
+                <Field
+                  id="login-email" name="email" type="email" label="Email"
+                  placeholder="name@example.com" value={email}
+                  onChange={(e) => { setEmail(e.target.value); setFieldErrors((p) => ({ ...p, email: '' })); }}
+                  error={fieldErrors.email} autoComplete="email"
+                />
+                <Field
+                  id="login-password" name="password" type="password" label="Password"
+                  placeholder="••••••••" value={password}
+                  onChange={(e) => { setPassword(e.target.value); setFieldErrors((p) => ({ ...p, password: '' })); }}
+                  error={fieldErrors.password} autoComplete="current-password"
+                  extra={
+                    <button type="button" className="text-link forgot-inline"
+                      onClick={() => { setShowForgot(true); setGlobalError(''); }}>
                       Forgot password?
                     </button>
-                  </div>
-                  <div className="input-wrapper">
-                    <input
-                      id="login-password"
-                      name="password"
-                      type={showLoginPw ? 'text' : 'password'}
-                      placeholder="••••••"
-                      required
-                    />
-                    <button
-                      type="button"
-                      className="eye-btn"
-                      onClick={() => setShowLoginPw((v) => !v)}
-                      aria-label={showLoginPw ? 'Hide password' : 'Show password'}
-                    >
-                      {showLoginPw ? <EyeOffIcon /> : <EyeIcon />}
-                    </button>
-                  </div>
-                </div>
+                  }
+                />
 
-                <button type="submit" className="btn primary">Log In</button>
-                <div className="divider"><span>or</span></div>
-                <button type="button" onClick={handleGoogle} className="btn google">
-                  <GoogleIcon /> Continue with Google
+                <button type="submit" className="btn primary" disabled={loading || googleLoading}>
+                  {loading ? <><span className="btn-spinner" /> Logging in…</> : 'Log In'}
                 </button>
+
                 <p className="toggle-text">
                   No account?{' '}
-                  <button type="button" className="text-link" onClick={() => setIsLogin(false)}>
-                    Sign up
-                  </button>
+                  <button type="button" className="text-link" onClick={() => setIsLogin(false)}>Sign up free</button>
                 </p>
               </form>
             ) : (
-              <form onSubmit={handleSubmit} className="auth-form">
-                <h2>Sign Up</h2>
+              /* ── SIGN UP ── */
+              <form onSubmit={handleSubmit} className="auth-form" noValidate>
+                <Field
+                  id="signup-name" name="name" type="text" label="Full Name"
+                  placeholder="Your name" value={name}
+                  onChange={(e) => { setName(e.target.value); setFieldErrors((p) => ({ ...p, name: '' })); }}
+                  error={fieldErrors.name} autoComplete="name"
+                />
+                <Field
+                  id="signup-email" name="email" type="email" label="Email"
+                  placeholder="name@example.com" value={email}
+                  onChange={(e) => { setEmail(e.target.value); setFieldErrors((p) => ({ ...p, email: '' })); }}
+                  error={fieldErrors.email} autoComplete="email"
+                />
+                <Field
+                  id="signup-password" name="password" type="password" label="Password"
+                  placeholder="••••••••" value={password}
+                  onChange={(e) => { setPassword(e.target.value); setFieldErrors((p) => ({ ...p, password: '' })); }}
+                  error={fieldErrors.password} autoComplete="new-password"
+                />
+                <PasswordStrength password={password} />
 
-                <div className="form-group">
-                  <label htmlFor="signup-name">Name</label>
-                  <input
-                    id="signup-name"
-                    name="name"
-                    type="text"
-                    placeholder="Your name"
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="signup-email">Email</label>
-                  <input
-                    id="signup-email"
-                    name="email"
-                    type="email"
-                    placeholder="name@example.com"
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="signup-password">Password</label>
-                  <div className="input-wrapper">
-                    <input
-                      id="signup-password"
-                      name="password"
-                      type={showSignupPw ? 'text' : 'password'}
-                      placeholder="••••••"
-                      required
-                    />
-                    <button
-                      type="button"
-                      className="eye-btn"
-                      onClick={() => setShowSignupPw((v) => !v)}
-                      aria-label={showSignupPw ? 'Hide password' : 'Show password'}
-                    >
-                      {showSignupPw ? <EyeOffIcon /> : <EyeIcon />}
-                    </button>
-                  </div>
-                </div>
-
-                <button type="submit" className="btn primary">Create Account</button>
-                <div className="divider"><span>or</span></div>
-                <button type="button" onClick={handleGoogle} className="btn google">
-                  <GoogleIcon /> Continue with Google
+                <button type="submit" className="btn primary" disabled={loading || googleLoading}>
+                  {loading ? <><span className="btn-spinner" /> Creating account…</> : 'Create Account'}
                 </button>
+
                 <p className="toggle-text">
                   Already have an account?{' '}
-                  <button type="button" className="text-link" onClick={() => setIsLogin(true)}>
-                    Log in
-                  </button>
+                  <button type="button" className="text-link" onClick={() => setIsLogin(true)}>Log in</button>
                 </p>
               </form>
             )}
@@ -255,16 +453,5 @@ export default function AuthPage() {
     <Suspense fallback={null}>
       <AuthPageInner />
     </Suspense>
-  );
-}
-
-function GoogleIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="16" height="16">
-      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.51h5.84c-.25 1.31-.98 2.42-2.07 3.16v2.63h3.35c1.96-1.81 3.09-4.47 3.09-7.25z"/>
-      <path fill="#34A853" d="M12 23c2.97 0 5.46-.99 7.28-2.73l-3.35-2.63c-1.01.68-2.29 1.08-3.93 1.08-3.02 0-5.58-2.04-6.49-4.79H.96v2.67C2.75 20.19 6.7 23 12 23z"/>
-      <path fill="#FBBC05" d="M5.51 14.21c-.23-.68-.36-1.41-.36-2.21s.13-1.53.36-2.21V7.34H.96C.35 8.85 0 10.39 0 12s.35 3.15.96 4.66l4.55-2.45z"/>
-      <path fill="#EA4335" d="M12 4.98c1.64 0 3.11.56 4.27 1.66l3.19-3.19C17.46 1.01 14.97 0 12 0 6.7 0 2.75 2.81.96 7.34l4.55 2.45C6.42 7.02 8.98 4.98 12 4.98z"/>
-    </svg>
   );
 }
