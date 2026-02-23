@@ -12,27 +12,49 @@ export const maxDuration = 60; // seconds
 
 export async function POST(request) {
   try {
+    // Log request start for debugging
+    console.log("[API] POST /api/generate-flashcards - Request received");
+    
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
-      console.error("OPENAI_API_KEY is missing in environment variables");
+      console.error("[API] OPENAI_API_KEY is missing in environment variables");
       return Response.json({ 
         error: "OpenAI API key not configured. Please check your environment variables.",
         details: "The OPENAI_API_KEY environment variable is missing or empty."
       }, { status: 500 });
     }
+    console.log("[API] API key found (length:", apiKey.length, ")");
 
     // Initialize OpenAI client inside the handler (lazy initialization)
     // This prevents build-time errors when the API key is not available
     const openai = new OpenAI({ apiKey });
 
-    const { content, fileNames, numCards = 10 } = await request.json();
+    // Parse request body with error handling
+    let requestBody;
+    try {
+      requestBody = await request.json();
+      console.log("[API] Request body parsed successfully");
+    } catch (jsonError) {
+      console.error("[API] Failed to parse request JSON:", jsonError);
+      return Response.json({ 
+        error: "Invalid request format",
+        details: "Request body must be valid JSON."
+      }, { status: 400 });
+    }
+
+    const { content, fileNames, numCards = 10 } = requestBody;
 
     if (!content || content.trim().length === 0) {
+      console.error("[API] Content is empty or missing");
       return Response.json({ error: "Content is required" }, { status: 400 });
     }
 
+    console.log("[API] Starting OpenAI API calls - Content length:", content.length, "numCards:", numCards);
+
     // ── Run both generations in parallel ──────────────────────────────────
-    const [flashcardRes, quizRes] = await Promise.all([
+    let flashcardRes, quizRes;
+    try {
+      [flashcardRes, quizRes] = await Promise.all([
 
       // ── 1. Flashcards ──
       openai.chat.completions.create({
@@ -110,6 +132,12 @@ Return ONLY valid JSON — no markdown:
         response_format: { type: "json_object" },
       }),
     ]);
+      console.log("[API] OpenAI API calls completed successfully");
+    } catch (openaiError) {
+      console.error("[API] OpenAI API call failed:", openaiError);
+      // Re-throw to be caught by outer catch block
+      throw openaiError;
+    }
 
     // ── Parse responses ───────────────────────────────────────────────────
     const parseJSON = (text) => {
@@ -117,14 +145,35 @@ Return ONLY valid JSON — no markdown:
       catch { const m = text.match(/\{[\s\S]*\}/); return m ? JSON.parse(m[0]) : null; }
     };
 
-    const flashcardsData = parseJSON(flashcardRes.choices[0].message.content);
-    const quizData       = parseJSON(quizRes.choices[0].message.content);
+    const flashcardContent = flashcardRes.choices[0]?.message?.content;
+    const quizContent = quizRes.choices[0]?.message?.content;
 
-    if (!flashcardsData?.flashcards || !quizData?.mcq) {
-      console.error("Bad AI response:", { flashcardsData, quizData }); // helps debug
-      return Response.json({ error: "Invalid response format from AI" }, { status: 500 });
+    if (!flashcardContent || !quizContent) {
+      console.error("[API] Missing content in OpenAI response:", { 
+        flashcardRes: flashcardRes?.choices?.[0], 
+        quizRes: quizRes?.choices?.[0] 
+      });
+      return Response.json({ 
+        error: "Invalid response format from AI",
+        details: "OpenAI response is missing expected content."
+      }, { status: 500 });
     }
 
+    const flashcardsData = parseJSON(flashcardContent);
+    const quizData = parseJSON(quizContent);
+
+    if (!flashcardsData?.flashcards || !quizData?.mcq) {
+      console.error("[API] Bad AI response format:", { 
+        flashcardsData: flashcardsData ? Object.keys(flashcardsData) : null, 
+        quizData: quizData ? Object.keys(quizData) : null 
+      });
+      return Response.json({ 
+        error: "Invalid response format from AI",
+        details: "AI response does not contain expected flashcard or quiz data."
+      }, { status: 500 });
+    }
+
+    console.log("[API] Successfully generated", flashcardsData.flashcards.length, "flashcards");
     return Response.json({
       success:    true,
       flashcards: flashcardsData.flashcards,
@@ -137,42 +186,68 @@ Return ONLY valid JSON — no markdown:
     });
 
   } catch (error) {
-    console.error("Generation error:", error);
+    // Safe error logging - extract serializable properties
+    const errorInfo = {
+      name: error?.name || "Unknown",
+      message: error?.message || "Unknown error",
+      stack: error?.stack ? String(error.stack).substring(0, 500) : undefined,
+    };
+    console.error("[API] Generation error:", errorInfo);
     
     // Provide more specific error messages
     let errorMessage = "Failed to generate content";
-    let errorDetails = error.message || "Unknown error";
+    let errorDetails = errorInfo.message || "Unknown error";
+    const errorType = errorInfo.name || "Error";
     
-    if (error instanceof Error) {
-      // Network/connection errors
-      if (error.message.includes("fetch") || error.message.includes("network") || error.message.includes("ECONNREFUSED")) {
-        errorMessage = "Connection error: Unable to reach OpenAI API";
-        errorDetails = "Please check your internet connection and try again.";
-      }
-      // API key errors
-      else if (error.message.includes("API key") || error.message.includes("401") || error.message.includes("authentication")) {
-        errorMessage = "Authentication error: Invalid OpenAI API key";
-        errorDetails = "Please verify your OPENAI_API_KEY environment variable is correct.";
-      }
-      // Rate limit errors
-      else if (error.message.includes("rate limit") || error.message.includes("429")) {
-        errorMessage = "Rate limit exceeded";
-        errorDetails = "Too many requests. Please wait a moment and try again.";
-      }
-      // Timeout errors
-      else if (error.message.includes("timeout") || error.message.includes("ETIMEDOUT")) {
-        errorMessage = "Request timeout";
-        errorDetails = "The request took too long. Please try with shorter content or fewer cards.";
-      }
-      else {
-        errorMessage = error.message || errorMessage;
-      }
+    // Check error message for specific patterns
+    const errorMsgLower = errorInfo.message?.toLowerCase() || "";
+    
+    // Network/connection errors
+    if (errorMsgLower.includes("fetch") || errorMsgLower.includes("network") || 
+        errorMsgLower.includes("econnrefused") || errorMsgLower.includes("enotfound")) {
+      errorMessage = "Connection error: Unable to reach OpenAI API";
+      errorDetails = "Please check your internet connection and try again.";
+    }
+    // API key errors
+    else if (errorMsgLower.includes("api key") || errorMsgLower.includes("401") || 
+             errorMsgLower.includes("authentication") || errorMsgLower.includes("unauthorized")) {
+      errorMessage = "Authentication error: Invalid OpenAI API key";
+      errorDetails = "Please verify your OPENAI_API_KEY environment variable is correct.";
+    }
+    // Rate limit errors
+    else if (errorMsgLower.includes("rate limit") || errorMsgLower.includes("429") ||
+             errorMsgLower.includes("quota")) {
+      errorMessage = "Rate limit exceeded";
+      errorDetails = "Too many requests. Please wait a moment and try again.";
+    }
+    // Timeout errors
+    else if (errorMsgLower.includes("timeout") || errorMsgLower.includes("etimedout") ||
+             errorMsgLower.includes("aborted")) {
+      errorMessage = "Request timeout";
+      errorDetails = "The request took too long. Please try with shorter content or fewer cards.";
+    }
+    // Parse the error message if available
+    else if (errorInfo.message) {
+      errorMessage = errorInfo.message;
     }
     
-    return Response.json({ 
-      error: errorMessage,
-      details: errorDetails,
-      type: error.constructor?.name || "Error"
-    }, { status: 500 });
+    // Return serializable error response
+    try {
+      return Response.json({ 
+        error: errorMessage,
+        details: errorDetails,
+        type: errorType
+      }, { status: 500 });
+    } catch (jsonError) {
+      // Fallback if JSON serialization fails
+      console.error("[API] Failed to serialize error response:", jsonError);
+      return new Response(
+        JSON.stringify({ error: "Internal server error", details: "Failed to process error" }),
+        { 
+          status: 500,
+          headers: { "Content-Type": "application/json" }
+        }
+      );
+    }
   }
 }
