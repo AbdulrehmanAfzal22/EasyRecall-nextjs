@@ -14,25 +14,25 @@ import "./sidebar.css";
 import Image from "next/image";
 import logo from "../../../../public/assets/logo.png"
 const NAV_ITEMS = [
-  { label: "Dashboard",          href: "/page/dashboard/dash-home",         icon: LayoutDashboard },
-  { label: "Documents",          href: "/page/dashboard/content-intake",     icon: FileText        },
-  { label: "Flashcard Decks",    href: "/page/dashboard/flashcard",          icon: Layers          },
-  { label: "Flashcard Progress", href: "/page/dashboard/progress-flashcard", icon: BarChart2       },
-  { label: "Quizzes",            href: "/page/dashboard/quiz",               icon: BrainCircuit    },
-  { label: "Content",      href: "/page/dashboard/documents",      icon: ClipboardList   },
-  { label: "Help & Support",     href: "/page/faq",                          icon: HelpCircle      },
+  { label: "Dashboard", href: "/page/dashboard/dash-home", icon: LayoutDashboard },
+  { label: "Documents", href: "/page/dashboard/content-intake", icon: FileText },
+  { label: "Flashcard Decks", href: "/page/dashboard/flashcard", icon: Layers },
+  { label: "Flashcard Progress", href: "/page/dashboard/progress-flashcard", icon: BarChart2 },
+  { label: "Quizzes", href: "/page/dashboard/quiz", icon: BrainCircuit },
+  { label: "Content", href: "/page/dashboard/documents", icon: ClipboardList },
+  { label: "Topics", href: "/page/dashboard/segments", icon: HelpCircle },
 ];
 
 export default function Sidebar({ isDark, onToggleTheme }) {
   const pathname = usePathname();
-  const router   = useRouter();
-  const menuRef  = useRef(null);
+  const router = useRouter();
+  const menuRef = useRef(null);
 
-  const [collapsed,  setCollapsed]  = useState(
+  const [collapsed, setCollapsed] = useState(
     typeof window !== "undefined" && window.innerWidth <= 900
   );
-  const [user,       setUser]       = useState(null);
-  const [menuOpen,   setMenuOpen]   = useState(false);
+  const [user, setUser] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => {
@@ -60,9 +60,9 @@ export default function Sidebar({ isDark, onToggleTheme }) {
   };
 
   const displayName = user?.displayName || user?.email?.split("@")[0] || "User";
-  const email       = user?.email || "";
-  const photoURL    = user?.photoURL;
-  const initials    = displayName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
+  const email = user?.email || "";
+  const photoURL = user?.photoURL;
+  const initials = displayName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
 
   return (
     <aside className={`sidebar${collapsed ? " collapsed" : ""}`}>
@@ -70,7 +70,7 @@ export default function Sidebar({ isDark, onToggleTheme }) {
       {/* ── Logo / Brand ── */}
       <div className="sidebar-brand">
         <div className="sidebar-brand-icon">
-          <Image src={logo} alt="EasyRecall Logo" className="sidebar-logo"/>
+          <Image src={logo} alt="EasyRecall Logo" className="sidebar-logo" />
 
           {/* <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <path d="M12 2L2 7l10 5 10-5-10-5z" fill="currentColor" opacity="0.9"/>

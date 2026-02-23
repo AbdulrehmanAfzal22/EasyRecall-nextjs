@@ -27,8 +27,8 @@
   height: 100vh;
   position: sticky;
   top: 0;
-  /* background: var(--sidebar-bg); */
-  /* border-right: 1px solid var(--sidebar-border); */
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
