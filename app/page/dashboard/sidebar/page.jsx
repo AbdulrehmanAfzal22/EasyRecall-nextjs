@@ -20,7 +20,7 @@ const NAV_ITEMS = [
   { label: "Flashcard Progress", href: "/page/dashboard/progress-flashcard", icon: BarChart2       },
   { label: "Quizzes",            href: "/page/dashboard/quiz",               icon: BrainCircuit    },
   { label: "Content",      href: "/page/dashboard/documents",      icon: ClipboardList   },
-  { label: "Help & Support",     href: "/page/dashboard/help",               icon: HelpCircle      },
+  { label: "Help & Support",     href: "/page/faq",                          icon: HelpCircle      },
 ];
 
 export default function Sidebar({ isDark, onToggleTheme }) {
