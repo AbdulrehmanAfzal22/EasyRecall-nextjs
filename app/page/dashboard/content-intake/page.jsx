@@ -227,7 +227,7 @@ export default function ContentIntake() {
 
       <div className="page ci-page">
         <div className="ci-hero">
-          <div className="ci-hero-eyebrow">Powered by GPT-4o</div>
+          <div className="ci-hero-eyebrow">Powered by EASYRECALL</div>
           <h2 className="ci-hero-title">
             Drop your study material.<br />
             <span className="ci-hero-accent">Get flashcards, quiz &amp; insights.</span>

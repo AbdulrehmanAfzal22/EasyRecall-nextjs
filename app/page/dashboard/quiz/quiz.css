@@ -776,7 +776,7 @@
   justify-content: center;
   gap: 8px;
   padding: 12px 20px 16px;
-  background: var(--qz-bottom-nav-bg);
+  /* background: var(--qz-bottom-nav-bg); */
   backdrop-filter: blur(16px);
   border-top: 1px solid var(--qz-bottom-nav-border);
   z-index: 50;
