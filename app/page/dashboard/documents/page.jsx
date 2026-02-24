@@ -1,6 +1,19 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import {
+  FileText,
+  Zap,
+  HelpCircle,
+  Trash2,
+  Search,
+  Upload,
+  Grid3x3,
+  List,
+  Clock,
+  ChevronRight,
+  BookOpen,
+} from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { loadDocuments, deleteDocument, formatDate } from "../../../../lib/service"; // ✅ fixed import
@@ -10,25 +23,18 @@ import { saveSegments } from "../../../../lib/segmentStore";
 import "./document.css";
 
 // ── Icons ─────────────────────────────────────────────────────────────────
-const Icon = ({ d, size = 18 }) => (
-  <svg viewBox="0 0 24 24" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="1.8">
-    <path d={d} strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
-
 const ICONS = {
-  file:     "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 7V3.5L18.5 9H13z",
-  flash:    "M13 2L3 14h9l-1 8 10-12h-9l1-8z",
-  quiz:     "M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-6 9l2 2 4-4",
-  trash:    "M3 6h18M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m5 0V4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2",
-  search:   "M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z",
-  upload:   "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12",
-  grid:     "M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z",
-  list:     "M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01",
-  clock:    "M12 22C6.5 22 2 17.5 2 12S6.5 2 12 2s10 4.5 10 10-4.5 10-10 10zm0-14v4l3 3",
-  chevron:  "M9 18l6-6-6-6",
-  key:      "M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4",
-  book:     "M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20V2H6.5A2.5 2.5 0 0 0 4 4.5v15z",
+  file:     FileText,
+  flash:    Zap,
+  quiz:     HelpCircle,
+  trash:    Trash2,
+  search:   Search,
+  upload:   Upload,
+  grid:     Grid3x3,
+  list:     List,
+  clock:    Clock,
+  chevron:  ChevronRight,
+  book:     BookOpen,
 };
 
 const FILE_COLORS = {
@@ -43,7 +49,7 @@ function DeleteModal({ doc, onConfirm, onCancel, deleting }) {
     <div className="dc-modal-backdrop" onClick={onCancel}>
       <div className="dc-modal" onClick={(e) => e.stopPropagation()}>
         <div className="dc-modal-icon">
-          <Icon d={ICONS.trash} size={22} />
+          <ICONS.trash size={22} />
         </div>
         <h3 className="dc-modal-title">Delete document?</h3>
         <p className="dc-modal-body">
@@ -88,13 +94,13 @@ function ConceptCard({ doc, onStudy, onQuiz, onSegments, onDelete }) {
       <div className="dc-concept-header" onClick={() => setExpanded((v) => !v)}>
         <div className="dc-concept-header-left">
           <div className="dc-file-badge" style={{ background: `${fc}18`, borderColor: `${fc}35`, color: fc }}>
-            <Icon d={ICONS.file} size={12} />
+            <ICONS.file size={12} />
             {(doc.fileType || "TXT").toUpperCase()}
           </div>
           <div>
             <h3 className="dc-concept-title">{doc.topic}</h3>
             <div className="dc-concept-meta">
-              <span><Icon d={ICONS.clock} size={11} />{formatDate(doc.createdAt)}</span>
+              <span><ICONS.clock size={11} />{formatDate(doc.createdAt)}</span>
               <span>·</span>
               <span>{doc.flashcardCount ?? 0} flashcards</span>
               <span>·</span>
@@ -104,10 +110,10 @@ function ConceptCard({ doc, onStudy, onQuiz, onSegments, onDelete }) {
         </div>
         <div className="dc-concept-header-right">
           <button className="dc-card-delete" onClick={(e) => { e.stopPropagation(); onDelete(doc); }} title="Delete">
-            <Icon d={ICONS.trash} size={14} />
+            <ICONS.trash size={14} />
           </button>
           <div className={`dc-chevron ${expanded ? "dc-chevron--open" : ""}`}>
-            <Icon d={ICONS.chevron} size={16} />
+            <ICONS.chevron size={16} />
           </div>
         </div>
       </div>
@@ -130,7 +136,7 @@ function ConceptCard({ doc, onStudy, onQuiz, onSegments, onDelete }) {
           {concepts.length > 0 && (
             <div className="dc-concept-section">
               <div className="dc-concept-section-title">
-                <Icon d={ICONS.key} size={13} /> Key Concepts
+                <ICONS.flash size={13} /> Key Concepts
               </div>
               <div className="dc-keypoints">
                 {concepts.map((card, i) => (
@@ -152,7 +158,7 @@ function ConceptCard({ doc, onStudy, onQuiz, onSegments, onDelete }) {
           {(mcqCount + tfCount + saCount) > 0 && (
             <div className="dc-concept-section">
               <div className="dc-concept-section-title">
-                <Icon d={ICONS.quiz} size={13} /> Quiz Breakdown
+                <ICONS.quiz size={13} /> Quiz Breakdown
               </div>
               <div className="dc-quiz-chips">
                 {mcqCount > 0 && (
@@ -229,11 +235,11 @@ function DocCard({ doc, onStudy, onQuiz, onSegments, onDelete }) {
     <div className="dc-card">
       <div className="dc-card-top">
         <div className="dc-file-badge" style={{ background: `${fc}18`, borderColor: `${fc}35`, color: fc }}>
-          <Icon d={ICONS.file} size={12} />
+        <ICONS.file size={12} />
           {(doc.fileType || "TXT").toUpperCase()}
         </div>
         <button className="dc-card-delete" onClick={() => onDelete(doc)} title="Delete">
-          <Icon d={ICONS.trash} size={14} />
+          <ICONS.trash size={14} />
         </button>
       </div>
 
@@ -249,12 +255,12 @@ function DocCard({ doc, onStudy, onQuiz, onSegments, onDelete }) {
       )}
 
       <div className="dc-card-stats">
-        <span className="dc-stat"><Icon d={ICONS.flash} size={12} />{doc.flashcardCount ?? 0} cards</span>
-        <span className="dc-stat"><Icon d={ICONS.quiz} size={12} />{mcqCount + tfCount + saCount} Qs</span>
+        <span className="dc-stat"><ICONS.flash size={12} />{doc.flashcardCount ?? 0} cards</span>
+        <span className="dc-stat"><ICONS.quiz size={12} />{mcqCount + tfCount + saCount} Qs</span>
         {doc.segmentCount > 0 && (
-          <span className="dc-stat"><Icon d={ICONS.book} size={12} />{doc.segmentCount} segs</span>
+          <span className="dc-stat"><ICONS.book size={12} />{doc.segmentCount} segs</span>
         )}
-        <span className="dc-stat dc-stat-muted"><Icon d={ICONS.clock} size={12} />{formatDate(doc.createdAt)}</span>
+        <span className="dc-stat dc-stat-muted"><ICONS.clock size={12} />{formatDate(doc.createdAt)}</span>
       </div>
 
       {progressTotal > 0 && (
@@ -409,7 +415,7 @@ export default function DocumentsPage() {
           style={{ gap: 8, display: "flex", alignItems: "center" }}
           onClick={() => router.push("/page/dashboard/content-intake")}
         >
-          <Icon d={ICONS.upload} size={15} />
+          <ICONS.upload size={15} />
           Upload New
         </button>
       </div>
@@ -434,7 +440,7 @@ export default function DocumentsPage() {
         {/* ── Controls ── */}
         <div className="dc-controls">
           <div className="dc-search-wrap">
-            <Icon d={ICONS.search} size={15} />
+            <ICONS.search size={15} />
             <input
               className="dc-search"
               placeholder="Search topics or concepts…"
@@ -460,14 +466,14 @@ export default function DocumentsPage() {
                 onClick={() => setViewMode("concepts")}
                 title="Concepts view"
               >
-                <Icon d={ICONS.book} size={15} />
+                <ICONS.book size={15} />
               </button>
               <button
                 className={`dc-view-btn ${viewMode === "grid" ? "active" : ""}`}
                 onClick={() => setViewMode("grid")}
                 title="Grid view"
               >
-                <Icon d={ICONS.grid} size={15} />
+                <ICONS.grid size={15} />
               </button>
             </div>
           </div>
@@ -482,7 +488,7 @@ export default function DocumentsPage() {
         ) : filtered.length === 0 ? (
           <div className="dc-empty">
             <div className="dc-empty-icon">
-              <Icon d={search ? ICONS.search : ICONS.book} size={32} />
+              {search ? <ICONS.search size={32} /> : <ICONS.book size={32} />}
             </div>
             <h3 className="dc-empty-title">
               {search ? `No results for "${search}"` : "Your library is empty"}
@@ -498,7 +504,7 @@ export default function DocumentsPage() {
                 style={{ marginTop: 16, gap: 8, display: "inline-flex", alignItems: "center" }}
                 onClick={() => router.push("/page/dashboard/content-intake")}
               >
-                <Icon d={ICONS.upload} size={15} />
+                <ICONS.upload size={15} />
                 Upload Your First Topic
               </button>
             )}

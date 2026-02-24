@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { FileText, Upload, FileCode, FileJson, BarChart3, Table } from "lucide-react";
 import { auth } from "../../../../lib/firebase";
 import { saveDocument } from "../../../../lib/service";
 import { saveFlashcards } from "@/lib/flashcardStore";
@@ -10,15 +11,15 @@ import "./content-intake.css";
 
 // ── File type icons and utilities ──────────────────────────────────────────
 const FILE_ICONS = {
-  pdf: "📄", txt: "📝", md: "📝", doc: "📘", docx: "📘",
-  ppt: "📊", pptx: "📊", xls: "📊", xlsx: "📊",
+  pdf: FileText, txt: FileCode, md: FileCode, doc: FileText, docx: FileText,
+  ppt: BarChart3, pptx: BarChart3, xls: Table, xlsx: Table,
 };
 
 const getFileType = (name) => {
   const ext = name.split(".").pop().toLowerCase();
   return {
     ext,
-    icon: FILE_ICONS[ext] || "📎",
+    icon: FILE_ICONS[ext] || Upload,
     label: ext.toUpperCase(),
     color: ({
       pdf: "#e74c3c", txt: "#3498db", md: "#3498db",
@@ -315,7 +316,9 @@ export default function ContentIntake() {
                             <button className="ci-file-remove"
                               onClick={(e) => { e.stopPropagation(); removeFile(f.id); }}>✕</button>
                           </div>
-                          <div className="ci-file-icon">{f.icon}</div>
+                          <div className="ci-file-icon">
+                            {f.icon ? <f.icon size={32} /> : <Upload size={32} />}
+                          </div>
                           <div className="ci-file-name" title={f.name}>{f.name}</div>
                           <div className="ci-file-size">{f.size}</div>
                         </div>
