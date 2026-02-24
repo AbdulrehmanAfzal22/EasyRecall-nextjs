@@ -42,6 +42,7 @@ export default function QuizPage() {
   const [saInputs,  setSaInputs]  = useState({});   // {id: text}
   const [revealed,  setRevealed]  = useState({});   // {id: true} — SA revealed
   const [animate,   setAnimate]   = useState(null); // id of last answered
+  const [started,   setStarted]   = useState(false); // Quiz started state
   const sectionRef = useRef(null);
 
   useEffect(() => {
@@ -51,6 +52,14 @@ export default function QuizPage() {
       setQuiz(stored.quiz);
       setProgress(prog);
       setStats(computeQuizStats(stored.quiz, prog));
+      
+      // Auto-start if there's already progress
+      const hasProgress = Object.keys(prog.mcq).length > 0 || 
+                         Object.keys(prog.tf).length > 0 || 
+                         Object.keys(prog.sa).length > 0;
+      if (hasProgress) {
+        setStarted(true);
+      }
     }
   }, []);
 
@@ -93,9 +102,10 @@ export default function QuizPage() {
     setRevealed({});
     setSaInputs({});
     setStats(computeQuizStats(quiz, fresh));
+    setStarted(false);
   };
 
-  // ── Empty state ───────────────────────────────────────────────────────────
+  // ── Empty state (no quiz) ─────────────────────────────────────────────────
 
   if (!quiz) return (
     <>
@@ -115,15 +125,71 @@ export default function QuizPage() {
     </>
   );
 
+  // ── Quiz ready screen (show before starting) ──────────────────────────────
+
+  const mcqTotal = quiz.mcq?.length         || 0;
+  const tfTotal  = quiz.trueFalse?.length   || 0;
+  const saTotal  = quiz.shortAnswer?.length || 0;
+  const total    = mcqTotal + tfTotal + saTotal;
+
+  if (!started) {
+    return (
+      <>
+        <div className="topbar">
+          <div className="topbar-left"><h1>Quiz</h1><p>Your quiz is ready</p></div>
+        </div>
+        <div className="page qz-empty-page">
+          <div className="qz-ready-card">
+            <div className="qz-ready-icon">✨</div>
+            <h2 className="qz-ready-title">Quiz Ready!</h2>
+            <p className="qz-ready-subtitle">
+              {total} questions generated and ready to test your knowledge
+            </p>
+
+            <div className="qz-ready-breakdown">
+              <div className="qz-ready-stat">
+                <span className="qz-rs-icon">📝</span>
+                <span className="qz-rs-label">Multiple Choice</span>
+                <span className="qz-rs-count">{mcqTotal} questions</span>
+              </div>
+              <div className="qz-ready-stat">
+                <span className="qz-rs-icon">✓✗</span>
+                <span className="qz-rs-label">True / False</span>
+                <span className="qz-rs-count">{tfTotal} questions</span>
+              </div>
+              <div className="qz-ready-stat">
+                <span className="qz-rs-icon">💬</span>
+                <span className="qz-rs-label">Short Answer</span>
+                <span className="qz-rs-count">{saTotal} questions</span>
+              </div>
+            </div>
+
+            <button 
+              className="qz-cta-btn qz-start-btn" 
+              onClick={() => setStarted(true)}
+            >
+              Start Quiz →
+            </button>
+
+            <button 
+              className="qz-ghost-btn qz-secondary-link" 
+              onClick={() => router.push("/page/dashboard/flashcard")}
+            >
+              🃏 Study Flashcards First
+            </button>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  // ── Main quiz view (after start button clicked) ───────────────────────────
+
   const scoreColor = (s) => s >= 70 ? "#10b981" : s >= 40 ? "#f59e0b" : "#ef4444";
 
   const mcqDone  = Object.keys(progress.mcq).length;
   const tfDone   = Object.keys(progress.tf).length;
   const saDone   = Object.keys(progress.sa).length;
-  const mcqTotal = quiz.mcq?.length         || 0;
-  const tfTotal  = quiz.trueFalse?.length   || 0;
-  const saTotal  = quiz.shortAnswer?.length || 0;
-  const total    = mcqTotal + tfTotal + saTotal;
   const answered = mcqDone + tfDone + saDone;
   const overallPct = total === 0 ? 0 : Math.round((answered / total) * 100);
 

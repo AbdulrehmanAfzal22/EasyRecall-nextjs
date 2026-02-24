@@ -49,7 +49,8 @@ export default function RootLayout({ children }) {
           }}
         />
       </head>
-      <body>
+      {/* Suppress hydration warnings on body to avoid noise from extensions (e.g. Grammarly) */}
+      <body suppressHydrationWarning>
         {children}
       </body>
     </html>

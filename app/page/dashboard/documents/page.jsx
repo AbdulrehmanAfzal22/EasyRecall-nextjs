@@ -4,6 +4,9 @@ import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { loadDocuments, deleteDocument, formatDate } from "../../../../lib/service"; // ✅ fixed import
+import { saveFlashcards } from "@/lib/flashcardStore";
+import { saveQuiz } from "../../../../lib/quizStore";
+import { saveSegments } from "../../../../lib/segmentStore";
 import "./document.css";
 
 // ── Icons ─────────────────────────────────────────────────────────────────
@@ -58,7 +61,7 @@ function DeleteModal({ doc, onConfirm, onCancel, deleting }) {
 }
 
 // ── Expandable concept card ───────────────────────────────────────────────
-function ConceptCard({ doc, onStudy, onQuiz, onDelete }) {
+function ConceptCard({ doc, onStudy, onQuiz, onSegments, onDelete }) {
   const [expanded, setExpanded] = useState(false);
   const fc = fileColor(doc.fileType);
 
@@ -179,6 +182,11 @@ function ConceptCard({ doc, onStudy, onQuiz, onDelete }) {
             <button className="dc-btn dc-btn-secondary" onClick={() => onQuiz(doc)}>
               📝 Take Quiz
             </button>
+            {doc.segmentCount > 0 && (
+              <button className="dc-btn" onClick={() => onSegments(doc)}>
+                📌 Segments
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -192,6 +200,14 @@ function ConceptCard({ doc, onStudy, onQuiz, onDelete }) {
           <button className="dc-btn dc-btn-sm dc-btn-secondary" onClick={(e) => { e.stopPropagation(); onQuiz(doc); }}>
             📝 Quiz
           </button>
+          {doc.segmentCount > 0 && (
+            <button
+              className="dc-btn dc-btn-sm"
+              onClick={(e) => { e.stopPropagation(); onSegments(doc); }}
+            >
+              📌 Segments
+            </button>
+          )}
         </div>
       )}
     </div>
@@ -199,7 +215,7 @@ function ConceptCard({ doc, onStudy, onQuiz, onDelete }) {
 }
 
 // ── Grid card (alternative view) ──────────────────────────────────────────
-function DocCard({ doc, onStudy, onQuiz, onDelete }) {
+function DocCard({ doc, onStudy, onQuiz, onSegments, onDelete }) {
   const fc = fileColor(doc.fileType);
   const mcqCount = doc.quiz?.mcq?.length ?? 0;
   const tfCount  = doc.quiz?.trueFalse?.length ?? 0;
@@ -235,6 +251,9 @@ function DocCard({ doc, onStudy, onQuiz, onDelete }) {
       <div className="dc-card-stats">
         <span className="dc-stat"><Icon d={ICONS.flash} size={12} />{doc.flashcardCount ?? 0} cards</span>
         <span className="dc-stat"><Icon d={ICONS.quiz} size={12} />{mcqCount + tfCount + saCount} Qs</span>
+        {doc.segmentCount > 0 && (
+          <span className="dc-stat"><Icon d={ICONS.book} size={12} />{doc.segmentCount} segs</span>
+        )}
         <span className="dc-stat dc-stat-muted"><Icon d={ICONS.clock} size={12} />{formatDate(doc.createdAt)}</span>
       </div>
 
@@ -252,6 +271,9 @@ function DocCard({ doc, onStudy, onQuiz, onDelete }) {
       <div className="dc-card-actions">
         <button className="dc-btn dc-btn-primary" onClick={() => onStudy(doc)}>🃏 Study</button>
         <button className="dc-btn dc-btn-secondary" onClick={() => onQuiz(doc)}>📝 Quiz</button>
+        {doc.segmentCount > 0 && (
+          <button className="dc-btn" onClick={() => onSegments(doc)}>📌 Segments</button>
+        )}
       </div>
     </div>
   );
@@ -318,17 +340,31 @@ export default function DocumentsPage() {
   // ── Load into localStorage then navigate ──────────────────────────────
   const handleStudy = (doc) => {
     if (doc.flashcards?.length) {
-      localStorage.setItem("flashcards",     JSON.stringify(doc.flashcards));
-      localStorage.setItem("flashcard_meta", JSON.stringify({ topic: doc.topic, docId: doc.id }));
+      saveFlashcards(doc.flashcards, { topic: doc.topic, docId: doc.id, fileName: doc.fileName });
     }
     router.push("/page/dashboard/flashcard");
   };
 
   const handleQuiz = (doc) => {
     if (doc.quiz) {
-      localStorage.setItem("quiz_data", JSON.stringify({ quiz: doc.quiz, meta: { topic: doc.topic, docId: doc.id } }));
+      saveQuiz(doc.quiz, { topic: doc.topic, docId: doc.id, fileName: doc.fileName });
     }
     router.push("/page/dashboard/quiz");
+  };
+
+  const handleSegments = (doc) => {
+    if (doc.segments?.length) {
+      const stats = doc.segmentStats || {
+        totalSegments: doc.segments.reduce((acc, g) => acc + (g.segments?.length || 0), 0),
+        fileName: doc.fileName,
+        topic: doc.topic,
+      };
+      saveSegments(
+        { groups: doc.segments, stats },
+        { fileNames: doc.fileName, topic: doc.topic }
+      );
+      router.push("/page/dashboard/segments");
+    }
   };
 
   // ── Delete ────────────────────────────────────────────────────────────
@@ -475,6 +511,7 @@ export default function DocumentsPage() {
                 doc={d}
                 onStudy={handleStudy}
                 onQuiz={handleQuiz}
+                onSegments={handleSegments}
                 onDelete={setDelTarget}
               />
             ))}
@@ -487,6 +524,7 @@ export default function DocumentsPage() {
                 doc={d}
                 onStudy={handleStudy}
                 onQuiz={handleQuiz}
+                onSegments={handleSegments}
                 onDelete={setDelTarget}
               />
             ))}

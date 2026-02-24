@@ -20,6 +20,19 @@ export function AuthProvider({ children }) {
       
       // Initialize user stats for new users
       if (user) {
+        // Clear any in-memory study state so the user starts
+        // from their library/content instead of stale local data.
+        try {
+          localStorage.removeItem("mem_fc_cards");
+          localStorage.removeItem("mem_fc_progress");
+          localStorage.removeItem("mem_fc_session");
+          localStorage.removeItem("mem_quiz_data");
+          localStorage.removeItem("mem_quiz_progress");
+          localStorage.removeItem("segmentData");
+        } catch {
+          // ignore localStorage errors
+        }
+
         await initializeUserStats(user.uid);
       }
       

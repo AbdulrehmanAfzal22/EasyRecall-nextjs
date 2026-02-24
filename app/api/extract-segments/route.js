@@ -1,5 +1,9 @@
 // app/api/extract-segments/route.js
 import { NextResponse } from "next/server";
+import { OpenAI } from "openai";
+
+// Optional: allow longer processing time on platforms that support it
+export const maxDuration = 60;
 
 export async function POST(request) {
   try {
@@ -8,6 +12,20 @@ export async function POST(request) {
     if (!content?.trim()) {
       return NextResponse.json({ error: "No content provided" }, { status: 400 });
     }
+
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      console.error("[segments] OPENAI_API_KEY is missing");
+      return NextResponse.json(
+        {
+          error: "OpenAI API key not configured",
+          details: "Set OPENAI_API_KEY in your environment to enable segments.",
+        },
+        { status: 500 }
+      );
+    }
+
+    const openai = new OpenAI({ apiKey });
 
     const systemPrompt = `You are an expert content analyst. Extract and segment educational content into logical units.
 
@@ -44,56 +62,61 @@ Rules:
 - 2-3 keywords per segment
 - Return ONLY valid JSON`;
 
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type":      "application/json",
-        "x-api-key":         process.env.ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model:      "claude-opus-4-5",
-        max_tokens: 4096,
-        system:     systemPrompt,
-        messages: [{
-          role:    "user",
-          content: `Extract segments from "${fileName}":\n\n${content.slice(0, 40000)}`,
-        }],
-      }),
+    const cleanContent = content.trim();
+
+    // Cap the text we send for segmentation to avoid context overflow
+    const MAX_SEGMENT_CHARS = 40000;
+    const segmentSource = cleanContent.slice(0, MAX_SEGMENT_CHARS);
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        { role: "system", content: systemPrompt },
+        {
+          role: "user",
+          content: `Extract segments from "${fileName || "uploaded content"}":\n\n${segmentSource}`,
+        },
+      ],
+      temperature: 0.4,
+      max_tokens: 4000,
+      response_format: { type: "json_object" },
     });
 
-    if (!response.ok) {
-      const err = await response.json();
-      return NextResponse.json(
-        { error: "AI extraction failed", details: err.error?.message },
-        { status: 502 }
-      );
-    }
-
-    const aiData  = await response.json();
-    const rawText = aiData.content?.[0]?.text ?? "";
-    const cleaned = rawText.replace(/```json\s*/gi, "").replace(/```\s*/gi, "").trim();
+    const raw = completion.choices[0]?.message?.content || "";
 
     let parsed;
     try {
-      parsed = JSON.parse(cleaned);
+      // Response should already be JSON due to response_format, but keep a fallback
+      parsed = JSON.parse(raw);
     } catch {
+      const m = raw.match(/\{[\s\S]*\}/);
+      if (!m) {
+        return NextResponse.json(
+          { error: "Failed to parse AI response", details: raw.slice(0, 300) },
+          { status: 500 }
+        );
+      }
+      parsed = JSON.parse(m[0]);
+    }
+
+    // Ensure groups structure exists
+    if (!Array.isArray(parsed.groups)) {
       return NextResponse.json(
-        { error: "Failed to parse AI response", details: rawText.slice(0, 300) },
+        { error: "Invalid AI response shape", details: "Missing 'groups' array in response." },
         { status: 500 }
       );
     }
 
     // Compute stats
-    const allSegs = parsed.groups?.flatMap(g => g.segments) ?? [];
+    const allSegs = parsed.groups.flatMap((g) => g.segments || []);
     parsed.stats = {
       totalSegments: allSegs.length,
-      topics:        allSegs.filter(s => s.type === "topic").length,
-      concepts:      allSegs.filter(s => s.type === "concept").length,
-      statements:    allSegs.filter(s => s.type === "statement").length,
-      facts:         allSegs.filter(s => s.type === "fact").length,
-      definitions:   allSegs.filter(s => s.type === "definition").length,
-      wordCount:     content.trim().split(/\s+/).length,
+      topics: allSegs.filter((s) => s.type === "topic").length,
+      concepts: allSegs.filter((s) => s.type === "concept").length,
+      statements: allSegs.filter((s) => s.type === "statement").length,
+      facts: allSegs.filter((s) => s.type === "fact").length,
+      definitions: allSegs.filter((s) => s.type === "definition").length,
+      wordCount: cleanContent.split(/\s+/).length,
       fileName,
     };
 

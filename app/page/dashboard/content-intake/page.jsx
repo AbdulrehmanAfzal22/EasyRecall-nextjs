@@ -34,6 +34,9 @@ const formatSize = (bytes) => {
   return (bytes / (1024 ** 2)).toFixed(1) + " MB";
 };
 
+// Optional safety cap (currently unused; backend handles chunking)
+const MAX_TEXT_LENGTH = 200000;
+
 export default function ContentIntake() {
   const router = useRouter();
   const inputRef = useRef();
@@ -118,6 +121,10 @@ export default function ContentIntake() {
         if (!combined.trim()) throw new Error("Files appear to be empty or unreadable.");
       }
 
+      // NOTE: We no longer hard-block large content here.
+      // The API route chunks large text into smaller pieces before
+      // calling OpenAI, so big uploads are handled server-side.
+
       // ── Fire both APIs in parallel ──
       const [flashRes, segRes] = await Promise.allSettled([
         fetch("/api/generate-flashcards", {
@@ -173,10 +180,13 @@ export default function ContentIntake() {
         setSaving(true);
         try {
           await saveDocument(uid, {
-            file: null, extractedText: combined,
+            file: null,
+            extractedText: combined,
             flashcards: flashData.flashcards,
             quiz: flashData.quiz ?? null,
             topic: fileNames,
+            segments: segmentData?.groups ?? null,
+            segmentStats: segmentData?.stats ?? null,
           });
         } catch (e) {
           console.error("❌ Firebase save error:", e);

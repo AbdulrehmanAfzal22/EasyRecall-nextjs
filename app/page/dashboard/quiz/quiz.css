@@ -868,3 +868,197 @@
   .topbar-right { width: 100%; justify-content: flex-end; }
   .qz-bottom-btn { font-size: 10px; padding: 8px 4px; }
 }
+
+
+/* Add these styles to your existing quiz.css file */
+
+/* ─── Quiz Ready Screen ──────────────────────────────────────────────────── */
+
+.qz-ready-card {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 48px 40px;
+  background: var(--qz-empty-card-bg);
+  border: 1px solid var(--qz-empty-card-border);
+  border-radius: 24px;
+  max-width: 560px;
+  transition: background 0.25s ease, border-color 0.25s ease;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+}
+
+.dark .qz-ready-card { 
+  box-shadow: none; 
+}
+
+.qz-ready-icon { 
+  font-size: 72px; 
+  line-height: 1;
+  animation: qz-ready-pulse 2s ease-in-out infinite;
+}
+
+@keyframes qz-ready-pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.1); }
+}
+
+.qz-ready-title { 
+  font-size: 28px; 
+  font-weight: 800; 
+  color: var(--qz-empty-h2); 
+  letter-spacing: -0.5px;
+  margin-bottom: 4px;
+  transition: color 0.25s ease; 
+}
+
+.qz-ready-subtitle { 
+  font-size: 15px; 
+  color: var(--qz-empty-p); 
+  line-height: 1.6; 
+  max-width: 400px;
+  transition: color 0.25s ease; 
+}
+
+/* Quiz breakdown stats */
+.qz-ready-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 400px;
+  margin: 8px 0;
+}
+
+.qz-ready-stat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--qz-ghost-btn-bg);
+  border: 1px solid var(--qz-ghost-btn-border);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.qz-ready-stat:hover {
+  background: var(--qz-ghost-btn-hover-bg);
+  transform: translateX(4px);
+}
+
+.qz-rs-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.qz-rs-label {
+  flex: 1;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--qz-ghost-btn-color);
+  transition: color 0.25s ease;
+}
+
+.qz-ready-stat:hover .qz-rs-label {
+  color: var(--qz-ghost-btn-hover-color);
+}
+
+.qz-rs-count {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--qz-mp-pct);
+  background: rgba(99, 102, 241, 0.1);
+  padding: 3px 10px;
+  border-radius: 50px;
+  transition: all 0.25s ease;
+}
+
+.dark .qz-rs-count {
+  background: rgba(167, 139, 250, 0.15);
+}
+
+/* Start button */
+.qz-start-btn {
+  margin-top: 12px;
+  width: 100%;
+  max-width: 280px;
+}
+
+/* Secondary link button */
+.qz-secondary-link {
+  margin-top: 0;
+  background: transparent;
+  border: 1px solid var(--qz-ghost-btn-border);
+  color: var(--qz-ghost-btn-color);
+  font-size: 14px;
+  padding: 10px 20px;
+  border-radius: 50px;
+  transition: all 0.2s ease;
+}
+
+.qz-secondary-link:hover {
+  background: var(--qz-ghost-btn-hover-bg);
+  color: var(--qz-ghost-btn-hover-color);
+  border-color: var(--qz-ghost-btn-border);
+}
+
+/* ─── Responsive for ready screen ────────────────────────────────────────── */
+
+@media (max-width: 680px) {
+  .qz-ready-card {
+    padding: 36px 28px;
+    max-width: 100%;
+  }
+
+  .qz-ready-icon {
+    font-size: 64px;
+  }
+
+  .qz-ready-title {
+    font-size: 24px;
+  }
+
+  .qz-ready-subtitle {
+    font-size: 14px;
+  }
+
+  .qz-ready-breakdown {
+    max-width: 100%;
+  }
+
+  .qz-ready-stat {
+    padding: 12px 14px;
+  }
+
+  .qz-rs-icon {
+    font-size: 20px;
+  }
+
+  .qz-rs-label {
+    font-size: 13px;
+  }
+
+  .qz-rs-count {
+    font-size: 12px;
+  }
+
+  .qz-start-btn {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .qz-ready-card {
+    padding: 32px 20px;
+  }
+
+  .qz-ready-icon {
+    font-size: 56px;
+  }
+
+  .qz-ready-title {
+    font-size: 22px;
+  }
+}

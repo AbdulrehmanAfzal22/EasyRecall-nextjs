@@ -49,19 +49,53 @@ export async function POST(request) {
       return Response.json({ error: "Content is required" }, { status: 400 });
     }
 
-    console.log("[API] Starting OpenAI API calls - Content length:", content.length, "numCards:", numCards);
+    const cleanContent = content.trim();
 
-    // ── Run both generations in parallel ──────────────────────────────────
-    let flashcardRes, quizRes;
-    try {
-      [flashcardRes, quizRes] = await Promise.all([
+    // ── Chunking strategy ──────────────────────────────────────────────────
+    // We split very long content into smaller chunks so each OpenAI call
+    // stays within a safe context size, then merge the results.
+    const MAX_CHARS_PER_CHUNK = 12000;   // ~2.5–3k tokens per chunk
+    const MAX_QUIZ_CHARS      = 40000;   // quiz sees at most this many chars
 
-      // ── 1. Flashcards ──
-      openai.chat.completions.create({
-        model: "gpt-4o",                         // ✅ FIXED: was gpt-4o-mini
-        messages: [{
-          role: "user",
-          content: `You are an expert educator. Given the study material below${fileNames ? ` from "${fileNames}"` : ""}, create exactly ${numCards} flashcards.
+    const splitIntoChunks = (text, size) => {
+      const chunks = [];
+      let i = 0;
+      while (i < text.length) {
+        chunks.push(text.slice(i, i + size));
+        i += size;
+      }
+      return chunks;
+    };
+
+    const chunks = splitIntoChunks(cleanContent, MAX_CHARS_PER_CHUNK);
+    console.log(
+      "[API] Starting OpenAI calls - total length:",
+      cleanContent.length,
+      "chunks:",
+      chunks.length,
+      "numCards:",
+      numCards
+    );
+
+    // ── Helper for JSON parsing ────────────────────────────────────────────
+    const parseJSON = (text) => {
+      try { return JSON.parse(text); }
+      catch { const m = text.match(/\{[\s\S]*\}/); return m ? JSON.parse(m[0]) : null; }
+    };
+
+    let allFlashcards = [];
+
+    if (chunks.length === 1) {
+      // Single-chunk: use the original dual-call flow
+      let flashcardRes, quizRes;
+      try {
+        [flashcardRes, quizRes] = await Promise.all([
+          // ── 1. Flashcards ──
+          openai.chat.completions.create({
+            model: "gpt-4o",
+            messages: [{
+              role: "user",
+              content: `You are an expert educator. Given the study material below${fileNames ? ` from "${fileNames}"` : ""}, create exactly ${numCards} high-quality flashcards.
 
 Each flashcard:
 - "question": Clear, focused question testing one concept
@@ -70,19 +104,197 @@ Each flashcard:
 Order: foundational → complex.
 
 Study Material:
-${content}
+${cleanContent}
+
+Return ONLY valid JSON:
+{ "flashcards": [{ "question": "...", "answer": "..." }] }`,
+            }],
+            temperature: 0.5,
+            max_tokens: 4000,
+            response_format: { type: "json_object" },
+          }),
+
+          // ── 2. Quiz ──
+          openai.chat.completions.create({
+            model: "gpt-4o",
+            messages: [{
+              role: "user",
+              content: `You are an expert educator creating a comprehensive quiz. Given the study material below${fileNames ? ` from "${fileNames}"` : ""}, create exactly:
+- 5 multiple choice questions (MCQ)
+- 5 true/false questions
+- 5 short answer questions
+
+Requirements:
+MCQ: 4 options (A/B/C/D), exactly one correct answer, plausible distractors
+True/False: clear factual statements, balanced mix of true/false
+Short Answer: questions answerable in 1–3 sentences, include a model answer for scoring
+
+Study Material:
+${cleanContent}
+
+Return ONLY valid JSON — no markdown:
+{
+  "mcq": [
+    {
+      "id": "mcq_1",
+      "question": "...",
+      "options": ["A. ...", "B. ...", "C. ...", "D. ..."],
+      "correct": "A",
+      "explanation": "Brief explanation of why this is correct"
+    }
+  ],
+  "trueFalse": [
+    {
+      "id": "tf_1",
+      "statement": "...",
+      "correct": true,
+      "explanation": "..."
+    }
+  ],
+  "shortAnswer": [
+    {
+      "id": "sa_1",
+      "question": "...",
+      "modelAnswer": "...",
+      "keyPoints": ["key point 1", "key point 2", "key point 3"]
+    }
+  ]
+}`,
+            }],
+            temperature: 0.6,
+            max_tokens: 4000,
+            response_format: { type: "json_object" },
+          }),
+        ]);
+        console.log("[API] OpenAI API calls (single chunk) completed successfully");
+      } catch (openaiError) {
+        console.error("[API] OpenAI API call failed (single chunk):", openaiError);
+        throw openaiError;
+      }
+
+      const flashcardContent = flashcardRes.choices[0]?.message?.content;
+      const quizContent      = quizRes.choices[0]?.message?.content;
+
+      if (!flashcardContent || !quizContent) {
+        console.error("[API] Missing content in OpenAI response (single chunk):", {
+          flashcardRes: flashcardRes?.choices?.[0],
+          quizRes: quizRes?.choices?.[0],
+        });
+        return Response.json({
+          error: "Invalid response format from AI",
+          details: "OpenAI response is missing expected content.",
+        }, { status: 500 });
+      }
+
+      const flashcardsData = parseJSON(flashcardContent);
+      const quizData       = parseJSON(quizContent);
+
+      if (!flashcardsData?.flashcards || !quizData?.mcq) {
+        console.error("[API] Bad AI response format (single chunk):", {
+          flashcardsData: flashcardsData ? Object.keys(flashcardsData) : null,
+          quizData:       quizData ? Object.keys(quizData) : null,
+        });
+        return Response.json({
+          error: "Invalid response format from AI",
+          details: "AI response does not contain expected flashcard or quiz data.",
+        }, { status: 500 });
+      }
+
+      allFlashcards = flashcardsData.flashcards || [];
+
+      console.log("[API] Successfully generated", allFlashcards.length, "flashcards (single chunk)");
+
+      return Response.json({
+        success:    true,
+        flashcards: allFlashcards.slice(0, numCards),
+        count:      Math.min(allFlashcards.length, numCards),
+        quiz: {
+          mcq:         quizData.mcq         || [],
+          trueFalse:   quizData.trueFalse   || [],
+          shortAnswer: quizData.shortAnswer || [],
+        },
+      });
+    }
+
+    // ── Multi-chunk path for large content ─────────────────────────────────
+    console.log("[API] Using multi-chunk generation for flashcards");
+
+    // Distribute flashcards across chunks as evenly as possible
+    const totalCards = numCards;
+    const base       = Math.floor(totalCards / chunks.length);
+    let   remainder  = totalCards % chunks.length;
+
+    const perChunkCounts = chunks.map(() => {
+      const extra = remainder > 0 ? 1 : 0;
+      if (remainder > 0) remainder -= 1;
+      return base + extra;
+    });
+
+    // Generate flashcards per chunk
+    const flashcardPromises = chunks.map((chunkText, idx) => {
+      const cardsForChunk = perChunkCounts[idx];
+      if (cardsForChunk <= 0) return null;
+
+      return openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [{
+          role: "user",
+          content: `You are an expert educator. Given the study material chunk below${fileNames ? ` from "${fileNames}"` : ""}, create exactly ${cardsForChunk} high-quality flashcards.
+
+Each flashcard:
+- "question": Clear, focused question testing one concept
+- "answer": Concise accurate answer (1–3 sentences)
+
+Make the flashcards within this chunk internally coherent and non-duplicative.
+
+Study Material Chunk:
+${chunkText}
 
 Return ONLY valid JSON:
 { "flashcards": [{ "question": "...", "answer": "..." }] }`,
         }],
         temperature: 0.5,
-        max_tokens: 4000,
+        max_tokens: 2000,
         response_format: { type: "json_object" },
-      }),
+      });
+    }).filter(Boolean);
 
-      // ── 2. Quiz ──
-      openai.chat.completions.create({
-        model: "gpt-4o",                         // ✅ FIXED: was gpt-4o-mini
+    let flashcardResults;
+    try {
+      flashcardResults = await Promise.all(flashcardPromises);
+      console.log("[API] Flashcard multi-chunk calls completed:", flashcardResults.length);
+    } catch (flashErr) {
+      console.error("[API] Flashcard multi-chunk call failed:", flashErr);
+      throw flashErr;
+    }
+
+    flashcardResults.forEach((res, idx) => {
+      const content = res.choices[0]?.message?.content;
+      if (!content) return;
+      const data = parseJSON(content);
+      if (data?.flashcards?.length) {
+        allFlashcards.push(...data.flashcards);
+      } else {
+        console.warn("[API] Chunk", idx, "returned no flashcards or bad format");
+      }
+    });
+
+    if (allFlashcards.length === 0) {
+      console.error("[API] No flashcards generated from any chunk");
+      return Response.json({
+        error: "Failed to generate flashcards from content",
+      }, { status: 500 });
+    }
+
+    // Trim to requested total
+    allFlashcards = allFlashcards.slice(0, totalCards);
+
+    // ── Single quiz call on a capped slice of the content ──────────────────
+    const quizSource = cleanContent.slice(0, MAX_QUIZ_CHARS);
+    let quizRes;
+    try {
+      quizRes = await openai.chat.completions.create({
+        model: "gpt-4o",
         messages: [{
           role: "user",
           content: `You are an expert educator creating a comprehensive quiz. Given the study material below${fileNames ? ` from "${fileNames}"` : ""}, create exactly:
@@ -95,8 +307,8 @@ MCQ: 4 options (A/B/C/D), exactly one correct answer, plausible distractors
 True/False: clear factual statements, balanced mix of true/false
 Short Answer: questions answerable in 1–3 sentences, include a model answer for scoring
 
-Study Material:
-${content}
+Study Material (first part of the document only, truncated if very long):
+${quizSource}
 
 Return ONLY valid JSON — no markdown:
 {
@@ -130,54 +342,31 @@ Return ONLY valid JSON — no markdown:
         temperature: 0.6,
         max_tokens: 4000,
         response_format: { type: "json_object" },
-      }),
-    ]);
-      console.log("[API] OpenAI API calls completed successfully");
-    } catch (openaiError) {
-      console.error("[API] OpenAI API call failed:", openaiError);
-      // Re-throw to be caught by outer catch block
-      throw openaiError;
+      });
+      console.log("[API] Quiz call (multi-chunk mode) completed");
+    } catch (quizErr) {
+      console.error("[API] Quiz call failed (multi-chunk mode):", quizErr);
+      throw quizErr;
     }
 
-    // ── Parse responses ───────────────────────────────────────────────────
-    const parseJSON = (text) => {
-      try { return JSON.parse(text); }
-      catch { const m = text.match(/\{[\s\S]*\}/); return m ? JSON.parse(m[0]) : null; }
-    };
-
-    const flashcardContent = flashcardRes.choices[0]?.message?.content;
     const quizContent = quizRes.choices[0]?.message?.content;
+    const quizData    = quizContent ? parseJSON(quizContent) : null;
 
-    if (!flashcardContent || !quizContent) {
-      console.error("[API] Missing content in OpenAI response:", { 
-        flashcardRes: flashcardRes?.choices?.[0], 
-        quizRes: quizRes?.choices?.[0] 
+    if (!quizData?.mcq) {
+      console.error("[API] Bad AI response format for quiz (multi-chunk):", {
+        quizKeys: quizData ? Object.keys(quizData) : null,
       });
-      return Response.json({ 
-        error: "Invalid response format from AI",
-        details: "OpenAI response is missing expected content."
+      return Response.json({
+        error: "Invalid response format from AI for quiz",
       }, { status: 500 });
     }
 
-    const flashcardsData = parseJSON(flashcardContent);
-    const quizData = parseJSON(quizContent);
+    console.log("[API] Successfully generated", allFlashcards.length, "flashcards (multi-chunk)");
 
-    if (!flashcardsData?.flashcards || !quizData?.mcq) {
-      console.error("[API] Bad AI response format:", { 
-        flashcardsData: flashcardsData ? Object.keys(flashcardsData) : null, 
-        quizData: quizData ? Object.keys(quizData) : null 
-      });
-      return Response.json({ 
-        error: "Invalid response format from AI",
-        details: "AI response does not contain expected flashcard or quiz data."
-      }, { status: 500 });
-    }
-
-    console.log("[API] Successfully generated", flashcardsData.flashcards.length, "flashcards");
     return Response.json({
       success:    true,
-      flashcards: flashcardsData.flashcards,
-      count:      flashcardsData.flashcards.length,
+      flashcards: allFlashcards,
+      count:      allFlashcards.length,
       quiz: {
         mcq:         quizData.mcq         || [],
         trueFalse:   quizData.trueFalse   || [],
