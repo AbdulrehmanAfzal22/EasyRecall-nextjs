@@ -1,16 +1,61 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import {
+  ChevronDown,
+  Search,
+  FolderOpen,
+  MapPin,
+  Lightbulb,
+  Key,
+  BarChart3,
+  BookOpen,
+} from "lucide-react";
 import { loadSegments } from "../../../../lib/segmentStore";
 import "./segment.css";
 
 // ── Segment type config ────────────────────────────────────────────────────
 const TYPES = {
-  topic:     { label: "Topic",         emoji: "📌", color: "#6366f1", bg: "rgba(99,102,241,0.09)",  border: "rgba(99,102,241,0.22)"  },
-  concept:   { label: "Concept",       emoji: "💡", color: "#8b5cf6", bg: "rgba(139,92,246,0.09)", border: "rgba(139,92,246,0.22)"  },
-  statement: { label: "Key Statement", emoji: "🔑", color: "#0ea5e9", bg: "rgba(14,165,233,0.09)", border: "rgba(14,165,233,0.22)"  },
-  fact:      { label: "Fact",          emoji: "📊", color: "#10b981", bg: "rgba(16,185,129,0.09)", border: "rgba(16,185,129,0.22)"  },
-  definition:{ label: "Definition",    emoji: "📖", color: "#f59e0b", bg: "rgba(245,158,11,0.09)", border: "rgba(245,158,11,0.22)"  },
+  topic: {
+    label: "Topic",
+    emoji: "📌",
+    color: "#6366f1",
+    bg: "rgba(99,102,241,0.09)",
+    border: "rgba(99,102,241,0.22)",
+    icon: MapPin,
+  },
+  concept: {
+    label: "Concept",
+    emoji: "💡",
+    color: "#8b5cf6",
+    bg: "rgba(139,92,246,0.09)",
+    border: "rgba(139,92,246,0.22)",
+    icon: Lightbulb,
+  },
+  statement: {
+    label: "Key Statement",
+    emoji: "🔑",
+    color: "#0ea5e9",
+    bg: "rgba(14,165,233,0.09)",
+    border: "rgba(14,165,233,0.22)",
+    icon: Key,
+  },
+  fact: {
+    label: "Fact",
+    emoji: "📊",
+    color: "#10b981",
+    bg: "rgba(16,185,129,0.09)",
+    border: "rgba(16,185,129,0.22)",
+    icon: BarChart3,
+  },
+  definition: {
+    label: "Definition",
+    emoji: "📖",
+    color: "#f59e0b",
+    bg: "rgba(245,158,11,0.09)",
+    border: "rgba(245,158,11,0.22)",
+    icon: BookOpen,
+  },
 };
 
 // ── Segment card ───────────────────────────────────────────────────────────
@@ -24,9 +69,20 @@ function SegmentCard({ seg, index }) {
       onClick={() => setOpen(o => !o)}
     >
       <div className="cs-seg-row">
-        <span className="cs-seg-type-tag"
-          style={{ background: cfg.bg, border: `1px solid ${cfg.border}`, color: cfg.color }}>
-          {cfg.emoji} {cfg.label}
+        <span
+          className="cs-seg-type-tag"
+          style={{ background: cfg.bg, border: `1px solid ${cfg.border}`, color: cfg.color }}
+        >
+          <span
+            style={{
+              display: "inline-block",
+              marginRight: "4px",
+              verticalAlign: "text-bottom",
+            }}
+          >
+            {cfg.emoji}
+          </span>
+          {cfg.label}
         </span>
         <h4 className="cs-seg-title">{seg.title}</h4>
         <span className={`cs-seg-chevron${open ? " open" : ""}`}>
@@ -71,17 +127,31 @@ function GroupPanel({ group, index, defaultOpen }) {
         </div>
         <div className="cs-group-hd-right">
           <div className="cs-group-pills">
-            {Object.entries(typeCounts).map(([type, count]) => (
-              <span key={type} className="cs-group-pill"
-                style={{ color: TYPES[type]?.color, background: TYPES[type]?.bg }}>
-                {TYPES[type]?.emoji} {count}
-              </span>
-            ))}
+            {Object.entries(typeCounts).map(([type, count]) => {
+              const IconComp = TYPES[type]?.icon || null;
+              return (
+                <span
+                  key={type}
+                  className="cs-group-pill"
+                  style={{ color: TYPES[type]?.color, background: TYPES[type]?.bg }}
+                >
+                  {IconComp && (
+                    <IconComp
+                      size={12}
+                      style={{
+                        display: "inline-block",
+                        marginRight: "4px",
+                        verticalAlign: "text-bottom",
+                      }}
+                    />
+                  )}
+                  {count}
+                </span>
+              );
+            })}
           </div>
           <span className={`cs-group-toggle${collapsed ? " collapsed" : ""}`}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="15" height="15">
-              <path d="M6 9l6 6 6-6"/>
-            </svg>
+            <ChevronDown size={13} style={{ strokeWidth: 2.5 }} />
           </span>
         </div>
       </div>
@@ -95,11 +165,23 @@ function GroupPanel({ group, index, defaultOpen }) {
 }
 
 // ── Stat chip ──────────────────────────────────────────────────────────────
-function Stat({ emoji, value, label, color }) {
+function Stat({ icon: Icon, value, label, color }) {
   return (
     <div className="cs-stat" style={{ "--sc": color }}>
       <span className="cs-stat-val">{value}</span>
-      <span className="cs-stat-label">{emoji} {label}</span>
+      <span className="cs-stat-label">
+        {Icon && (
+          <Icon
+            size={14}
+            style={{
+              display: "inline-block",
+              marginRight: "4px",
+              verticalAlign: "text-bottom",
+            }}
+          />
+        )}
+        {label}
+      </span>
     </div>
   );
 }
@@ -116,23 +198,9 @@ function TopBar({ darkMode, onToggle }) {
           </svg>
           Back
         </button>
-        <span className="cs-topbar-div" />
-        <span className="cs-topbar-title">📌 Content Segments</span>
+     
       </div>
-      <button className="cs-theme-btn" onClick={onToggle} title="Toggle theme">
-        {darkMode
-          ? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="17" height="17">
-              <circle cx="12" cy="12" r="5"/>
-              <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
-              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-              <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
-              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-            </svg>
-          : <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="17" height="17">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-            </svg>
-        }
-      </button>
+ 
     </div>
   );
 }
@@ -232,21 +300,19 @@ export default function ContentSegmentsPage() {
 
         {/* Stats strip */}
         <div className="cs-stats-strip">
-          <Stat emoji="🗂"  value={stats.totalSegments ?? allSegs.length} label="Total"       color="#6366f1" />
+          <Stat icon={FolderOpen}  value={stats.totalSegments ?? allSegs.length} label="Total"       color="#6366f1" />
           <span className="cs-stats-sep" />
-          <Stat emoji="📌" value={stats.topics      ?? 0}  label="Topics"       color="#6366f1" />
-          <Stat emoji="💡" value={stats.concepts    ?? 0}  label="Concepts"     color="#8b5cf6" />
-          <Stat emoji="🔑" value={stats.statements  ?? 0}  label="Statements"   color="#0ea5e9" />
-          <Stat emoji="📊" value={stats.facts       ?? 0}  label="Facts"        color="#10b981" />
-          <Stat emoji="📖" value={stats.definitions ?? 0}  label="Definitions"  color="#f59e0b" />
+          <Stat icon={MapPin}  value={stats.topics      ?? 0}  label="Topics"       color="#6366f1" />
+          <Stat icon={Lightbulb} value={stats.concepts    ?? 0}  label="Concepts"     color="#8b5cf6" />
+          <Stat icon={Key}  value={stats.statements  ?? 0}  label="Statements"   color="#0ea5e9" />
+          <Stat icon={BarChart3}       value={stats.facts       ?? 0}  label="Facts"        color="#10b981" />
+          <Stat icon={BookOpen}  value={stats.definitions ?? 0}  label="Definitions"  color="#f59e0b" />
         </div>
 
         {/* Search + filter toolbar */}
         <div className="cs-toolbar">
           <div className="cs-search-wrap">
-            <svg className="cs-search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
-              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
+            <Search size={14} className="cs-search-ico" />
             <input
               className="cs-search"
               placeholder="Search segments, keywords…"

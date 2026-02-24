@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { Eye, EyeOff, AlertCircle, Check } from 'lucide-react';
 import './signup.css';
 // import Navbar from '../navbar/page';
 import Dash from '../dash-nav/page';
@@ -17,44 +18,6 @@ import {
 const googleProvider = new GoogleAuthProvider();
 
 // ── Icons ─────────────────────────────────────────────────────────────────
-
-const EyeIcon = () => (
-  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-    <circle cx="12" cy="12" r="3"/>
-  </svg>
-);
-
-const EyeOffIcon = () => (
-  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
-    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-    <line x1="1" y1="1" x2="23" y2="23"/>
-  </svg>
-);
-
-const GoogleIcon = () => (
-  <svg viewBox="0 0 24 24" width="18" height="18">
-    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.51h5.84c-.25 1.31-.98 2.42-2.07 3.16v2.63h3.35c1.96-1.81 3.09-4.47 3.09-7.25z"/>
-    <path fill="#34A853" d="M12 23c2.97 0 5.46-.99 7.28-2.73l-3.35-2.63c-1.01.68-2.29 1.08-3.93 1.08-3.02 0-5.58-2.04-6.49-4.79H.96v2.67C2.75 20.19 6.7 23 12 23z"/>
-    <path fill="#FBBC05" d="M5.51 14.21c-.23-.68-.36-1.41-.36-2.21s.13-1.53.36-2.21V7.34H.96C.35 8.85 0 10.39 0 12s.35 3.15.96 4.66l4.55-2.45z"/>
-    <path fill="#EA4335" d="M12 4.98c1.64 0 3.11.56 4.27 1.66l3.19-3.19C17.46 1.01 14.97 0 12 0 6.7 0 2.75 2.81.96 7.34l4.55 2.45C6.42 7.02 8.98 4.98 12 4.98z"/>
-  </svg>
-);
-
-const AlertIcon = () => (
-  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
-    <circle cx="12" cy="12" r="10"/>
-    <line x1="12" y1="8" x2="12" y2="12"/>
-    <line x1="12" y1="16" x2="12.01" y2="16"/>
-  </svg>
-);
-
-const CheckIcon = () => (
-  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5">
-    <polyline points="20 6 9 17 4 12"/>
-  </svg>
-);
 
 // ── Firebase error → friendly message ─────────────────────────────────────
 
@@ -126,13 +89,13 @@ function Field({ id, label, name, type = 'text', placeholder, value, onChange, e
         {isPw && (
           <button type="button" className="eye-btn" onClick={() => setShowPw((v) => !v)}
             aria-label={showPw ? 'Hide password' : 'Show password'}>
-            {showPw ? <EyeOffIcon /> : <EyeIcon />}
+            {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         )}
       </div>
       {error && (
         <span className="field-error">
-          <AlertIcon /> {error}
+          <AlertCircle size={16} /> {error}
         </span>
       )}
     </div>
@@ -284,7 +247,7 @@ function AuthPageInner() {
               <div className="forgot-success">
                 <div className="success-burst">
                   <div className="success-ring" />
-                  <div className="success-check"><CheckIcon /></div>
+                  <div className="success-check"><Check size={20} /></div>
                 </div>
                 <h2>Check your inbox</h2>
                 <p>We sent a reset link to <strong>{forgotEmail}</strong></p>
@@ -300,7 +263,7 @@ function AuthPageInner() {
 
                 {globalError && (
                   <div className="auth-error-box">
-                    <AlertIcon /> {globalError}
+                    <AlertCircle size={16} /> {globalError}
                   </div>
                 )}
 
@@ -349,7 +312,7 @@ function AuthPageInner() {
             {/* Global error box */}
             {globalError && (
               <div className="auth-error-box" role="alert">
-                <span className="auth-error-icon"><AlertIcon /></span>
+                <span className="auth-error-icon"><AlertCircle size={16} /></span>
                 <span>{globalError}</span>
               </div>
             )}
@@ -357,7 +320,7 @@ function AuthPageInner() {
             {/* Success message */}
             {successMsg && (
               <div className="auth-success-box" role="status">
-                <span className="auth-success-icon"><CheckIcon /></span>
+                <span className="auth-success-icon"><Check size={16} /></span>
                 <span>{successMsg}</span>
               </div>
             )}
@@ -371,7 +334,12 @@ function AuthPageInner() {
             >
               {googleLoading
                 ? <><span className="btn-spinner btn-spinner--dark" /> Connecting…</>
-                : <><GoogleIcon /> Continue with Google</>
+                : <><svg viewBox="0 0 24 24" width="18" height="18" style={{display: 'inline-block', marginRight: '6px'}}>
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.51h5.84c-.25 1.31-.98 2.42-2.07 3.16v2.63h3.35c1.96-1.81 3.09-4.47 3.09-7.25z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.99 7.28-2.73l-3.35-2.63c-1.01.68-2.29 1.08-3.93 1.08-3.02 0-5.58-2.04-6.49-4.79H.96v2.67C2.75 20.19 6.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.51 14.21c-.23-.68-.36-1.41-.36-2.21s.13-1.53.36-2.21V7.34H.96C.35 8.85 0 10.39 0 12s.35 3.15.96 4.66l4.55-2.45z"/>
+                    <path fill="#EA4335" d="M12 4.98c1.64 0 3.11.56 4.27 1.66l3.19-3.19C17.46 1.01 14.97 0 12 0 6.7 0 2.75 2.81.96 7.34l4.55 2.45C6.42 7.02 8.98 4.98 12 4.98z"/>
+                  </svg> Continue with Google</>
               }
             </button>
 

@@ -1,21 +1,23 @@
 "use client";
 
 import { Upload, Layers, Target, ClipboardList, BarChart2, ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useUserStats } from "../../../hooks/useUserStats";
 import { auth } from "../../../../lib/firebase";
 import "./dashboard.css";
 
 const MODULES = [
-  { icon: Upload,        name: "Content Intake",  desc: "Upload notes, slides, or chapters to generate study material automatically." },
-  { icon: Layers,        name: "Flashcards",       desc: "Spaced repetition cards adapted to your recall performance." },
-  { icon: Target,        name: "Recall Game",      desc: "Self-assess your mastery with intentional recall scoring." },
-  { icon: ClipboardList, name: "Test Yourself",    desc: "Simulate exam conditions with adaptive quiz questions." },
-  { icon: BarChart2,     name: "Study Tracker",    desc: "Track sessions, recall trends, and readiness at a glance." },
+  { icon: Upload,        name: "Content Intake",  desc: "Upload notes, slides, or chapters to generate study material automatically.", path: "/page/dashboard/content-intake" },
+  { icon: Layers,        name: "Flashcards",       desc: "Spaced repetition cards adapted to your recall performance.", path: "/page/dashboard/flashcard" },
+  { icon: Target,        name: "Recall Game",      desc: "Self-assess your mastery with intentional recall scoring.", path: "/page/dashboard/quiz" },
+  { icon: ClipboardList, name: "Test Yourself",    desc: "Simulate exam conditions with adaptive quiz questions.", path: "/page/dashboard/quiz" },
+  { icon: BarChart2,     name: "Study Tracker",    desc: "Track sessions, recall trends, and readiness at a glance.", path: "/page/dashboard/progress-flashcard" },
 ];
 
 export default function Dashboard() {
   const user = auth.currentUser;
   const stats = useUserStats();
+  const router = useRouter();
 
   // Get user's first name from email or display name
   const getUserName = () => {
@@ -23,6 +25,13 @@ export default function Dashboard() {
     if (user.displayName) return user.displayName.split(" ")[0];
     if (user.email) return user.email.split("@")[0];
     return "there";
+  };
+
+  const getTimeOfDay = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "morning";
+    if (hour < 18) return "afternoon";
+    return "evening";
   };
 
   return (
@@ -82,8 +91,8 @@ export default function Dashboard() {
         </div>
 
         <div className="modules-grid">
-          {MODULES.map(({ icon: Icon, name, desc }) => (
-            <button key={name} className="module-card">
+          {MODULES.map(({ icon: Icon, name, desc, path }) => (
+            <button key={name} type="button" className="module-card" onClick={() => router.push(path)}>
               <div className="module-icon"><Icon size={20} /></div>
               <div>
                 <div className="module-name">{name}</div>

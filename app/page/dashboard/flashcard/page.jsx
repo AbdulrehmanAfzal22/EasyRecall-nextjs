@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
 import {
   loadFlashcards,
   loadProgress,
@@ -99,7 +100,7 @@ export default function FlashcardPage() {
         </div>
         <div className="page fc-empty-page">
           <div className="fc-empty-card">
-            <div className="fc-empty-icon">🃏</div>
+            <div className="fc-empty-icon"><RotateCcw size={48} /></div>
             <h2>No flashcards yet</h2>
             <p>Generate flashcards from the Content Intake page first.</p>
             <button
@@ -136,7 +137,7 @@ export default function FlashcardPage() {
             className="ci-btn ci-ghost ci-btn-sm"
             onClick={() => router.push("/page/dashboard/progress-flashcard")}
           >
-            📊 Progress
+            Progress
           </button>
         </div>
       </div>
@@ -229,7 +230,8 @@ export default function FlashcardPage() {
           {rated && (
             <div className="fc-post-rate-row">
               <span className="fc-rated-badge" style={{ color: ratingObj?.color }}>
-                {ratingObj?.emoji} Marked as "{ratingObj?.label}"
+                <span style={{ display: "inline-block", marginRight: "6px" }}>{ratingObj?.emoji}</span>
+                Marked as "{ratingObj?.label}"
               </span>
               {index < cards.length - 1 ? (
                 <button className="ci-btn ci-primary ci-btn-sm" onClick={() => navigate(1)}>
@@ -240,7 +242,7 @@ export default function FlashcardPage() {
                   className="ci-btn ci-primary ci-btn-sm"
                   onClick={() => router.push("/page/dashboard/progress-flashcard")}
                 >
-                  View Results 🎉
+                  View Results →
                 </button>
               )}
             </div>
@@ -250,14 +252,14 @@ export default function FlashcardPage() {
         {/* ── Nav arrows ── */}
         <div className="fc-nav-row">
           <button className="fc-nav-btn" onClick={() => navigate(-1)} disabled={index === 0}>
-            ← Prev
+            <ChevronLeft size={16} /> Prev
           </button>
           <button
             className="fc-nav-btn"
             onClick={() => navigate(1)}
             disabled={index === cards.length - 1}
           >
-            Next →
+            Next <ChevronRight size={16} />
           </button>
         </div>
 
