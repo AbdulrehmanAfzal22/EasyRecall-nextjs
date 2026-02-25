@@ -1,32 +1,49 @@
 .dashboard-wrapper {
   display: flex;
   min-height: 100vh;
-  overflow-x: hidden; /* ADD THIS */
-  width: 100%;        /* ADD THIS */
+  overflow-x: hidden;
+  width: 100%;
+  background: var(--bg-page);
 }
 
 .dashboard-content {
   flex: 1;
+  margin-left: 240px;
   overflow-y: auto;
+  height: 100vh;
   transition: margin-left 0.25s cubic-bezier(0.4,0,0.2,1);
 }
 
+/* Handle sidebar collapsed state for desktop */
+@media (min-width: 901px) {
+  .dashboard-content {
+    margin-left: 240px;
+  }
+  
+  /* When sidebar is collapsed on wider screens */
+  .sidebar.collapsed ~ .dashboard-content {
+    margin-left: 64px;
+  }
+}
 
+/* Mobile/Tablet view */
 @media (max-width: 900px) {
   .dashboard-content {
     margin-left: 64px;
-    width: calc(100% - 64px); /* ADD THIS */
-    max-width: calc(100% - 64px); /* ADD THIS */
-    overflow-x: hidden; /* ADD THIS */
+    width: calc(100% - 64px);
+    max-width: calc(100% - 64px);
+    overflow-x: hidden;
   }
 }
 
 .dark {
-  background: #0f172a;
+  --bg-page: #0a1120;
+  background: #0a1120;
   color: white;
 }
 
 .light {
-  background: #f8fafc;
+  --bg-page: #f5f6fa;
+  background: #f5f6fa;
   color: black;
 }
