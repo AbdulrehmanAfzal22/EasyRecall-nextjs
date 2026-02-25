@@ -6,9 +6,11 @@ import {
   loadFlashcards,
   loadProgress,
   computeStats,
+  computeCombinedAccuracy,
   clearProgress,
   saveSession,
 } from "@/lib/flashcardStore";
+import { loadQuizProgress } from "@/lib/quizStore";
 import "./progress.css";
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -187,10 +189,15 @@ export default function FlashcardProgress() {
   useEffect(() => {
     const stored = loadFlashcards();
     const prog   = loadProgress();
+    const quizProg = loadQuizProgress();
+    
     if (stored?.cards) {
       setCards(stored.cards);
       setProgress(prog);
-      setStats(computeStats(stored.cards, prog));
+      const computed = computeStats(stored.cards, prog);
+      const combined = computeCombinedAccuracy(computed, quizProg);
+      // Add combined accuracy to stats object
+      setStats({ ...computed, combinedAccuracy: combined });
     }
   }, []);
 
@@ -266,8 +273,8 @@ export default function FlashcardProgress() {
   );
 
   const scoreColor =
-    stats.accuracy >= 70 ? "#10b981" :
-    stats.accuracy >= 40 ? "#f59e0b" :
+    stats.combinedAccuracy >= 70 ? "#10b981" :
+    stats.combinedAccuracy >= 40 ? "#f59e0b" :
     "#ef4444";
 
   const circumference = 2 * Math.PI * 52;
@@ -299,13 +306,13 @@ export default function FlashcardProgress() {
                 style={{
                   stroke: scoreColor,
                   strokeDasharray: circumference,
-                  strokeDashoffset: circumference * (1 - stats.accuracy / 100),
+                  strokeDashoffset: circumference * (1 - stats.combinedAccuracy / 100),
                 }}
               />
             </svg>
             <div className="fcp-ring-inner">
-              <div className="fcp-ring-pct" style={{ color: scoreColor }}>{stats.accuracy}%</div>
-              <div className="fcp-ring-tag">accuracy</div>
+              <div className="fcp-ring-pct" style={{ color: scoreColor }}>{stats.combinedAccuracy}%</div>
+              <div className="fcp-ring-tag">overall accuracy</div>
             </div>
           </div>
 

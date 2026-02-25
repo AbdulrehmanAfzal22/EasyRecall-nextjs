@@ -6,7 +6,7 @@ import {
   LayoutDashboard, FileText, Layers, BrainCircuit,
   ClipboardList, BarChart2, HelpCircle,
   ChevronLeft, ChevronRight, Sun, Moon,
-  LogOut, ChevronUp,
+  LogOut, ChevronUp,MessageCircle
 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
@@ -21,6 +21,7 @@ const NAV_ITEMS = [
   { label: "Quizzes", href: "/page/dashboard/quiz", icon: BrainCircuit },
   { label: "Content", href: "/page/dashboard/documents", icon: ClipboardList },
   { label: "Topics", href: "/page/dashboard/segments", icon: HelpCircle },
+    { label: "Chat with AI", href: "/page/dashboard/chat-ai", icon: MessageCircle },
 ];
 
 export default function Sidebar({ isDark, onToggleTheme }) {

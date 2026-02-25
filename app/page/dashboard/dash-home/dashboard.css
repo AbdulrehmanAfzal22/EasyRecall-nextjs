@@ -151,6 +151,169 @@ body {
 .stat-num.blue   { color: var(--primary); }
 .stat-label      { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-label); margin-top: 6px; transition: color 0.25s ease; }
 
+/* ── DETAILED STATS SECTION ── */
+.stats-section {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+  margin-bottom: 28px;
+  transition: all 0.2s ease;
+}
+
+.stats-header {
+  margin-bottom: 20px;
+}
+
+.stats-header h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+  transition: color 0.25s ease;
+}
+
+.stats-header p {
+  font-size: 13px;
+  color: var(--text-muted);
+  transition: color 0.25s ease;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.stat-item:hover {
+  border-color: rgba(99, 102, 241, 0.35);
+  background: rgba(99, 102, 241, 0.04);
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+  margin-bottom: 6px;
+  transition: color 0.25s ease;
+}
+
+.stat-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-label);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  transition: color 0.25s ease;
+}
+
+/* ── MASTERY SECTION ── */
+/* .mastery-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.2s ease;
+}
+
+.mastery-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.mastery-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  transition: color 0.25s ease;
+}
+
+.mastery-pct {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary);
+  transition: color 0.25s ease;
+}
+
+.mastery-bar {
+  display: flex;
+  height: 24px;
+  gap: 2px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bg);
+  padding: 2px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.mastery-segment {
+  flex: 0 0 auto;
+  min-width: 4px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.mastery-segment:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.mastery-unseen {
+  background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%) !important;
+}
+
+.mastery-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+  transition: color 0.25s ease;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-unseen {
+  background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+}
+
+.legend-item strong {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.empty-stats {
+  text-align: center;
+  padding: 24px;
+  color: var(--text-muted);
+  font-size: 14px;
+} */
+
 .modules-header { margin-bottom: 16px; }
 .modules-label  { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--primary); margin-bottom: 4px; transition: color 0.25s ease; }
 .modules-title  { font-size: 26px; font-weight: 800; color: var(--text); transition: color 0.25s ease; }
@@ -327,6 +490,10 @@ body {
     grid-template-columns: repeat(2, 1fr);
   }
 
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   .modules-grid {
     grid-template-columns: 1fr;
   }
@@ -352,5 +519,27 @@ body {
 
   .stat-card {
     padding: 16px 12px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .stat-item {
+    padding: 12px;
+  }
+
+  .stat-value {
+    font-size: 24px;
+  }
+
+  .mastery-legend {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .legend-item {
+    font-size: 12px;
   }
 }
