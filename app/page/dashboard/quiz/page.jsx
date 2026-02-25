@@ -2,21 +2,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
-  CheckCircle2,
-  AlertTriangle,
-  AlertCircle,
-  XCircle,
-  Info,
-  Brain,
-  Sparkles,
-  Lightbulb,
-  RotateCcw,
-  Book,
-  Edit3,
-  CheckSquare,
-  MessageCircle,
-} from "lucide-react";
-import {
   loadQuiz,
   loadQuizProgress,
   saveMCQAnswer,
@@ -28,11 +13,11 @@ import {
 import "./quiz.css";
 
 // ══════════════════════════════════════════════════════════════════════════════
-//  ALERT POPUP SYSTEM — Lucide icons
+//  ALERT POPUP SYSTEM — fully self-contained, no external dependencies
 // ══════════════════════════════════════════════════════════════════════════════
 
 const AP_ICONS = {
-  confirm: `<circle cx="12" cy="12" r="10"/><polyline points="16 12 12 8 8 12"/>`,
+  confirm: `<polyline points="20 6 9 17 4 12"/>`,
   success: `<polyline points="20 6 9 17 4 12"/>`,
   warning: `<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>`,
   danger:  `<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>`,
@@ -183,9 +168,9 @@ const toast = {
 // ══════════════════════════════════════════════════════════════════════════════
 
 const SECTIONS = [
-  { id: "mcq", label: "Multiple Choice", emoji: "📝", color: "#a78bfa", bg: "rgba(167,139,250,0.1)" },
-  { id: "tf",  label: "True or False",    emoji: "✓", color: "#38bdf8", bg: "rgba(56,189,248,0.1)"  },
-  { id: "sa",  label: "Short Answer",    emoji: "💬", color: "#fb923c", bg: "rgba(251,146,60,0.1)"  },
+  { id: "mcq", label: "Multiple Choice", icon: "📝", color: "#a78bfa", bg: "rgba(167,139,250,0.1)" },
+  { id: "tf",  label: "True / False",    icon: "✓✗",  color: "#38bdf8", bg: "rgba(56,189,248,0.1)"  },
+  { id: "sa",  label: "Short Answer",    icon: "💬",  color: "#fb923c", bg: "rgba(251,146,60,0.1)"  },
 ];
 
 function scoreShortAnswer(userAnswer, keyPoints) {
@@ -323,7 +308,7 @@ export default function QuizPage() {
       </div>
       <div className="page qz-empty-page">
         <div className="qz-empty-card">
-          <Brain size={48} className="qz-empty-icon" />
+          <span className="qz-empty-icon">🧠</span>
           <h2>No quiz yet</h2>
           <p>Upload study material from Content Intake to generate a quiz automatically.</p>
           <button className="qz-cta-btn" onClick={() => router.push("/page/dashboard/content-intake")}>
@@ -343,17 +328,17 @@ export default function QuizPage() {
       </div>
       <div className="page qz-empty-page">
         <div className="qz-ready-card">
-          <Sparkles size={48} className="qz-ready-icon" />
+          <div className="qz-ready-icon">✨</div>
           <h2 className="qz-ready-title">Quiz Ready!</h2>
           <p className="qz-ready-subtitle">{total} questions generated and ready to test your knowledge</p>
           <div className="qz-ready-breakdown">
             {[
-              { id: "mcq", emoji: "📝", label: "Multiple Choice", count: mcqTotal, color: "#a78bfa" },
-              { id: "tf",  emoji: "✓", label: "True or False",    count: tfTotal, color: "#38bdf8"  },
-              { id: "sa",  emoji: "💬", label: "Short Answer",    count: saTotal, color: "#fb923c"  },
+              { icon: "📝", label: "Multiple Choice", count: mcqTotal },
+              { icon: "✓✗", label: "True / False",    count: tfTotal  },
+              { icon: "💬", label: "Short Answer",    count: saTotal  },
             ].map((s) => (
               <div key={s.label} className="qz-ready-stat">
-                <span style={{ color: s.color, fontSize: "20px" }}>{s.emoji}</span>
+                <span className="qz-rs-icon">{s.icon}</span>
                 <span className="qz-rs-label">{s.label}</span>
                 <span className="qz-rs-count">{s.count} questions</span>
               </div>
@@ -361,12 +346,12 @@ export default function QuizPage() {
           </div>
           <button
             className="qz-cta-btn qz-start-btn"
-            onClick={() => { setStarted(true); toast.info("Quiz Started!", "Good luck — you've got this!"); }}
+            onClick={() => { setStarted(true); toast.info("Quiz Started!", "Good luck — you've got this! 💪"); }}
           >
             Start Quiz →
           </button>
           <button className="qz-secondary-link" onClick={() => router.push("/page/dashboard/flashcard")}>
-            📚 Study Flashcards First
+            🃏 Study Flashcards First
           </button>
         </div>
       </div>
@@ -386,12 +371,8 @@ export default function QuizPage() {
           <p>{answered} of {total} answered · score {stats?.overallScore ?? 0}%</p>
         </div>
         <div className="topbar-right">
-          <button className="qz-ghost-btn" onClick={() => router.push("/page/dashboard/flashcard")}>
-            <Book size={16} /> Flashcards
-          </button>
-          <button className="qz-ghost-btn" onClick={handleReset}>
-            <RotateCcw size={16} /> Reset
-          </button>
+          <button className="qz-ghost-btn" onClick={() => router.push("/page/dashboard/flashcard")}>🃏 Flashcards</button>
+          <button className="qz-ghost-btn" onClick={handleReset}>↺ Reset</button>
         </div>
       </div>
 
@@ -420,7 +401,7 @@ export default function QuizPage() {
                   style={{ "--sc": s.color, "--sbg": s.bg }}
                   onClick={() => setActiveTab(s.id)}
                 >
-                  <span className="qz-pill-icon">{s.emoji}</span>
+                  <span className="qz-pill-icon">{s.icon}</span>
                   <span className="qz-pill-label">{s.label}</span>
                   <div className="qz-pill-track">
                     <div className="qz-pill-fill" style={{ width: `${pct}%`, background: s.color }} />
@@ -456,9 +437,7 @@ export default function QuizPage() {
           {activeTab === "mcq" && (
             <div className="qz-section">
               <div className="qz-section-head">
-                <div className="qz-section-icon" style={{ background: "rgba(167,139,250,0.15)", color: "#a78bfa" }}>
-                  <Edit3 size={20} />
-                </div>
+                <div className="qz-section-icon" style={{ background: "rgba(167,139,250,0.15)", color: "#a78bfa" }}>📝</div>
                 <div>
                   <h2 className="qz-section-title">Multiple Choice</h2>
                   <p className="qz-section-sub">Select the best answer for each question</p>
@@ -502,10 +481,7 @@ export default function QuizPage() {
                         })}
                       </div>
                       {locked && q.explanation && (
-                        <div className="qz-explanation">
-                          <Lightbulb size={16} className="qz-exp-icon" />
-                          {q.explanation}
-                        </div>
+                        <div className="qz-explanation"><span className="qz-exp-icon">💡</span>{q.explanation}</div>
                       )}
                     </div>
                   );
@@ -518,9 +494,7 @@ export default function QuizPage() {
           {activeTab === "tf" && (
             <div className="qz-section">
               <div className="qz-section-head">
-                <div className="qz-section-icon" style={{ background: "rgba(56,189,248,0.15)", color: "#38bdf8" }}>
-                  <CheckSquare size={20} />
-                </div>
+                <div className="qz-section-icon" style={{ background: "rgba(56,189,248,0.15)", color: "#38bdf8" }}>✓✗</div>
                 <div>
                   <h2 className="qz-section-title">True / False</h2>
                   <p className="qz-section-sub">Is each statement true or false?</p>
@@ -562,10 +536,7 @@ export default function QuizPage() {
                         })}
                       </div>
                       {locked && q.explanation && (
-                        <div className="qz-explanation">
-                          <Lightbulb size={16} className="qz-exp-icon" />
-                          {q.explanation}
-                        </div>
+                        <div className="qz-explanation"><span className="qz-exp-icon">💡</span>{q.explanation}</div>
                       )}
                     </div>
                   );
@@ -578,9 +549,7 @@ export default function QuizPage() {
           {activeTab === "sa" && (
             <div className="qz-section">
               <div className="qz-section-head">
-                <div className="qz-section-icon" style={{ background: "rgba(251,146,60,0.15)", color: "#fb923c" }}>
-                  <MessageCircle size={20} />
-                </div>
+                <div className="qz-section-icon" style={{ background: "rgba(251,146,60,0.15)", color: "#fb923c" }}>💬</div>
                 <div>
                   <h2 className="qz-section-title">Short Answer</h2>
                   <p className="qz-section-sub">Write your answer — scored by keyword accuracy</p>
@@ -661,7 +630,7 @@ export default function QuizPage() {
               style={{ "--sc": s.color }}
               onClick={() => setActiveTab(s.id)}
             >
-              {s.emoji} {s.label}
+              {s.icon} {s.label}
             </button>
           ))}
         </div>
