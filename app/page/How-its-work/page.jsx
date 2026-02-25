@@ -15,7 +15,7 @@ const HowItWorks = () => {
   return (
     <section className="how">
       <div className="how-header">
-        <h2>How StudyLab Works</h2>
+        <h2>How EasyRecall Works</h2>
         <p>
           Transform your study materials into interactive quizzes and flashcards in three simple steps.
         </p>

@@ -7,29 +7,29 @@ import "./faq.css";
 const faqData = {
   "Getting Started": [
     {
-      question: "How does StudyLab work?",
+      question: "How does EasyRecall work?",
       answer:
-        "StudyLab uses AI to transform your study materials into interactive flashcards, quizzes, and summaries. Simply upload your notes or textbooks, and our system automatically generates personalized study content tailored to your learning style.",
+        "EasyRecall uses AI to transform your study materials into interactive flashcards, quizzes, and summaries. Simply upload your notes or textbooks, and our system automatically generates personalized study content tailored to your learning style.",
     },
     {
-      question: "How much does StudyLab cost?",
+      question: "How much does EasyRecall cost?",
       answer:
-        "StudyLab offers a free plan with basic features including up to 50 flashcard sets per month. Our Pro plan starts at $9.99/month and includes unlimited flashcards, AI-powered quizzes, and priority support.",
+        "EasyRecall offers a free plan with basic features including up to 50 flashcard sets per month. Our Pro plan starts at $9.99/month and includes unlimited flashcards, AI-powered quizzes, and priority support.",
     },
     {
       question: "What file formats are supported?",
       answer:
-        "StudyLab supports PDF, DOCX, TXT, PPTX, and image files (JPG, PNG). You can also paste text directly or import from Google Docs and Notion.",
+        "EasyRecall supports PDF, DOCX, TXT, PPTX, and image files (JPG, PNG). You can also paste text directly or import from Google Docs and Notion.",
     },
     {
       question: "Do I need to create an account to get started?",
       answer:
-        "You can explore StudyLab with a guest session, but creating a free account lets you save your progress, sync across devices, and access all free-tier features without limitations.",
+        "You can explore EasyRecall with a guest session, but creating a free account lets you save your progress, sync across devices, and access all free-tier features without limitations.",
     },
     {
-      question: "Is StudyLab available on mobile?",
+      question: "Is EasyRecall available on mobile?",
       answer:
-        "Yes! StudyLab is available as a web app optimized for mobile browsers, and we have native iOS and Android apps available on the App Store and Google Play.",
+        "Yes! EasyRecall is available as a web app optimized for mobile browsers, and we have native iOS and Android apps available on the App Store and Google Play.",
     },
   ],
   "Features & Usage": [
@@ -54,9 +54,9 @@ const faqData = {
         "Yes, every generated card can be fully edited. You can modify questions, answers, add images, format text, and reorder cards within any set.",
     },
     {
-      question: "What languages does StudyLab support?",
+      question: "What languages does EasyRecall support?",
       answer:
-        "StudyLab supports over 40 languages for content generation and interface display, including English, Spanish, French, German, Japanese, Mandarin, and Arabic.",
+        "EasyRecall supports over 40 languages for content generation and interface display, including English, Spanish, French, German, Japanese, Mandarin, and Arabic.",
     },
   ],
   "Account & Billing": [
@@ -83,7 +83,7 @@ const faqData = {
     {
       question: "Is there a team or institutional plan?",
       answer:
-        "Yes! Our Teams plan supports up to 50 users with centralized billing and admin controls. Contact us at teams@studylab.io for enterprise pricing.",
+        "Yes! Our Teams plan supports up to 50 users with centralized billing and admin controls. Contact us at teams@EasyRecall.io for enterprise pricing.",
     },
   ],
   "Technical Questions": [
@@ -95,7 +95,7 @@ const faqData = {
     {
       question: "What browsers are supported?",
       answer:
-        "StudyLab works best on the latest versions of Chrome, Firefox, Safari, and Edge. We recommend keeping your browser updated for the best experience.",
+        "EasyRecall works best on the latest versions of Chrome, Firefox, Safari, and Edge. We recommend keeping your browser updated for the best experience.",
     },
     {
       question: "Why is my file taking long to process?",
@@ -103,9 +103,9 @@ const faqData = {
         "Large files (over 50MB) or complex documents with many images may take 1–3 minutes to process. If it takes longer, try splitting the file into smaller sections or contact support.",
     },
     {
-      question: "Can I use StudyLab offline?",
+      question: "Can I use EasyRecall offline?",
       answer:
-        "The StudyLab mobile apps support offline mode for reviewing existing flashcard sets. Uploading new content and AI generation require an internet connection.",
+        "The EasyRecall mobile apps support offline mode for reviewing existing flashcard sets. Uploading new content and AI generation require an internet connection.",
     },
     {
       question: "How do I export my flashcards?",
@@ -150,7 +150,7 @@ export default function FAQ() {
         </div>
         <h1 className="faq-title">Frequently Asked Questions</h1>
         <p className="faq-subtitle">
-          Find answers to common questions about StudyLab and how it can help you study smarter
+          Find answers to common questions about EasyRecall and how it can help you study smarter
         </p>
       </div>
 
