@@ -3,11 +3,10 @@
 import { useState, useEffect } from "react";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db, auth } from "../../lib/firebase";
+import { updateDailyVisit } from "../../lib/service";
 
 export function useUserStats() {
-
-  const user = auth.currentUser;
-
+  const [user, setUser] = useState(null);
   const [stats, setStats] = useState({
     cardsReviewed: 0,
     dayStreak: 0,
@@ -16,8 +15,35 @@ export function useUserStats() {
     loading: true
   });
 
+  // Setup user listener
   useEffect(() => {
-    if (!user) {
+    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+      setUser(currentUser);
+      
+      // Track daily visit when user logs in
+      if (currentUser?.uid) {
+        updateDailyVisit(currentUser.uid).catch((err) => {
+          console.warn("Failed to update daily visit:", err);
+        });
+      }
+      
+      if (!currentUser) {
+        setStats({
+          cardsReviewed: 0,
+          dayStreak: 0,
+          mastered: 0,
+          readiness: 0,
+          loading: false
+        });
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Setup stats listener - depends on user.uid, not just user object
+  useEffect(() => {
+    if (!user?.uid) {
       setStats({
         cardsReviewed: 0,
         dayStreak: 0,
@@ -44,9 +70,9 @@ export function useUserStats() {
               ? Math.round((masteredCards / totalCards) * 100)
               : 0;
 
-          const lastStudyDate = data.lastStudyDate?.toDate();
+          const lastVisitDate = data.lastVisitDate?.toDate();
           const dayStreak = calculateStreak(
-            lastStudyDate,
+            lastVisitDate,
             data.currentStreak || 0
           );
 
@@ -74,29 +100,32 @@ export function useUserStats() {
     );
 
     return () => unsubscribe();
-  }, [user]);
+  }, [user?.uid]);
 
   return stats;
 }
 
 // Helper function
-function calculateStreak(lastStudyDate, currentStreak) {
-  if (!lastStudyDate) return 0;
+function calculateStreak(lastVisitDate, currentStreak) {
+  if (!lastVisitDate || !currentStreak) return currentStreak || 0;
 
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-  const lastStudy = new Date(
-    lastStudyDate.getFullYear(),
-    lastStudyDate.getMonth(),
-    lastStudyDate.getDate()
+  const lastVisit = new Date(
+    lastVisitDate.getFullYear(),
+    lastVisitDate.getMonth(),
+    lastVisitDate.getDate()
   );
 
-  const diffTime = today - lastStudy;
+  const diffTime = today - lastVisit;
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-  if (diffDays === 0) return currentStreak;
-  if (diffDays === 1) return currentStreak;
+  // If last visit was today or yesterday, return the currentStreak
+  if (diffDays === 0 || diffDays === 1) {
+    return currentStreak;
+  }
 
+  // If more than 1 day has passed, streak is broken
   return 0;
 }
