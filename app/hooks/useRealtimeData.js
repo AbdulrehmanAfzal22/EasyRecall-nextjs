@@ -14,7 +14,6 @@ import {
 } from "../../lib/firebaseStore";
 
 /**
- * Hook for real-time flashcard sync across devices
  */
 export function useRealtimeFlashcards() {
   const [user, setUser] = useState(null);
