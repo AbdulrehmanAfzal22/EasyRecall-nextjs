@@ -8,8 +8,7 @@ import {
   ChevronLeft, ChevronRight, Sun, Moon,
   LogOut, ChevronUp,MessageCircle
 } from "lucide-react";
-import { auth } from "@/lib/firebase";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { useAuth } from "../../AuthProvider";
 import "./sidebar.css";
 import Image from "next/image";
 import logo from "../../../../public/assets/logo.png"
@@ -27,19 +26,14 @@ const NAV_ITEMS = [
 export default function Sidebar({ isDark, onToggleTheme }) {
   const pathname = usePathname();
   const router = useRouter();
+  const { user, logout } = useAuth();
   const menuRef = useRef(null);
 
   const [collapsed, setCollapsed] = useState(
     typeof window !== "undefined" && window.innerWidth <= 900
   );
-  const [user, setUser] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
-
-  useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (u) => setUser(u));
-    return () => unsub();
-  }, []);
 
   useEffect(() => {
     const handler = (e) => {
@@ -52,8 +46,7 @@ export default function Sidebar({ isDark, onToggleTheme }) {
   const handleLogout = async () => {
     setLoggingOut(true);
     try {
-      await signOut(auth);
-      router.push("/");
+      await logout();
     } catch (err) {
       console.error(err);
       setLoggingOut(false);

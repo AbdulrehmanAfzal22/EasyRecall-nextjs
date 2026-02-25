@@ -1,9 +1,31 @@
 "use client";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Send, Sparkles, Bot, User, Loader2, RotateCcw, Plus, X, FileText, ImageIcon, Menu, History, MessageSquare, Trash2 } from "lucide-react";
+import { useAuth } from "../../AuthProvider";
+import { saveChatToFirestore, getUserChats, getChatById, deleteChatFromFirestore, subscribeToUserChats } from "@/lib/firebaseStore";
 import "./ai-chat.css";
 
 export default function AIChat() {
+  const { user, loading } = useAuth();
+
+  // Show loading while checking authentication
+  if (loading) {
+    return (
+      <div className="chat-page" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div>Loading...</div>
+      </div>
+    );
+  }
+
+  // Show login message if not authenticated
+  if (!user) {
+    return (
+      <div className="chat-page" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div>Please log in to use the AI chat.</div>
+      </div>
+    );
+  }
+
   const [messages, setMessages] = useState([
     {
       id: "welcome",
@@ -23,30 +45,45 @@ export default function AIChat() {
   const [showHistory, setShowHistory] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [modalConfig, setModalConfig] = useState({ title: "", message: "", onConfirm: null });
+  const [loadingHistory, setLoadingHistory] = useState(false);
 
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  // Load history from localStorage on mount
+  // Load chat history from Firebase when user is available
   useEffect(() => {
-    const saved = localStorage.getItem("chatHistory");
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        setChatHistory(parsed);
-      } catch (e) {
-        console.error("Failed to parse chat history");
-      }
-    }
-  }, []);
+    if (!user) return;
 
-  // Save history to localStorage whenever it changes
+    setLoadingHistory(true);
+    const unsubscribe = subscribeToUserChats(user.uid, (result) => {
+      if (result.success) {
+        setChatHistory(result.data);
+      } else {
+        console.error("Failed to load chat history:", result.error);
+      }
+      setLoadingHistory(false);
+    });
+
+    return () => unsubscribe();
+  }, [user]);
+
+  // Auto-save current chat to Firebase
   useEffect(() => {
-    if (chatHistory.length > 0) {
-      localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
-    }
-  }, [chatHistory]);
+    if (!user || !currentChatId || messages.length <= 1) return;
+
+    const saveChat = async () => {
+      try {
+        await saveChatToFirestore(user.uid, currentChatId, messages);
+      } catch (error) {
+        console.error("Failed to save chat:", error);
+      }
+    };
+
+    // Debounce saves
+    const timeoutId = setTimeout(saveChat, 1000);
+    return () => clearTimeout(timeoutId);
+  }, [messages, currentChatId, user]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -81,43 +118,48 @@ export default function AIChat() {
   };
 
   // ── Chat History Functions ──────────────────────────────────────────
-  const saveCurrentChat = () => {
-    if (messages.length <= 1) return; // Don't save if only welcome message
+  const saveCurrentChat = async () => {
+    if (!user || messages.length <= 1) return; // Don't save if only welcome message or no user
 
-    const chatTitle = messages[1]?.content?.slice(0, 50) || "New Chat";
-    const newChat = {
-      id: currentChatId || Date.now().toString(),
-      title: chatTitle,
-      messages: messages,
-      timestamp: new Date().toISOString(),
-    };
-
-    setChatHistory((prev) => {
-      const filtered = prev.filter((c) => c.id !== newChat.id);
-      return [newChat, ...filtered].slice(0, 20); // Keep max 20 chats
-    });
-
-    setCurrentChatId(newChat.id);
-  };
-
-  const loadChat = (chatId) => {
-    const chat = chatHistory.find((c) => c.id === chatId);
-    if (chat) {
-      setMessages(chat.messages);
-      setCurrentChatId(chat.id);
-      setShowHistory(false);
+    try {
+      const chatId = currentChatId || Date.now().toString();
+      await saveChatToFirestore(user.uid, chatId, messages);
+      setCurrentChatId(chatId);
+    } catch (error) {
+      console.error("Failed to save chat:", error);
     }
   };
 
-  const deleteChat = (chatId, e) => {
+  const loadChat = async (chatId) => {
+    if (!user) return;
+
+    try {
+      const chat = await getChatById(user.uid, chatId);
+      if (chat) {
+        setMessages(chat.messages);
+        setCurrentChatId(chat.id);
+        setShowHistory(false);
+      }
+    } catch (error) {
+      console.error("Failed to load chat:", error);
+    }
+  };
+
+  const deleteChat = async (chatId, e) => {
     e.stopPropagation();
+    if (!user) return;
+
     openModal(
       "Delete Chat",
       "Are you sure you want to delete this chat? This action cannot be undone.",
-      () => {
-        setChatHistory((prev) => prev.filter((c) => c.id !== chatId));
-        if (currentChatId === chatId) {
-          startNewChat();
+      async () => {
+        try {
+          await deleteChatFromFirestore(user.uid, chatId);
+          if (currentChatId === chatId) {
+            startNewChat();
+          }
+        } catch (error) {
+          console.error("Failed to delete chat:", error);
         }
       }
     );
@@ -192,6 +234,11 @@ export default function AIChat() {
   // ── Send ─────────────────────────────────────────────────────────────
   const handleSend = async () => {
     if ((!input.trim() && attachments.length === 0) || isLoading) return;
+
+    // Create new chat ID if this is the first message
+    if (!currentChatId && messages.length === 1) {
+      setCurrentChatId(Date.now().toString());
+    }
 
     const userMessage = {
       id: Date.now().toString(),
@@ -274,8 +321,9 @@ export default function AIChat() {
 
   const formatTime = (date) => new Date(date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
+  const formatDate = (dateInput) => {
+    // Handle Firebase Timestamp objects
+    const date = dateInput?.toDate ? dateInput.toDate() : new Date(dateInput);
     const now = new Date();
     const diff = now - date;
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -357,7 +405,11 @@ export default function AIChat() {
           </button>
 
           <div className="chat-history-list">
-            {chatHistory.length === 0 ? (
+            {loadingHistory ? (
+              <div className="chat-history-loading">
+                <p>Loading chats...</p>
+              </div>
+            ) : chatHistory.length === 0 ? (
               <div className="chat-history-empty">
                 <MessageSquare size={32} opacity={0.3} />
                 <p>No chat history yet</p>
@@ -370,8 +422,10 @@ export default function AIChat() {
                   onClick={() => loadChat(chat.id)}
                 >
                   <div className="chat-history-item-content">
-                    <div className="chat-history-item-title">{chat.title}</div>
-                    <div className="chat-history-item-time">{formatDate(chat.timestamp)}</div>
+                    <div className="chat-history-item-title">{chat.title || "Untitled Chat"}</div>
+                    <div className="chat-history-item-time">
+                      {formatDate(chat.updatedAt?.toDate?.() || chat.updatedAt || chat.timestamp)}
+                    </div>
                   </div>
                   <button
                     className="chat-history-item-delete"
