@@ -1,24 +1,124 @@
-// app/api/skipcash/ping/route.js
-// Diagnostic endpoint: attempts a lightweight HEAD request to the configured SKIPCASH_BASE
-// and returns detailed error information to help debug DNS/network issues.
-
+// app/api/skipcash/create-session/route.js
 import { NextResponse } from 'next/server';
+import crypto from 'crypto';
 
-export async function GET() {
-  const SKIPCASH_BASE = process.env.SKIPCASH_BASE || process.env.NEXT_PUBLIC_SKIPCASH_BASE || 'https://checkout.skipcash.io/checkout';
+function generateSignature(data, secret) {
+  // Skipcash uses HMAC SHA256 on the JSON string of the body
+  return crypto.createHmac('sha256', secret).update(JSON.stringify(data)).digest('base64');
+}
 
+export async function POST(req) {
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000);
-    const res = await fetch(SKIPCASH_BASE, { method: 'HEAD', signal: controller.signal });
-    clearTimeout(timeout);
+    const body = await req.json();
+    const amount = Number(body?.amount ?? 0);
 
-    return NextResponse.json({ ok: true, status: res.status, statusText: res.statusText });
+    // Only allow hardcoded amounts for safety
+    const allowed = [4.99, 9.99];
+    if (!allowed.includes(amount)) {
+      return NextResponse.json({ error: 'invalid_amount', amount }, { status: 400 });
+    }
+
+    const MODE = process.env.SKIPCASH_MODE || 'mock';
+
+    // ───────────────────────────────────────────────────
+    // MOCK MODE
+    // ───────────────────────────────────────────────────
+    if (MODE === 'mock') {
+      const mockSessionId = `mock-${Date.now()}`;
+      return NextResponse.json({
+        url: `${process.env.NEXT_PUBLIC_APP_URL}/skipcash-mock?amount=${amount}`,
+        sessionId: mockSessionId,
+        mode: 'mock',
+      });
+    }
+
+    // ───────────────────────────────────────────────────
+    // LIVE MODE - Fixed for Skipcash API
+    // ───────────────────────────────────────────────────
+
+    const KEYID = process.env.SKIPCASH_KEYID;
+    const SECRET = process.env.SKIPCASH_SECRET;
+    const CLIENT_ID = process.env.SKIPCASH_CLIENTKEY;
+
+    // Use correct base URL (no trailing spaces!)
+    const SKIPCASH_BASE = 'https://api.skipcash.app';
+
+    if (!KEYID || !SECRET || !CLIENT_ID) {
+      return NextResponse.json({
+        error: 'misconfigured_provider',
+        detail: 'Missing KEYID, SECRET, or CLIENTKEY'
+      }, { status: 500 });
+    }
+
+    // Build correct payload per Skipcash docs
+    const sessionData = {
+      Uid: crypto.randomUUID(),
+      KeyId: KEYID,
+      Amount: amount.toFixed(2), // String with 2 decimals: "4.99"
+      FirstName: body.firstName || 'Customer',
+      LastName: body.lastName || 'User',
+      Phone: body.phone || '+97400000000',
+      Email: body.email || 'customer@example.com',
+      Street: body.street || 'PO Box 000',
+      City: body.city || 'Doha',
+      State: body.state || 'DA',
+      Country: body.country || 'QA',
+      PostalCode: body.postalCode || '00000',
+      TransactionId: body.transactionId || `order-${Date.now()}`,
+      Custom1: body.custom1 || 'EasyRecall Premium',
+    };
+
+    const signature = generateSignature(sessionData, SECRET);
+
+    console.log('Calling Skipcash API:', {
+      url: `${SKIPCASH_BASE}/api/v1/payments`,
+      keyId: KEYID,
+      transactionId: sessionData.TransactionId,
+    });
+
+    const response = await fetch(`${SKIPCASH_BASE}/api/v1/payments`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-KeyID': KEYID,
+        'Authorization': signature, // Base64 encoded HMAC
+      },
+      body: JSON.stringify(sessionData),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Skipcash API error:', response.status, errorText);
+      return NextResponse.json(
+        { error: 'provider_error', status: response.status, detail: errorText },
+        { status: 502 }
+      );
+    }
+
+    const session = await response.json();
+
+    // Skipcash returns payUrl in resultObj
+    const payUrl = session.resultObj?.payUrl;
+
+    if (!payUrl) {
+      console.error('No payUrl in response:', session);
+      return NextResponse.json(
+        { error: 'missing_checkout_url', detail: session },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      url: payUrl,
+      sessionId: session.resultObj?.id,
+      mode: 'live',
+    });
+
   } catch (err) {
-    const name = err && err.name ? err.name : undefined;
-    const message = err && err.message ? err.message : String(err);
-    const stack = err && err.stack ? err.stack : undefined;
-    console.error('Skipcash ping failed', { name, message, stack, SKIPCASH_BASE });
-    return NextResponse.json({ ok: false, name, message, stack, host: SKIPCASH_BASE }, { status: 502 });
+    console.error('Session creation error:', err);
+    return NextResponse.json(
+      { error: 'server_error', detail: err.message },
+      { status: 500 }
+    );
   }
 }
