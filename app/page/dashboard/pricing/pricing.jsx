@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import "./pricing.css";
 
 export default function PricingSection() {
+  const router = useRouter();
   const [themeDark, setThemeDark] = useState(false);
   const [billingYearly, setBillingYearly] = useState(false);
 
@@ -29,6 +31,13 @@ export default function PricingSection() {
 
   const handleBillingToggle = () => {
     setBillingYearly((prev) => !prev);
+  };
+
+  const handlePurchase = () => {
+    // Map UI price to payment amount (hardcoded values)
+    const amount = billingYearly ? 9.99 : 4.99;
+    // Navigate to the dedicated SkipCash checkout page, which will call the API
+    router.push(`/page/skipcash?amount=${amount}`);
   };
 
   return (
@@ -68,7 +77,7 @@ export default function PricingSection() {
 
           <div className="price-block">
             <span className="currency">$</span>
-            <span className="amount">{billingYearly ? "49" : "4.99"}</span>
+            <span className="amount">{billingYearly ? "9.99" : "4.99"}</span>
             <span className="billing-period">/{billingYearly ? "yr" : "mo"}</span>
           </div>
 
@@ -95,7 +104,9 @@ export default function PricingSection() {
             </div>
           </div>
 
-          <button className="start-button">Get Started</button>
+          <button className="start-button" onClick={handlePurchase}>
+            Get Started
+          </button>
         </div>
       </div>
     </section>
