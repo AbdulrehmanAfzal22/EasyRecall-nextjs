@@ -7,38 +7,41 @@ import "./pricing.css";
 export default function PricingSection() {
   const router = useRouter();
   const [themeDark, setThemeDark] = useState(false);
-  const [billingYearly, setBillingYearly] = useState(false);
 
   useEffect(() => {
-    // Read theme from HTML class (set by root layout script)
-    const isDarkMode = document.documentElement.classList.contains('dark');
+    const isDarkMode = document.documentElement.classList.contains("dark");
     setThemeDark(isDarkMode);
   }, []);
 
   const handleThemeToggle = () => {
     const html = document.documentElement;
     const newIsDark = !themeDark;
-    
+
     if (newIsDark) {
-      html.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
+      html.classList.add("dark");
+      localStorage.setItem("theme", "dark");
     } else {
-      html.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
+      html.classList.remove("dark");
+      localStorage.setItem("theme", "light");
     }
     setThemeDark(newIsDark);
   };
 
-  const handleBillingToggle = () => {
-    setBillingYearly((prev) => !prev);
-  };
-
-  const handlePurchase = () => {
-    // Map UI price to payment amount (hardcoded values)
-    const amount = billingYearly ? 9.99 : 4.99;
-    // Navigate to the dedicated SkipCash checkout page, which will call the API
+  const handlePurchase = (amount) => {
     router.push(`/page/skipcash?amount=${amount}`);
   };
+
+  const features = [
+    "Unlimited document uploads",
+    "Unlimited quiz generations",
+    "Up to 40 questions per quiz",
+    "Instant answer feedback",
+    "Performance tracking & insights",
+    "View source during quizzes",
+    "Export quiz & study data",
+    "Priority email support",
+    "Unlimited flashcard decks (40 cards each)",
+  ];
 
   return (
     <section className="pricing-hero">
@@ -46,68 +49,76 @@ export default function PricingSection() {
         <h2 className="main-title">Start Learning Smarter Today</h2>
         <p className="main-subtitle">Choose the plan that best fits your study needs.</p>
 
-        {/* Billing toggle */}
-        <div className="billing-switch-container">
-          <span className={`switch-label ${!billingYearly ? "active" : ""}`}>Students</span>
-
-          <label className="toggle-switch">
-            <input
-              type="checkbox"
-              checked={billingYearly}
-              onChange={handleBillingToggle}
-            />
-            <span className="toggle-slider"></span>
-          </label>
-
-          <span className={`switch-label ${billingYearly ? "active" : ""}`}>
-            {/* Yearly */}
-            Learners
-            {/* <span className="save-pill">Save 20%</span> */}
-          </span>
-        </div>
-
-        {/* Pricing card with animation trigger */}
-        <div
-          className={`pricing-card ${billingYearly ? "yearly-mode" : "monthly-mode"}`}
-          key={billingYearly ? "yearly" : "monthly"} // forces re-mount for animation
-        >
-          <div className="card-header">
-            {/* <h3 className="plan-title">Premium</h3> */}
-            {/* <span className="badge-recommended">Recommended</span> */}
-          </div>
-
-          <div className="price-block">
-            <span className="currency">$</span>
-            <span className="amount">{billingYearly ? "9.99" : "4.99"}</span>
-            <span className="billing-period"></span>
-          </div>
-
-          <ul className="feature-list">
-            <li>Unlimited document uploads</li>
-            <li>Unlimited quiz generations</li>
-            <li>Up to 40 questions per quiz</li>
-            <li>Instant answer feedback</li>
-            <li>Performance tracking & insights</li>
-            <li>View source during quizzes</li>
-            <li>Export quiz & study data</li>
-            <li>Priority email support</li>
-            <li>Unlimited flashcard decks (40 cards each)</li>
-          </ul>
-
-          <div className="limits-section">
-            <div className="limit-row">
-              <span>Max file size</span>
-              <span>10 MB / document</span>
+        <div className="pricing-cards-grid">
+          {/* Monthly Card */}
+          <div className="pricing-card-monthly">
+            <div className="card-header">
+              <h3 className="plan-title">Premium Monthly</h3>
+              <span className="badge-popular">Popular</span>
             </div>
-            <div className="limit-row">
-              <span>Monthly quizzes</span>
-              <span>Unlimited</span>
+
+            <div className="price-block">
+              <span className="currency">$</span>
+              <span className="amount">4.99</span>
+              <span className="billing-period">/mo</span>
             </div>
+
+            <ul className="feature-list">
+              {features.map((f, i) => (
+                <li key={i}>{f}</li>
+              ))}
+            </ul>
+
+            <div className="limits-section">
+              <div className="limit-row">
+                <span>Max file size</span>
+                <span>10 MB / document</span>
+              </div>
+              <div className="limit-row">
+                <span>Monthly quizzes</span>
+                <span>Unlimited</span>
+              </div>
+            </div>
+
+            <button className="start-button" onClick={() => handlePurchase(4.99)}>
+              Get Started Monthly
+            </button>
           </div>
 
-          <button className="start-button" onClick={handlePurchase}>
-            Get Started
-          </button>
+          {/* Yearly Card */}
+          <div className="pricing-card-yearly">
+            <div className="card-header">
+              <h3 className="plan-title">Premium Yearly</h3>
+              <span className="badge-recommended">Save 20%</span>
+            </div>
+
+            <div className="price-block">
+              <span className="currency">$</span>
+              <span className="amount">9.99</span>
+              <span className="billing-period">/yr</span>
+            </div>
+
+            <ul className="feature-list">
+              {features.map((f, i) => (
+                <li key={i}>{f}</li>
+              ))}
+            </ul>
+
+            <div className="limits-section">
+              <div className="limit-row">
+                <span>Max file size</span>
+                <span>10 MB / document</span>
+              </div>
+              <div className="limit-row">
+                <span>Monthly quizzes</span>
+                <span>Unlimited</span>
+              </div>
+            </div>
+
+            <button className="start-button" onClick={() => handlePurchase(9.99)}>
+              Get Started Yearly
+            </button>
+          </div>
         </div>
       </div>
     </section>

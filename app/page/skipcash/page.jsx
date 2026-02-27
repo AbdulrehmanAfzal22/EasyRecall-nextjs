@@ -92,31 +92,30 @@ const TABS = [
       </svg>
     ),
   },
-  {
-    key: "paypal",
-    label: "PayPal",
-    icon: (
-      <svg viewBox="0 0 16 16" fill="none" width="12" height="12">
-        <path d="M11 3H6.5A4 4 0 006.5 11H7l-.5 3H9l1.5-9.5A1.5 1.5 0 0011 3z" stroke="currentColor" strokeWidth="1.3" />
-      </svg>
-    ),
-  },
-  {
-    key: "google",
-    label: "G Pay",
-    icon: (
-      <svg viewBox="0 0 16 16" fill="none" width="12" height="12">
-        <circle cx="8" cy="8" r="5" stroke="currentColor" strokeWidth="1.3" />
-        <path d="M8 8h4M8 6v4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-      </svg>
-    ),
-  },
+  // {
+  //   key: "paypal",
+  //   label: "PayPal",
+  //   icon: (
+  //     <svg viewBox="0 0 16 16" fill="none" width="12" height="12">
+  //       <path d="M11 3H6.5A4 4 0 006.5 11H7l-.5 3H9l1.5-9.5A1.5 1.5 0 0011 3z" stroke="currentColor" strokeWidth="1.3" />
+  //     </svg>
+  //   ),
+  // },
+  // {
+  //   key: "google",
+  //   label: "G Pay",
+  //   icon: (
+  //     <svg viewBox="0 0 16 16" fill="none" width="12" height="12">
+  //       <circle cx="8" cy="8" r="5" stroke="currentColor" strokeWidth="1.3" />
+  //       <path d="M8 8h4M8 6v4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+  //     </svg>
+  //   ),
+  // },
 ];
 
 const TAB_BTN_TEXT = {
-  card:   "Activate Free Plan",
-  paypal: "Continue with PayPal",
-  google: "Pay with Google Pay",
+  card:   "Activate  Plan",
+
 };
 
 /* ══════════════════════════════════════
@@ -235,8 +234,8 @@ export default function SkipCashPayment() {
 
         {/* Center title */}
         <div className="scc-topbar-center">
-          <div className="scc-topbar-logo">S</div>
-          <span className="scc-topbar-name">Skip Cash</span>
+          {/* <div className="scc-topbar-logo">S</div> */}
+          <span className="scc-topbar-name">EasyRecall</span>
           <span className="scc-topbar-tag">Checkout</span>
         </div>
 
@@ -255,18 +254,18 @@ export default function SkipCashPayment() {
           <div className="panel-blob" />
 
           <div className="brand">
-            <div className="brand-icon">S</div>
-            <div className="brand-name">Skip <span>Cash</span> Create</div>
+            {/* <div className="brand-icon">S</div> */}
+            <div className="brand-name">EasyRecall</div>
           </div>
 
           <div className="plan-summary">
-            <div className="plan-tag">
+            {/* <div className="plan-tag">
               <span className="plan-tag-dot" />
               Starter Plan
-            </div>
+            </div> */}
 
             <div className="plan-name">Start Creating<br />Today</div>
-            <div className="plan-tagline">Everything you need to launch — projects, templates &amp; more.</div>
+            <div className="plan-tagline">Everything you need to Learn, practice &amp; more.</div>
 
             <div className="plan-price-block">
               <div className="plan-price-label">You're paying</div>
@@ -275,7 +274,7 @@ export default function SkipCashPayment() {
                 <span className="plan-amount">{amount.toFixed(2)}</span>
               </div>
               <div className="plan-cycle">per month · always free</div>
-              <div className="plan-save">✦ Secure via SkipCash</div>
+              {/* <div className="plan-save">✦ Secure via SkipCash</div> */}
             </div>
 
             <div className="plan-features">
@@ -288,10 +287,10 @@ export default function SkipCashPayment() {
             </div>
           </div>
 
-          <div className="secure-note">
+          {/* <div className="secure-note">
             <IconShield />
             256-bit SSL · Powered by Stripe
-          </div>
+          </div> */}
         </div>
 
         {/* ════ RIGHT PANEL ════ */}
@@ -348,16 +347,16 @@ export default function SkipCashPayment() {
                 </div>
               </div>
 
-              <div className="form-row">
+              {/* <div className="form-row">
                 <label className="scc-label">Card Number</label>
                 <div className="input-wrap">
                   <span className="input-icon"><IconCard /></span>
                   <input type="text" className="scc-input card-input" placeholder="1234 5678 9012 3456" maxLength={19} value={cardNumber} onChange={handleCardNumber} />
                   <span className={`card-brand-badge${brandVisible ? " visible" : ""}`}>{cardBrand}</span>
                 </div>
-              </div>
+              </div> */}
 
-              <div className="form-row-2">
+              {/* <div className="form-row-2">
                 <div>
                   <label className="scc-label">Expiry</label>
                   <div className="input-wrap">
@@ -372,7 +371,7 @@ export default function SkipCashPayment() {
                     <input type="text" className="scc-input card-input" placeholder="•••" maxLength={4} onChange={(e) => { e.target.value = e.target.value.replace(/\D/g, ""); }} />
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
           )}
 
@@ -419,11 +418,11 @@ export default function SkipCashPayment() {
           {error && <div className="scc-error">{error}</div>}
 
           {/* Trust */}
-          <div className="trust-row">
+          {/* <div className="trust-row">
             <div className="trust-item"><IconShield /> SSL Secure</div>
             <div className="trust-item"><IconClock /> Cancel Anytime</div>
             <div className="trust-item"><IconZap /> Instant Access</div>
-          </div>
+          </div> */}
         </div>
 
         {/* ════ SUCCESS OVERLAY ════ */}
