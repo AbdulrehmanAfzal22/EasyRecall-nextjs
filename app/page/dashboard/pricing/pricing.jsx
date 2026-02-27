@@ -48,7 +48,7 @@ export default function PricingSection() {
 
         {/* Billing toggle */}
         <div className="billing-switch-container">
-          <span className={`switch-label ${!billingYearly ? "active" : ""}`}>Monthly</span>
+          <span className={`switch-label ${!billingYearly ? "active" : ""}`}>Students</span>
 
           <label className="toggle-switch">
             <input
@@ -60,8 +60,9 @@ export default function PricingSection() {
           </label>
 
           <span className={`switch-label ${billingYearly ? "active" : ""}`}>
-            Yearly
-            <span className="save-pill">Save 20%</span>
+            {/* Yearly */}
+            Learners
+            {/* <span className="save-pill">Save 20%</span> */}
           </span>
         </div>
 
@@ -71,14 +72,14 @@ export default function PricingSection() {
           key={billingYearly ? "yearly" : "monthly"} // forces re-mount for animation
         >
           <div className="card-header">
-            <h3 className="plan-title">Premium</h3>
-            <span className="badge-recommended">Recommended</span>
+            {/* <h3 className="plan-title">Premium</h3> */}
+            {/* <span className="badge-recommended">Recommended</span> */}
           </div>
 
           <div className="price-block">
             <span className="currency">$</span>
             <span className="amount">{billingYearly ? "9.99" : "4.99"}</span>
-            <span className="billing-period">/{billingYearly ? "yr" : "mo"}</span>
+            <span className="billing-period"></span>
           </div>
 
           <ul className="feature-list">

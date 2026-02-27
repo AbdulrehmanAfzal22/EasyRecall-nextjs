@@ -1,77 +1,28 @@
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap');
 
 /* ══════════════════════════════════════════════════════
-   DARK THEME  (html.dark — synced with your Navbar)
+   LIGHT THEME  (matches hero.css :root)
 ══════════════════════════════════════════════════════ */
-:root,
-html.dark {
-  --bg: #07090f;
-  --surface: #0d1117;
-  --surface2: #121a26;
-  --surface3: #161f2e;
-  --border: rgba(255, 255, 255, 0.065);
+:root {
+  --bg: #ffffff;
+  --surface: #f8fafc;
+  --surface2: #f1f5f9;
+  --surface3: #e8ebff;
+  --border: #e2e8f0;
   --border-focus: #6366f1;
-  --text: #e8edf5;
-  --text-muted: #7e93b0;
-  --text-dim: #3a4d66;
+  --text: #0f172a;
+  --text-muted: #475569;
+  --text-dim: #94a3b8;
   --primary: #6366f1;
-  --primary-soft: rgba(99, 102, 241, 0.18);
+  --primary-soft: rgba(99, 102, 241, 0.1);
   --primary-glow: rgba(99, 102, 241, 0.15);
   --primary-dark: #4f46e5;
   --green: #10b981;
   --red: #ef4444;
+  --gradient: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
 
-  --panel-bg: linear-gradient(148deg, #140d4a 0%, #1f1260 45%, #100b35 100%);
-  --panel-blob1: rgba(110, 120, 255, 0.22);
-  --panel-blob2: rgba(80, 90, 220, 0.14);
-  --plan-text: #ffffff;
-  --plan-muted: rgba(255, 255, 255, 0.5);
-  --plan-dim: rgba(255, 255, 255, 0.34);
-  --feat-color: rgba(255, 255, 255, 0.75);
-  --brand-icon-bg: rgba(255, 255, 255, 0.1);
-  --brand-icon-bdr: rgba(255, 255, 255, 0.16);
-  --secure-color: rgba(255, 255, 255, 0.28);
-  --tag-bg: rgba(255, 255, 255, 0.09);
-  --tag-bdr: rgba(255, 255, 255, 0.14);
-
-  --card-bg: linear-gradient(128deg, #141148 0%, #242082 50%, #3432b0 100%);
-  --card-shadow: 0 4px 20px rgba(50, 45, 170, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-
-  --mesh1: rgba(99, 102, 241, 0.09);
-  --mesh2: rgba(16, 185, 129, 0.05);
-  --mesh3: rgba(245, 158, 11, 0.04);
-
-  --wrap-shadow: 0 20px 60px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.06);
-  --wrap-inner: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-
-  --topbar-bg: rgba(7, 9, 15, 0.92);
-  --topbar-bdr: rgba(255, 255, 255, 0.06);
-  --btn-bg: rgba(255, 255, 255, 0.06);
-  --btn-bdr: rgba(255, 255, 255, 0.1);
-  --btn-color: rgba(255, 255, 255, 0.58);
-}
-
-/* ══════════════════════════════════════════════════════
-   LIGHT THEME
-══════════════════════════════════════════════════════ */
-html:not(.dark) {
-  --bg: #eaecf9;
-  --surface: #ffffff;
-  --surface2: #f1f3ff;
-  --surface3: #e8ebff;
-  --border: rgba(99, 102, 241, 0.1);
-  --border-focus: #6366f1;
-  --text: #0c1120;
-  --text-muted: #4a5568;
-  --text-dim: #9fa8c0;
-  --primary: #6366f1;
-  --primary-soft: rgba(99, 102, 241, 0.12);
-  --primary-glow: rgba(99, 102, 241, 0.1);
-  --primary-dark: #4f46e5;
-  --green: #10b981;
-  --red: #ef4444;
-
-  --panel-bg: linear-gradient(148deg, #3730a3 0%, #4f46e5 52%, #7577f5 100%);
+  /* Panel (left side) — uses hero gradient colors */
+  --panel-bg: linear-gradient(148deg, #4f46e5 0%, #6366f1 45%, #a855f7 100%);
   --panel-blob1: rgba(255, 255, 255, 0.24);
   --panel-blob2: rgba(255, 255, 255, 0.15);
   --plan-text: #ffffff;
@@ -84,21 +35,67 @@ html:not(.dark) {
   --tag-bg: rgba(255, 255, 255, 0.26);
   --tag-bdr: rgba(255, 255, 255, 0.42);
 
-  --card-bg: linear-gradient(128deg, #2d2b8f 0%, #4240c4 50%, #5a58e0 100%);
-  --card-shadow: 0 4px 20px rgba(70, 64, 196, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  /* Card visual — indigo-to-purple matching hero gradient */
+  --card-bg: linear-gradient(128deg, #4f46e5 0%, #7c3aed 50%, #a855f7 100%);
+  --card-shadow: 0 4px 20px rgba(99, 102, 241, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12);
 
-  --mesh1: rgba(99, 102, 241, 0.05);
-  --mesh2: rgba(16, 185, 129, 0.03);
-  --mesh3: rgba(245, 158, 11, 0.02);
-
-  --wrap-shadow: 0 12px 40px rgba(99, 102, 241, 0.1), 0 0 0 1px rgba(99, 102, 241, 0.1);
+  --wrap-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   --wrap-inner: inset 0 1px 0 rgba(255, 255, 255, 0.9);
 
-  --topbar-bg: rgba(234, 236, 249, 0.94);
-  --topbar-bdr: rgba(99, 102, 241, 0.08);
+  --topbar-bg: rgba(255, 255, 255, 0.92);
+  --topbar-bdr: #e2e8f0;
   --btn-bg: rgba(99, 102, 241, 0.06);
-  --btn-bdr: rgba(99, 102, 241, 0.14);
-  --btn-color: #4338ca;
+  --btn-bdr: rgba(99, 102, 241, 0.2);
+  --btn-color: #6366f1;
+}
+
+/* ══════════════════════════════════════════════════════
+   DARK THEME  (matches hero.css .dark)
+══════════════════════════════════════════════════════ */
+html.dark {
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --surface2: #1e293b;
+  --surface3: #263349;
+  --border: #334155;
+  --border-focus: #818cf8;
+  --text: #f1f5f9;
+  --text-muted: #94a3b8;
+  --text-dim: #475569;
+  --primary: #818cf8;
+  --primary-soft: rgba(129, 140, 248, 0.18);
+  --primary-glow: rgba(129, 140, 248, 0.15);
+  --primary-dark: #6366f1;
+  --green: #10b981;
+  --red: #ef4444;
+  --gradient: linear-gradient(90deg, #818cf8, #c084fc, #f472b6);
+
+  /* Panel — dark hero palette */
+  --panel-bg: linear-gradient(148deg, #1e1b4b 0%, #312e81 45%, #4c1d95 100%);
+  --panel-blob1: rgba(129, 140, 248, 0.22);
+  --panel-blob2: rgba(192, 132, 252, 0.14);
+  --plan-text: #ffffff;
+  --plan-muted: rgba(255, 255, 255, 0.5);
+  --plan-dim: rgba(255, 255, 255, 0.34);
+  --feat-color: rgba(255, 255, 255, 0.75);
+  --brand-icon-bg: rgba(255, 255, 255, 0.1);
+  --brand-icon-bdr: rgba(255, 255, 255, 0.16);
+  --secure-color: rgba(255, 255, 255, 0.28);
+  --tag-bg: rgba(255, 255, 255, 0.09);
+  --tag-bdr: rgba(255, 255, 255, 0.14);
+
+  /* Card visual — dark indigo/purple gradient */
+  --card-bg: linear-gradient(128deg, #312e81 0%, #4338ca 50%, #6d28d9 100%);
+  --card-shadow: 0 4px 20px rgba(99, 102, 241, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+  --wrap-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  --wrap-inner: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+  --topbar-bg: rgba(15, 23, 42, 0.92);
+  --topbar-bdr: #334155;
+  --btn-bg: rgba(255, 255, 255, 0.06);
+  --btn-bdr: rgba(255, 255, 255, 0.1);
+  --btn-color: rgba(255, 255, 255, 0.58);
 }
 
 /* ── Reset ── */
@@ -126,17 +123,24 @@ html:not(.dark) {
   transition: background 0.35s ease, color 0.35s ease;
 }
 
-/* Radial mesh */
+/* Radial mesh — hero-matching indigo/purple/pink tones */
 .bg-mesh {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
   background:
-    radial-gradient(ellipse 85% 55% at 72% -4%, var(--mesh1) 0%, transparent 56%),
-    radial-gradient(ellipse 50% 40% at 4% 94%, var(--mesh2) 0%, transparent 54%),
-    radial-gradient(ellipse 38% 34% at 94% 74%, var(--mesh3) 0%, transparent 54%);
+    radial-gradient(ellipse 85% 55% at 72% -4%, rgba(99, 102, 241, 0.09) 0%, transparent 56%),
+    radial-gradient(ellipse 50% 40% at 4% 94%, rgba(168, 85, 247, 0.05) 0%, transparent 54%),
+    radial-gradient(ellipse 38% 34% at 94% 74%, rgba(236, 72, 153, 0.04) 0%, transparent 54%);
   transition: background 0.35s ease;
+}
+
+html.dark .bg-mesh {
+  background:
+    radial-gradient(ellipse 85% 55% at 72% -4%, rgba(129, 140, 248, 0.1) 0%, transparent 56%),
+    radial-gradient(ellipse 50% 40% at 4% 94%, rgba(192, 132, 252, 0.06) 0%, transparent 54%),
+    radial-gradient(ellipse 38% 34% at 94% 74%, rgba(244, 114, 182, 0.05) 0%, transparent 54%);
 }
 
 /* Dot grid */
@@ -171,7 +175,6 @@ html:not(.dark) {
   transition: background 0.35s ease, border-color 0.35s ease;
 }
 
-/* ── Back button ── */
 .scc-back-btn {
   display: inline-flex;
   align-items: center;
@@ -191,10 +194,7 @@ html:not(.dark) {
   white-space: nowrap;
 }
 
-.scc-back-btn svg {
-  transition: transform 0.2s ease;
-  flex-shrink: 0;
-}
+.scc-back-btn svg { transition: transform 0.2s ease; flex-shrink: 0; }
 
 .scc-back-btn:hover {
   border-color: var(--primary);
@@ -204,11 +204,8 @@ html:not(.dark) {
   box-shadow: 0 2px 10px var(--primary-glow);
 }
 
-.scc-back-btn:hover svg {
-  transform: translateX(-2px);
-}
+.scc-back-btn:hover svg { transform: translateX(-2px); }
 
-/* ── Center logo ── */
 .scc-topbar-center {
   position: absolute;
   left: 50%;
@@ -252,7 +249,6 @@ html:not(.dark) {
   padding: 1.5px 7px;
 }
 
-/* ── Theme toggle ── */
 .scc-theme-btn {
   display: inline-flex;
   align-items: center;
@@ -300,15 +296,8 @@ html:not(.dark) {
 }
 
 @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(22px) scale(0.975);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+  from { opacity: 0; transform: translateY(22px) scale(0.975); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 /* ══════════════════════════════════════════════════════
@@ -324,7 +313,6 @@ html:not(.dark) {
   transition: background 0.35s ease;
 }
 
-/* Dot texture overlay */
 .panel-left::before {
   content: '';
   position: absolute;
@@ -333,7 +321,6 @@ html:not(.dark) {
   background-size: 20px 20px;
 }
 
-/* Top-right glow blob */
 .panel-left::after {
   content: '';
   position: absolute;
@@ -345,7 +332,6 @@ html:not(.dark) {
   background: radial-gradient(circle, var(--panel-blob1) 0%, transparent 70%);
 }
 
-/* Bottom-left glow blob */
 .panel-blob {
   position: absolute;
   bottom: -36px;
@@ -356,7 +342,6 @@ html:not(.dark) {
   background: radial-gradient(circle, var(--panel-blob2) 0%, transparent 70%);
 }
 
-/* Diagonal shimmer line */
 .panel-left .panel-shimmer {
   position: absolute;
   inset-block: 0;
@@ -402,9 +387,7 @@ html:not(.dark) {
   letter-spacing: -0.01em;
 }
 
-.brand-name span {
-  opacity: 0.55;
-}
+.brand-name span { opacity: 0.55; }
 
 /* ── Plan summary ── */
 .plan-summary {
@@ -438,17 +421,8 @@ html:not(.dark) {
 }
 
 @keyframes pulse {
-
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1)
-  }
-
-  50% {
-    opacity: .45;
-    transform: scale(1.6)
-  }
+  0%, 100% { opacity: 1; transform: scale(1) }
+  50%       { opacity: .45; transform: scale(1.6) }
 }
 
 .plan-name {
@@ -468,9 +442,7 @@ html:not(.dark) {
 }
 
 /* ── Price ── */
-.plan-price-block {
-  margin-bottom: 13px;
-}
+.plan-price-block { margin-bottom: 13px; }
 
 .plan-price-label {
   font-size: 8px;
@@ -578,7 +550,6 @@ html:not(.dark) {
   position: relative;
 }
 
-/* Subtle top highlight line */
 .panel-right::before {
   content: '';
   position: absolute;
@@ -590,9 +561,7 @@ html:not(.dark) {
   pointer-events: none;
 }
 
-.panel-header {
-  margin-bottom: 12px;
-}
+.panel-header { margin-bottom: 12px; }
 
 .panel-header h2 {
   font-size: 15px;
@@ -625,14 +594,11 @@ html:not(.dark) {
   transition: background 0.35s, box-shadow 0.35s;
 }
 
-/* circle accents */
 .card-visual::before {
   content: '';
   position: absolute;
-  top: -16px;
-  right: -16px;
-  width: 70px;
-  height: 70px;
+  top: -16px; right: -16px;
+  width: 70px; height: 70px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.08);
 }
@@ -640,36 +606,24 @@ html:not(.dark) {
 .card-visual::after {
   content: '';
   position: absolute;
-  bottom: -22px;
-  left: 22px;
-  width: 96px;
-  height: 96px;
+  bottom: -22px; left: 22px;
+  width: 96px; height: 96px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.05);
 }
 
-/* horizontal shimmer sweep */
 .card-visual .card-shimmer {
   position: absolute;
   inset: 0;
-  background: linear-gradient(100deg,
-      transparent 20%, rgba(255, 255, 255, 0.06) 50%, transparent 80%);
+  background: linear-gradient(100deg, transparent 20%, rgba(255, 255, 255, 0.06) 50%, transparent 80%);
   animation: cardShimmer 4s ease-in-out infinite;
   pointer-events: none;
 }
 
 @keyframes cardShimmer {
-  0% {
-    opacity: 0
-  }
-
-  50% {
-    opacity: 1
-  }
-
-  100% {
-    opacity: 0
-  }
+  0%   { opacity: 0 }
+  50%  { opacity: 1 }
+  100% { opacity: 0 }
 }
 
 .card-top {
@@ -696,10 +650,7 @@ html:not(.dark) {
   font-style: italic;
 }
 
-.card-bottom {
-  position: relative;
-  z-index: 1;
-}
+.card-bottom { position: relative; z-index: 1; }
 
 .card-number-display {
   font-family: 'DM Mono', monospace;
@@ -754,14 +705,10 @@ html:not(.dark) {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.14);
 }
 
-.pay-tab.active svg {
-  color: var(--primary);
-}
+.pay-tab.active svg { color: var(--primary); }
 
 /* ── Form ── */
-.form-row {
-  margin-bottom: 8px;
-}
+.form-row { margin-bottom: 8px; }
 
 .form-row-2 {
   display: grid;
@@ -781,9 +728,7 @@ html:not(.dark) {
   transition: color 0.35s;
 }
 
-.input-wrap {
-  position: relative;
-}
+.input-wrap { position: relative; }
 
 .input-icon {
   position: absolute;
@@ -818,7 +763,7 @@ html:not(.dark) {
   box-shadow: 0 0 0 2.5px rgba(99, 102, 241, 0.1);
 }
 
-.scc-input:focus~.input-icon,
+.scc-input:focus ~ .input-icon,
 .input-wrap:focus-within .input-icon {
   color: var(--primary);
 }
@@ -846,9 +791,7 @@ html:not(.dark) {
   transition: opacity 0.2s;
 }
 
-.card-brand-badge.visible {
-  opacity: 1;
-}
+.card-brand-badge.visible { opacity: 1; }
 
 /* Info boxes */
 .info-box {
@@ -874,10 +817,7 @@ html:not(.dark) {
   line-height: 1.65;
 }
 
-.gpay-logo {
-  font-size: 20px;
-  margin-bottom: 5px;
-}
+.gpay-logo { font-size: 20px; margin-bottom: 5px; }
 
 .gpay-title {
   font-size: 12px;
@@ -888,12 +828,12 @@ html:not(.dark) {
 }
 
 /* ══════════════════════════════════════════════════════
-   PAY BUTTON  — the hero CTA
+   PAY BUTTON
 ══════════════════════════════════════════════════════ */
 .pay-btn {
   width: 100%;
   padding: 10px;
-  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  background: var(--primary);
   color: #fff;
   border: none;
   border-radius: 9px;
@@ -905,14 +845,13 @@ html:not(.dark) {
   overflow: hidden;
   transition: all 0.25s;
   margin-top: 3px;
-  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.14);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
 }
 
-/* top-edge highlight */
 .pay-btn::before {
   content: '';
   position: absolute;
@@ -922,13 +861,10 @@ html:not(.dark) {
   pointer-events: none;
 }
 
-/* shimmer sweep */
 .pay-btn::after {
   content: '';
   position: absolute;
-  top: 0;
-  left: -80%;
-  bottom: 0;
+  top: 0; left: -80%; bottom: 0;
   width: 60%;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
   transform: skewX(-18deg);
@@ -936,37 +872,25 @@ html:not(.dark) {
 }
 
 @keyframes btnShimmer {
-  0% {
-    left: -80%
-  }
-
-  100% {
-    left: 160%
-  }
+  0%   { left: -80% }
+  100% { left: 160% }
 }
 
 .pay-btn:hover {
+  background: var(--primary-dark);
   transform: translateY(-2px);
-  box-shadow: 0 8px 22px rgba(99, 102, 241, 0.54), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 
-.pay-btn:active {
-  transform: translateY(0);
-}
-
-.pay-btn.loading {
-  pointer-events: none;
-  opacity: 0.8;
-}
+.pay-btn:active { transform: translateY(0); }
+.pay-btn.loading { pointer-events: none; opacity: 0.8; }
 
 .pay-btn.success {
   background: linear-gradient(135deg, #10b981, #059669);
   box-shadow: 0 4px 14px rgba(16, 185, 129, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 
-.pay-btn.success::after {
-  display: none;
-}
+.pay-btn.success::after { display: none; }
 
 /* Loading dots */
 .loading-dots {
@@ -975,9 +899,7 @@ html:not(.dark) {
   align-items: center;
 }
 
-.loading-dots.show {
-  display: flex;
-}
+.loading-dots.show { display: flex; }
 
 .loading-dots span {
   width: 4px;
@@ -987,22 +909,12 @@ html:not(.dark) {
   animation: bounce 0.6s infinite alternate;
 }
 
-.loading-dots span:nth-child(2) {
-  animation-delay: .2s;
-}
-
-.loading-dots span:nth-child(3) {
-  animation-delay: .4s;
-}
+.loading-dots span:nth-child(2) { animation-delay: .2s; }
+.loading-dots span:nth-child(3) { animation-delay: .4s; }
 
 @keyframes bounce {
-  from {
-    transform: translateY(0)
-  }
-
-  to {
-    transform: translateY(-4px)
-  }
+  from { transform: translateY(0) }
+  to   { transform: translateY(-4px) }
 }
 
 /* Error */
@@ -1039,9 +951,7 @@ html:not(.dark) {
   transition: color 0.35s;
 }
 
-.trust-item svg {
-  opacity: 0.65;
-}
+.trust-item svg { opacity: 0.65; }
 
 /* ══════════════════════════════════════════════════════
    SUCCESS OVERLAY
@@ -1063,15 +973,8 @@ html:not(.dark) {
 }
 
 @keyframes overlayIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95)
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1)
-  }
+  from { opacity: 0; transform: scale(0.95) }
+  to   { opacity: 1; transform: scale(1) }
 }
 
 .success-ring {
@@ -1089,13 +992,8 @@ html:not(.dark) {
 }
 
 @keyframes scaleIn {
-  from {
-    transform: scale(0)
-  }
-
-  to {
-    transform: scale(1)
-  }
+  from { transform: scale(0) }
+  to   { transform: scale(1) }
 }
 
 .success-overlay h2 {
@@ -1147,17 +1045,9 @@ html:not(.dark) {
   box-shadow: 0 2px 10px var(--primary-glow);
 }
 
-/* Shared fade-up */
 @keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(7px)
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0)
-  }
+  from { opacity: 0; transform: translateY(7px) }
+  to   { opacity: 1; transform: translateY(0) }
 }
 
 /* ══════════════════════════════════════════════════════
@@ -1169,29 +1059,13 @@ html:not(.dark) {
     max-width: 360px;
   }
 
-  .panel-left {
-    padding: 16px 15px;
-  }
-
-  .panel-right {
-    padding: 16px 15px;
-  }
-
-  .plan-amount {
-    font-size: 30px;
-  }
-
-  .scc-topbar-center {
-    display: none;
-  }
+  .panel-left { padding: 16px 15px; }
+  .panel-right { padding: 16px 15px; }
+  .plan-amount { font-size: 30px; }
+  .scc-topbar-center { display: none; }
 }
 
 @media (max-width: 380px) {
-  .payment-wrap {
-    max-width: 320px;
-  }
-
-  .plan-name {
-    font-size: 16px;
-  }
+  .payment-wrap { max-width: 320px; }
+  .plan-name { font-size: 16px; }
 }
