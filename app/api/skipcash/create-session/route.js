@@ -4,6 +4,8 @@
 
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
+import { getAdminDb } from '../../../../lib/firebaseAdmin';
+import { FieldValue } from 'firebase-admin/firestore';
 
 function toCents(amount) {
   const n = typeof amount === 'string' ? parseFloat(amount) : Number(amount || 0);
@@ -104,13 +106,23 @@ export async function POST(req) {
       return NextResponse.json({ error: 'misconfigured_provider', detail: 'Missing KEYID or SECRET' }, { status: 500 });
     }
 
+    // Require uid when creating session (user must be logged in)
+    const uid = body?.uid?.trim?.();
+    if (!uid) {
+      return NextResponse.json({ error: 'auth_required', detail: 'User must be logged in' }, { status: 401 });
+    }
+
+    // Map amount to plan key for usage tracking
+    const planKey = amount === 9.99 ? 'yearly' : 'monthly';
+    const custom1 = `er_uid:${uid}:plan:${planKey}`;
+
     // Build correct payload per Skipcash /api/v1/payments docs
     const sessionData = {
       Uid: crypto.randomUUID(),
       KeyId: KEYID,
       Amount: amount.toFixed(2),
-      FirstName: body.firstName || 'Customer',
-      LastName: body.lastName || 'User',
+      FirstName: (body.displayName || '').split(' ')[0] || body.firstName || 'Customer',
+      LastName: (body.displayName || '').split(' ').slice(1).join(' ') || body.lastName || 'User',
       Phone: body.phone || '+97400000000',
       Email: body.email || 'customer@example.com',
       Street: body.street || 'PO Box 000',
@@ -119,7 +131,7 @@ export async function POST(req) {
       Country: body.country || 'QA',
       PostalCode: body.postalCode || '00000',
       TransactionId: body.transactionId || `order-${Date.now()}`,
-      Custom1: body.custom1 || 'EasyRecall Premium Subscription',
+      Custom1: custom1,
     };
 
     // Generate signature for authentication
@@ -196,8 +208,9 @@ export async function POST(req) {
       return NextResponse.json({ error: 'invalid_response', detail: 'Provider returned invalid JSON' }, { status: 502 });
     }
 
-    // Extract payUrl from resultObj (Skipcash specific response structure)
+    // Extract payUrl and session ID from resultObj (Skipcash specific response structure)
     const payUrl = session.resultObj?.payUrl;
+    const sessionId = session.resultObj?.id || session.id;
     if (!payUrl) {
       console.error('Skipcash session missing payUrl', { session });
       return NextResponse.json(
@@ -206,8 +219,24 @@ export async function POST(req) {
       );
     }
 
-    console.log('✓ Skipcash LIVE session created successfully', { url: payUrl });
-    return NextResponse.json({ url: payUrl, mode: 'live' });
+    // Store session->uid mapping for webhook to link payment to user
+    if (sessionId) {
+      try {
+        const adminDb = getAdminDb();
+        await adminDb.collection('paymentSessions').doc(String(sessionId)).set({
+          uid,
+          planKey,
+          amount,
+          email: body.email || '',
+          createdAt: FieldValue.serverTimestamp(),
+        });
+      } catch (err) {
+        console.warn('Could not store payment session mapping', { sessionId, err: err.message });
+      }
+    }
+
+    console.log('✓ Skipcash LIVE session created successfully', { url: payUrl, sessionId });
+    return NextResponse.json({ url: payUrl, mode: 'live', sessionId });
   } catch (err) {
     console.error('Session creation error', {
       message: err.message,

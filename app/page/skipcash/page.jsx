@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Moon, Sun } from "lucide-react";
+import { useAuth } from "../AuthProvider";
 import "./skipcash.css";
 
 /* ══════════════════════════════════════
@@ -124,9 +125,18 @@ const TAB_BTN_TEXT = {
 export default function SkipCashPayment() {
   const router       = useRouter();
   const searchParams = useSearchParams();
+  const { user, loading: authLoading } = useAuth();
 
   /* ── Theme — synced with your existing navbar system ── */
   const [isDark, setIsDark] = useState(false);
+
+  /* ── Require auth for payment ── */
+  useEffect(() => {
+    if (!authLoading && !user) {
+      const signupUrl = `/page/signup?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+      router.replace(signupUrl);
+    }
+  }, [user, authLoading, router]);
 
   useEffect(() => {
     // Read from html.dark class — same as Navbar
@@ -192,14 +202,19 @@ export default function SkipCashPayment() {
 
   /* ── Pay handler ── */
   const handlePay = async () => {
-    if (loading) return;
+    if (loading || !user) return;
     setError("");
     setLoading(true);
     try {
       const res  = await fetch("/api/skipcash/create-session", {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ amount }),
+        body: JSON.stringify({
+          amount,
+          uid: user.uid,
+          email: user.email || "",
+          displayName: user.displayName || "",
+        }),
       });
       const text = await res.text();
       let data;
@@ -212,12 +227,6 @@ export default function SkipCashPayment() {
       }
 
       if (data?.url) {
-        try {
-          // Mark plan as activated on this device so dashboard unlocks
-          localStorage.setItem("er_plan_paid", "true");
-        } catch {
-          // ignore storage errors
-        }
         window.location.href = data.url;
       } else {
         setError("Payment link not available. Please contact support.");
@@ -417,7 +426,7 @@ export default function SkipCashPayment() {
           <button
             className={`pay-btn${loading ? " loading" : ""}${success ? " success" : ""}`}
             onClick={handlePay}
-            disabled={loading}
+            disabled={loading || !user || authLoading}
           >
             <IconLock />
             <span>{success ? "✓ Success!" : TAB_BTN_TEXT[activeTab]}</span>

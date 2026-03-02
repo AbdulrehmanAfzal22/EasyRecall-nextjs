@@ -73,12 +73,12 @@ export default function PricingSection() {
 
             <div className="limits-section">
               <div className="limit-row">
-                <span>Max file size</span>
-                <span>10 MB / document</span>
+                <span>Uploads per month</span>
+                <span>10</span>
               </div>
               <div className="limit-row">
-                <span>Monthly quizzes</span>
-                <span>Unlimited</span>
+                <span>Chats per month</span>
+                <span>100</span>
               </div>
             </div>
 
@@ -108,12 +108,12 @@ export default function PricingSection() {
 
             <div className="limits-section">
               <div className="limit-row">
-                <span>Max file size</span>
-                <span>10 MB / document</span>
+                <span>Uploads per cycle</span>
+                <span>20</span>
               </div>
               <div className="limit-row">
-                <span>Monthly quizzes</span>
-                <span>Unlimited</span>
+                <span>Chats per cycle</span>
+                <span>200</span>
               </div>
             </div>
 

@@ -1,21 +1,27 @@
 // app/api/skipcash/webhook/route.js
 // Webhook handler for Skipcash payment notifications.
-// Verifies the signature and records the payment in Firestore.
+// Verifies the signature, records the payment, and updates user subscription.
 
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { db } from '../../../../lib/firebase';
-import { doc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { getAdminDb } from '../../../../lib/firebaseAdmin';
+import { FieldValue } from 'firebase-admin/firestore';
 
 async function verifySignature(body, signature, secret) {
-  // Reconstruct the exact body that was signed
   const computedSignature = crypto.createHmac('sha256', secret).update(body).digest('hex');
   return computedSignature === signature;
 }
 
+// Parse uid and plan from Custom1 (er_uid:xxx:plan:yyy) or from paymentSessions lookup
+function parseCustom1(custom1) {
+  if (!custom1 || typeof custom1 !== 'string') return null;
+  const match = custom1.match(/^er_uid:([^:]+):plan:(monthly|yearly)$/);
+  if (match) return { uid: match[1], planKey: match[2] };
+  return null;
+}
+
 export async function POST(req) {
   try {
-    // Read raw body for signature verification
     const rawBody = await req.text();
     const signature = req.headers.get('x-skipcash-signature');
     const secret = process.env.SKIPCASH_SECRET || '';
@@ -25,14 +31,12 @@ export async function POST(req) {
       return NextResponse.json({ error: 'misconfigured' }, { status: 500 });
     }
 
-    // Verify the signature
     const isValid = await verifySignature(rawBody, signature, secret);
     if (!isValid) {
       console.error('Invalid Skipcash webhook signature', { signature });
       return NextResponse.json({ error: 'invalid_signature' }, { status: 401 });
     }
 
-    // Parse the payload
     let event;
     try {
       event = JSON.parse(rawBody);
@@ -43,64 +47,101 @@ export async function POST(req) {
 
     console.log('Skipcash webhook received', { eventType: event.type, sessionId: event.session_id });
 
-    // Handle different event types
     if (event.type === 'payment.succeeded') {
-      const { session_id, amount, currency, customer_id, metadata } = event;
+      const { session_id, amount, currency, customer_id, metadata, custom1 } = event;
+      const adminDb = getAdminDb();
 
-      // Record the payment in Firestore
-      // Assuming you have a "payments" collection
+      // Resolve uid: Custom1 first, then paymentSessions lookup, then customer_id fallback
+      let uid = null;
+      let planKey = 'monthly';
+      const fromCustom1 = parseCustom1(custom1 || event.Custom1 || metadata?.custom1);
+      if (fromCustom1) {
+        uid = fromCustom1.uid;
+        planKey = fromCustom1.planKey;
+      }
+      if (!uid) {
+        const sessionSnap = await adminDb.collection('paymentSessions').doc(String(session_id)).get();
+        if (sessionSnap.exists) {
+          const data = sessionSnap.data();
+          uid = data?.uid;
+          planKey = data?.planKey || (amount === 9.99 ? 'yearly' : 'monthly');
+        }
+      }
+      if (!uid && customer_id) uid = customer_id;
+      if (!uid) {
+        console.warn('Could not resolve user for payment', { session_id, custom1, metadata });
+        return NextResponse.json({ ok: true }); // Ack to avoid retries
+      }
+
+      // Map amount to plan if not set
+      if (!planKey) planKey = amount === 9.99 ? 'yearly' : 'monthly';
+
+      // Store payment with account details under users/{uid}/payments
       const paymentDoc = {
         sessionId: session_id,
         amount,
-        currency,
-        customerId: customer_id,
-        metadata,
+        currency: currency || 'USD',
+        planKey,
         status: 'completed',
-        createdAt: serverTimestamp(),
         source: 'skipcash',
+        metadata: metadata || {},
+        createdAt: FieldValue.serverTimestamp(),
       };
 
-      const paymentRef = doc(db, 'payments', session_id);
-      await setDoc(paymentRef, paymentDoc, { merge: true });
+      await adminDb.collection('users').doc(uid).collection('payments').doc(session_id).set(paymentDoc, { merge: true });
 
-      // Optionally, update user subscription status in Firestore
-      if (customer_id) {
-        const userRef = doc(db, 'users', customer_id);
-        await updateDoc(userRef, {
-          subscription: {
-            status: 'active',
-            plan: metadata?.plan || 'premium',
-            lastPaymentAt: serverTimestamp(),
-            sessionId: session_id,
-          },
-        }).catch((err) => {
-          // User may not exist yet; log but don't fail
-          console.warn('Could not update user subscription', { customerId: customer_id, err });
-        });
+      // Update user subscription (so same paid account opens when they return)
+      await adminDb.collection('users').doc(uid).set({
+        subscription: {
+          status: 'active',
+          plan: planKey,
+          lastPaymentAt: FieldValue.serverTimestamp(),
+          sessionId: session_id,
+          amount,
+        },
+        updatedAt: FieldValue.serverTimestamp(),
+      }, { merge: true });
+
+      // Set usage plan and initialize usage doc (uploads: 0, chats: 0)
+      const now = new Date();
+      const cycleKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      const usageRef = adminDb.collection('users').doc(uid).collection('usage').doc(cycleKey);
+      const usageSnap = await usageRef.get();
+      if (usageSnap.exists) {
+        await usageRef.update({ plan: planKey });
+      } else {
+        await usageRef.set({ uploads: 0, chats: 0, plan: planKey });
       }
 
-      console.log('Payment recorded', { sessionId: session_id, amount });
+      // Also keep global payments record for backwards compat
+      await adminDb.collection('payments').doc(session_id).set({
+        sessionId: session_id,
+        amount,
+        currency: currency || 'USD',
+        uid,
+        planKey,
+        status: 'completed',
+        createdAt: FieldValue.serverTimestamp(),
+        source: 'skipcash',
+      }, { merge: true });
+
+      console.log('Payment recorded', { sessionId: session_id, uid, planKey, amount });
       return NextResponse.json({ ok: true });
     }
 
     if (event.type === 'payment.failed') {
       const { session_id, reason } = event;
-      console.warn('Payment failed webhook', { sessionId: session_id, reason });
-
-      // You could record the failure or send an alert
-      const failureDoc = {
+      const adminDb = getAdminDb();
+      await adminDb.collection('payments').doc(session_id).set({
         sessionId: session_id,
         status: 'failed',
         reason,
-        failedAt: serverTimestamp(),
-      };
-      const failureRef = doc(db, 'payments', session_id);
-      await setDoc(failureRef, failureDoc, { merge: true });
-
+        failedAt: FieldValue.serverTimestamp(),
+      }, { merge: true });
+      console.warn('Payment failed webhook', { sessionId: session_id, reason });
       return NextResponse.json({ ok: true });
     }
 
-    // Acknowledge other event types
     console.log('Unhandled webhook event type', event.type);
     return NextResponse.json({ ok: true });
   } catch (err) {

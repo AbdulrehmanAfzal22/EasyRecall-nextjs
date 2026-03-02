@@ -5,8 +5,7 @@ import "./layout-sidebar.css";
 import "./dash-home/dashboard.css";
 import { useAuth } from "../AuthProvider.jsx";
 import { useRouter } from "next/navigation";
-
-const PLAN_FLAG_KEY = "er_plan_paid";
+import { useUserPayment } from "../../hooks/useUserPayment";
 
 const OWNER_EMAILS = [
   "musa@gmail.com",
@@ -15,6 +14,7 @@ const OWNER_EMAILS = [
 
 export default function DashboardLayout({ children }) {
   const { user, loading } = useAuth();
+  const { hasPaid, loading: paymentLoading } = useUserPayment(user);
   const router = useRouter();
 
   const [isDark, setIsDark] = useState(false);
@@ -33,23 +33,18 @@ export default function DashboardLayout({ children }) {
   }, []);
 
   useEffect(() => {
-    if (!loading && user) {
+    if (!loading && !paymentLoading && user) {
       const isOwner = OWNER_EMAILS.includes(user.email?.toLowerCase());
       if (isOwner) {
         setHasActivePlan(true);
         setShowUpgradeModal(false);
         return;
       }
-      let paid = false;
-      try {
-        paid = localStorage.getItem(PLAN_FLAG_KEY) === "true";
-      } catch {
-        paid = false;
-      }
-      setHasActivePlan(paid);
-      setShowUpgradeModal(!paid);
+      // Use Firestore subscription/payments instead of localStorage
+      setHasActivePlan(hasPaid);
+      setShowUpgradeModal(!hasPaid);
     }
-  }, [loading, user]);
+  }, [loading, paymentLoading, user, hasPaid]);
 
   // Lock body scroll when modal is open
   useEffect(() => {
