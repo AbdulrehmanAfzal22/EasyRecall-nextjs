@@ -2,11 +2,10 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
 
 export async function POST(req) {
+  // Instantiate lazily so build doesn't fail if OPENAI_API_KEY is absent
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   try {
     // Handle both JSON and FormData
     let messages = [];
