@@ -2,7 +2,7 @@
 
 .features {
   padding: 80px 20px;
-  background: var(--bg);           /* light: white-ish / dark: slate-950-ish */
+  background: var(--bg);
   color: var(--text);
 }
 
@@ -40,42 +40,42 @@
 }
 
 .feature-card {
-  margin-top: 20px;               /* reduced a bit for better spacing */
-  background: var(--surface);     /* light: near-white / dark: near-slate-800 */
+  margin-top: 20px;
+  background: var(--surface);
   padding: 40px 30px;
   border-radius: 20px;
   flex: 1 1 320px;
   max-width: 400px;
-  min-height: 380px;              /* consistent height, but min- so it can grow */
+  min-height: 380px;
   border: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);   /* reuse from hero if defined, or fallback */
+  box-shadow: var(--shadow-sm);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .feature-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12); /* light */
+  box-shadow: 0 20px 40px rgba(27, 63, 212, 0.12);
 }
 
 .dark .feature-card:hover {
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35); /* darker shadow in dark mode */
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
 }
 
 .icon-box {
   width: 55px;
   height: 55px;
-  background: rgba(37, 99, 235, 0.1);   /* light blue tint */
+  background: rgba(27, 63, 212, 0.1);
   border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--blue);
+  color: var(--primary);
   margin-bottom: 24px;
   transition: background 0.2s;
 }
 
 .dark .icon-box {
-  background: rgba(59, 130, 246, 0.15);   /* brighter blue in dark mode */
+  background: rgba(43, 111, 255, 0.15);
 }
 
 .feature-card h3 {
@@ -108,13 +108,12 @@
 }
 
 .feature-card ul li svg {
-  color: var(--blue);
+  color: var(--primary);
   flex-shrink: 0;
 }
 
-/* Optional: make cards slightly more elevated in dark mode */
 .dark .feature-card {
-  background: rgba(30, 41, 59, 0.6);   /* semi-transparent slate if you want glass effect */
+  background: rgba(13, 21, 48, 0.6);
   backdrop-filter: blur(8px);
 }
 

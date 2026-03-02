@@ -45,7 +45,7 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     try {
       await signOut(auth);
-      window.location.href = "/login";
+      window.location.href = "/";
     } catch (error) {
       console.error("Logout error:", error);
     }

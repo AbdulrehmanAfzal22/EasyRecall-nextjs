@@ -34,8 +34,7 @@
   flex-direction: column;
   flex-shrink: 0;
   padding: 20px 16px;
-  overflow-y: auto;
-  overflow-x: hidden;
+overflow: hidden;
   transition: width 0.25s cubic-bezier(0.4,0,0.2,1),
               background 0.25s ease,
               border-color 0.25s ease,
@@ -49,6 +48,7 @@
   background: linear-gradient(180deg, #0a0f1e 0%, #0d1326 100%);
   border-right-color: #1a2540;
   box-shadow: 4px 0 24px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
 }
 
 /* ─── BRAND ──────────────────────────────────────────────── */
@@ -299,12 +299,11 @@
   justify-content: center;
   padding: 8px;
 }
-
-.sidebar-logo{
-  width: 46px;
-  height: 43px;
+.sidebar-logo {
+    width: 46px;
+    height: 43px;
+    margin-left: 1px;
 }
-
 /* ─── AVATAR ─────────────────────────────────────────────── */
 
 .sp-avatar {

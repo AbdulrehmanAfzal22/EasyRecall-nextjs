@@ -2,10 +2,10 @@
 
 .how {
   padding: 100px 20px;
-  background: var(--bg);           /* ← use variable */
-  color: var(--text);              /* ← use variable */
+  background: var(--bg);
+  color: var(--text);
   box-sizing: border-box;
-      margin-top: -150px;
+  margin-top: -150px;
 }
 
 /* Header */
@@ -18,14 +18,14 @@
 .how-header h2 {
   font-size: clamp(1.75rem, 4vw, 2.25rem);
   line-height: 1.2;
-  color: var(--text);              /* ← was #0f172a */
+  color: var(--text);
   margin-bottom: 15px;
   font-weight: 700;
 }
 
 .how-header p {
   font-size: clamp(0.9rem, 2vw, 1rem);
-  color: var(--text-muted);        /* ← was #64748b */
+  color: var(--text-muted);
   line-height: 1.6;
 }
 
@@ -45,7 +45,7 @@
   flex: 1 1 260px;
   padding: 2rem;
   border-radius: 12px;
-  background: var(--surface);      /* or rgba(white,0.4) / rgba(30,41,59,0.4) */
+  background: var(--surface);
   border: 1px solid var(--border);
   transition: box-shadow 0.3s ease, transform 0.3s ease, background 0.2s;
   box-sizing: border-box;
@@ -65,7 +65,7 @@
 
 .step-number {
   color: white;
-  background: var(--blue);           /* reuse --blue from navbar */
+  background: var(--primary);
   border-radius: 12px;
   display: flex;
   justify-content: center;
@@ -75,12 +75,17 @@
   font-size: 18px;
   font-weight: 600;
   flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(27, 63, 212, 0.3);
+}
+
+.dark .step-number {
+  box-shadow: 0 4px 14px rgba(43, 111, 255, 0.35);
 }
 
 .line {
   flex: 1;
   height: 4px;
-  background: var(--border);         /* lighter/darker depending on theme */
+  background: var(--border);
   margin-left: 20px;
 }
 
@@ -116,13 +121,11 @@
 }
 
 .step ul li svg {
-  color: var(--blue);                /* matches navbar blue */
+  color: var(--primary);
   flex-shrink: 0;
 }
 
-/* ─────────────── Responsive (keep your existing media queries) ─────────────── */
-/* ... your existing @media rules ... */
-/* ================= RESPONSIVE ================= */
+/* ─────────────── Responsive ─────────────── */
 
 /* Large Desktop */
 @media (max-width: 1200px) {
@@ -154,15 +157,10 @@
   }
 
   .step {
-    flex: 0 1 calc(50% - 10px); /* 2 columns */
+    flex: 0 1 calc(50% - 10px);
     min-width: 260px;
     padding: 1.5rem;
   }
-
-  /* Show line only within a row pair */
-  /* .step:nth-child(2n) .line {
-    display: none;
-  } */
 }
 
 /* Mobile - 1 column */
@@ -191,7 +189,6 @@
     padding: 1.5rem;
   }
 
-  /* Hide all lines on mobile - stacked layout */
   .line {
     /* display: none; */
   }

@@ -12,10 +12,10 @@ export default function Footer() {
             <span className="footer-copy">
               © {new Date().getFullYear()} EasyRecall. All rights reserved.
             </span>
-            <span className="footer-dot">•</span>
-            <span className="footer-region">
+            {/* <span className="footer-dot">•</span> */}
+            {/* <span className="footer-region">
               Made in Europe <span className="footer-eu">EU</span>
-            </span>
+            </span> */}
           </div>
 
           {/* ── RIGHT: Contact ────────────────────── */}

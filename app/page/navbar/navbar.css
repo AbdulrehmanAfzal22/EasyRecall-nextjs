@@ -2,29 +2,31 @@
 
 :root {
   --bg: rgba(255, 255, 255, 0.88);
-  --border: #e5e7eb;
-  --text: #111827;
-  --text-muted: #4b5563;
-  --blue: #2563eb;
-  --blue-hover: #1d4ed8;
+  --border: #c7d6f5;
+  --text: #07122e;
+  --text-muted: #3a5080;
+  --blue: #1a3fd4;
+  --blue-hover: #0d2080;
+  --accent: #f5c842;
   --green: #22c55e;
   --overlay-bg: rgba(255, 255, 255, 0.97);
 }
 
 .dark {
-  --bg: rgba(15, 23, 42, 0.88);
-  --border: #1e293b;
-  --text: #f1f5f9;
-  --text-muted: #94a3b8;
-  --blue: #3b82f6;
-  --blue-hover: #60a5fa;
+  --bg: rgba(6, 10, 26, 0.88);
+  --border: #1a2d6b;
+  --text: #ddeaff;
+  --text-muted: #6ab0f5;
+  --blue: #2b6fff;
+  --blue-hover: #3d7fff;
+  --accent: #f5c842;
   --green: #4ade80;
-  --overlay-bg: rgba(9, 14, 27, 0.97);
+  --overlay-bg: rgba(6, 10, 26, 0.97);
 }
 
 /* ─── Base navbar ─────────────────────────────────── */
 .navbar {
-  position: fixed;   /* change from sticky */
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
@@ -34,7 +36,6 @@
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
-
 
 .navbar-container {
   max-width: 1400px;
@@ -69,7 +70,7 @@
 }
 
 .domain {
-  color: #3c7fdf;
+  color: var(--blue);
   letter-spacing: 0.5px;
   font-size: 20px;
   font-weight: 600;
@@ -112,7 +113,7 @@
   left: 50%;
   width: 0;
   height: 2.5px;
-  background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+  background: linear-gradient(90deg, #1a3fd4, #2b6fff, #6ab0f5);
   border-radius: 4px;
   transform: translateX(-50%);
   transition: width 0.28s ease, opacity 0.28s ease;
@@ -165,12 +166,13 @@
 }
 
 .theme-btn:hover {
-  background: rgba(0, 0, 0, 0.07);
-  color: var(--text);
+  background: rgba(27, 63, 212, 0.08);
+  color: var(--blue);
 }
 
 .dark .theme-btn:hover {
-  background: rgba(255, 255, 255, 0.09);
+  background: rgba(43, 111, 255, 0.12);
+  color: var(--blue);
 }
 
 /* ─── Sign in ─────────────────────────────────────── */
@@ -196,14 +198,14 @@
   border-radius: 8px;
   text-decoration: none;
   transition: all 0.16s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 1px 3px rgba(27, 63, 212, 0.2);
   white-space: nowrap;
 }
 
 .cta-button:hover {
   background: var(--blue-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.28);
+  box-shadow: 0 4px 14px rgba(27, 63, 212, 0.35);
 }
 
 /* ─── Hamburger button ────────────────────────────── */
@@ -225,11 +227,11 @@
 }
 
 .hamburger-btn:hover {
-  background: rgba(0, 0, 0, 0.07);
+  background: rgba(27, 63, 212, 0.08);
 }
 
 .dark .hamburger-btn:hover {
-  background: rgba(255, 255, 255, 0.09);
+  background: rgba(43, 111, 255, 0.12);
 }
 
 .hamburger-line {
@@ -260,7 +262,7 @@
 .mobile-menu {
   display: none;
   position: fixed;
-  top: 72px;           /* sits right below the navbar */
+  top: 72px;
   left: 0;
   right: 0;
   bottom: 0;
@@ -270,7 +272,6 @@
   padding: 24px;
   overflow-y: auto;
 
-  /* Slide-in animation */
   transform: translateX(100%);
   opacity: 0;
   transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1),
@@ -305,13 +306,13 @@
 
 .mobile-nav-link:hover,
 .mobile-nav-link:active {
-  background: rgba(99, 102, 241, 0.08);
-  color: #6366f1;
+  background: rgba(27, 63, 212, 0.08);
+  color: var(--blue);
 }
 
 .mobile-nav-link.active {
-  color: #6366f1;
-  background: rgba(99, 102, 241, 0.06);
+  color: var(--blue);
+  background: rgba(27, 63, 212, 0.06);
 }
 
 /* Free tools row inside mobile menu */
@@ -356,11 +357,11 @@
 }
 
 .mobile-signin-link:hover {
-  background: rgba(0, 0, 0, 0.04);
+  background: rgba(27, 63, 212, 0.05);
 }
 
 .dark .mobile-signin-link:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(43, 111, 255, 0.1);
 }
 
 .mobile-cta-button {
@@ -375,12 +376,12 @@
   border-radius: 8px;
   text-decoration: none;
   transition: all 0.16s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 1px 3px rgba(27, 63, 212, 0.2);
 }
 
 .mobile-cta-button:hover {
   background: var(--blue-hover);
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.28);
+  box-shadow: 0 4px 14px rgba(27, 63, 212, 0.35);
 }
 
 /* Prevent body scroll when menu is open */
@@ -392,7 +393,7 @@ body.menu-open {
 /*  RESPONSIVE BREAKPOINTS                             */
 /* ─────────────────────────────────────────────────── */
 
-/* Large desktop (1200px+): full layout, larger gaps */
+/* Large desktop (1200px+) */
 @media (min-width: 1200px) {
   .navbar-container {
     padding: 0 40px;
@@ -436,7 +437,7 @@ body.menu-open {
   }
 }
 
-/* Tablet portrait + mobile (≤768px): hamburger replaces nav */
+/* Tablet portrait + mobile (≤768px) */
 @media (max-width: 768px) {
   .nav-links-desktop {
     display: none;
@@ -444,7 +445,7 @@ body.menu-open {
 
   .signin-link,
   .cta-button {
-    display: none;        /* shown inside mobile menu instead */
+    display: none;
   }
 
   .hamburger-btn {

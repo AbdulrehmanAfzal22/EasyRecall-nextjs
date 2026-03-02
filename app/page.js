@@ -7,16 +7,15 @@ import HowItWorks from "./page/How-its-work/page";
 import Pricing from "./page/dashboard/pricing/pricing";
 import FAQ from "./page/faq/page";
 import Footer from "./page/footer/page";
-
+import AuthPage from "./page/signup/page";
 // import DashboardLayout from "./page/dashboard/layout";
 
 export default function Home() {
   return (
 
     <>
-    {/* <DashboardLayout/> */}
- 
-      <Navbar />
+ {/* <AuthPage/> */}
+       <Navbar />
       <Hero />
 
       <section id="features" className="features">
@@ -36,7 +35,7 @@ export default function Home() {
       </section>
 <section id="footer" className="footer">
         <Footer />
-      </section>
+      </section> 
    
     </>
   );

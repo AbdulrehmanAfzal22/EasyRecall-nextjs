@@ -3,46 +3,46 @@
 =================================== */
 :root {
   --faq-bg:                         #ffffff;
-  --faq-text:                       #0f172a;
-  --faq-text-muted:                 #475569;
-  --faq-text-faint:                 rgba(15, 23, 42, 0.5);
-  --faq-accent:                     #4d78ff;
-  --faq-accent-hover:               #3a63e8;
-  --faq-divider:                    rgba(15, 23, 42, 0.1);
-  --faq-answer-color:               rgba(15, 23, 42, 0.6);
-  --faq-chevron:                    rgba(15, 23, 42, 0.35);
-  --faq-chevron-open:               rgba(15, 23, 42, 0.6);
-  --faq-sidebar-color:              rgba(15, 23, 42, 0.4);
-  --faq-sidebar-hover-bg:           rgba(15, 23, 42, 0.05);
-  --faq-sidebar-active-bg:          rgba(77, 120, 255, 0.08);
-  --faq-sidebar-pill-border:        rgba(15, 23, 42, 0.15);
-  --faq-sidebar-pill-active-border: rgba(77, 120, 255, 0.4);
+  --faq-text:                       #07122e;
+  --faq-text-muted:                 #3a5080;
+  --faq-text-faint:                 rgba(7, 18, 46, 0.5);
+  --faq-accent:                     #1a3fd4;
+  --faq-accent-hover:               #0d2080;
+  --faq-divider:                    rgba(7, 18, 46, 0.1);
+  --faq-answer-color:               rgba(7, 18, 46, 0.6);
+  --faq-chevron:                    rgba(7, 18, 46, 0.35);
+  --faq-chevron-open:               rgba(7, 18, 46, 0.6);
+  --faq-sidebar-color:              rgba(7, 18, 46, 0.4);
+  --faq-sidebar-hover-bg:           rgba(27, 63, 212, 0.05);
+  --faq-sidebar-active-bg:          rgba(27, 63, 212, 0.08);
+  --faq-sidebar-pill-border:        rgba(7, 18, 46, 0.15);
+  --faq-sidebar-pill-active-border: rgba(27, 63, 212, 0.4);
   /* Contact strip — light mode */
   --faq-contact-bg:                 #ffffff;
-  --faq-contact-text:               #0f172a;
-  --faq-contact-subtext:            #475569;
+  --faq-contact-text:               #07122e;
+  --faq-contact-subtext:            #3a5080;
 }
 
 .dark {
-  --faq-bg:                         #0f172a;
-  --faq-text:                       #ffffff;
-  --faq-text-muted:                 #94a3b8;
-  --faq-text-faint:                 rgba(255, 255, 255, 0.5);
-  --faq-accent:                     #4d78ff;
-  --faq-accent-hover:               #6b93ff;
+  --faq-bg:                         #060a1a;
+  --faq-text:                       #ddeaff;
+  --faq-text-muted:                 #6ab0f5;
+  --faq-text-faint:                 rgba(221, 234, 255, 0.5);
+  --faq-accent:                     #2b6fff;
+  --faq-accent-hover:               #3d7fff;
   --faq-divider:                    rgba(255, 255, 255, 0.08);
-  --faq-answer-color:               rgba(255, 255, 255, 0.55);
+  --faq-answer-color:               rgba(221, 234, 255, 0.55);
   --faq-chevron:                    rgba(255, 255, 255, 0.4);
   --faq-chevron-open:               rgba(255, 255, 255, 0.7);
   --faq-sidebar-color:              rgba(255, 255, 255, 0.45);
-  --faq-sidebar-hover-bg:           rgba(255, 255, 255, 0.05);
-  --faq-sidebar-active-bg:          rgba(77, 120, 255, 0.12);
+  --faq-sidebar-hover-bg:           rgba(43, 111, 255, 0.08);
+  --faq-sidebar-active-bg:          rgba(43, 111, 255, 0.12);
   --faq-sidebar-pill-border:        rgba(255, 255, 255, 0.1);
-  --faq-sidebar-pill-active-border: rgba(77, 120, 255, 0.4);
+  --faq-sidebar-pill-active-border: rgba(43, 111, 255, 0.4);
   /* Contact strip — dark mode */
-  --faq-contact-bg:                 #0f172a;
-  --faq-contact-text:               #ffffff;
-  --faq-contact-subtext:            rgba(255, 255, 255, 0.55);
+  --faq-contact-bg:                 #060a1a;
+  --faq-contact-text:               #ddeaff;
+  --faq-contact-subtext:            rgba(221, 234, 255, 0.55);
 }
 
 /* =================================== FAQ SECTION =================================== */
@@ -279,13 +279,13 @@
   border: none;
   cursor: pointer;
   transition: background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
-  box-shadow: 0 2px 8px rgba(77, 120, 255, 0.3);
+  box-shadow: 0 2px 8px rgba(27, 63, 212, 0.3);
 }
 
 .faq-contact-btn:hover {
   background: var(--faq-accent-hover);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(77, 120, 255, 0.4);
+  box-shadow: 0 6px 20px rgba(27, 63, 212, 0.4);
 }
 
 .faq-contact-btn svg {

@@ -6,6 +6,15 @@ import "./layout-sidebar.css";
 import "./dash-home/dashboard.css";
 
 export default function DashboardLayout({ children }) {
+    // Auth check and redirect
+    const { user, loading } = require("../AuthProvider.jsx").useAuth();
+    const router = typeof window !== "undefined" ? require("next/navigation").useRouter() : null;
+
+    useEffect(() => {
+      if (!loading && !user && router) {
+        router.replace("/");
+      }
+    }, [user, loading, router]);
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {

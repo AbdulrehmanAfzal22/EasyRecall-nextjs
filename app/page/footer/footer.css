@@ -7,16 +7,16 @@
 ─────────────────────────────────────────────────── */
 :root {
   --bg:         #ffffff;
-  --border:     #e2e8f0;
-  --text:       #0f172a;
-  --text-muted: #475569;
+  --border:     #c7d6f5;
+  --text:       #07122e;
+  --text-muted: #3a5080;
 }
 
 .dark {
-  --bg:         #0f172a;
-  --border:     #334155;
-  --text:       #f1f5f9;
-  --text-muted: #94a3b8;
+  --bg:         #060a1a;
+  --border:     #1a2d6b;
+  --text:       #ddeaff;
+  --text-muted: #6ab0f5;
 }
 
 /* ─── Base footer ────────────────────────────────── */

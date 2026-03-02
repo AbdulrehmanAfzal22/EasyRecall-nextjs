@@ -1,28 +1,29 @@
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap');
 
 /* ══════════════════════════════════════════════════════
-   LIGHT THEME  (matches hero.css :root)
+   LIGHT THEME
 ══════════════════════════════════════════════════════ */
 :root {
   --bg: #ffffff;
-  --surface: #f8fafc;
-  --surface2: #f1f5f9;
-  --surface3: #e8ebff;
-  --border: #e2e8f0;
-  --border-focus: #6366f1;
-  --text: #0f172a;
-  --text-muted: #475569;
-  --text-dim: #94a3b8;
-  --primary: #6366f1;
-  --primary-soft: rgba(99, 102, 241, 0.1);
-  --primary-glow: rgba(99, 102, 241, 0.15);
-  --primary-dark: #4f46e5;
+  --surface: #f0f4ff;
+  --surface2: #e4ecff;
+  --surface3: #d6e4ff;
+  --border: #c7d6f5;
+  --border-focus: #1a3fd4;
+  --text: #07122e;
+  --text-muted: #3a5080;
+  --text-dim: #6ab0f5;
+  --primary: #1a3fd4;
+  --primary-soft: rgba(27, 63, 212, 0.1);
+  --primary-glow: rgba(27, 63, 212, 0.15);
+  --primary-dark: #0d2080;
+  --accent: #f5c842;
   --green: #10b981;
   --red: #ef4444;
-  --gradient: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+  --gradient: linear-gradient(90deg, #1a3fd4, #2b6fff, #6ab0f5);
 
-  /* Panel (left side) — uses hero gradient colors */
-  --panel-bg: linear-gradient(148deg, #4f46e5 0%, #6366f1 45%, #a855f7 100%);
+  /* Panel (left side) */
+  --panel-bg: linear-gradient(148deg, #0d2080 0%, #1a3fd4 45%, #2b6fff 100%);
   --panel-blob1: rgba(255, 255, 255, 0.24);
   --panel-blob2: rgba(255, 255, 255, 0.15);
   --plan-text: #ffffff;
@@ -35,45 +36,46 @@
   --tag-bg: rgba(255, 255, 255, 0.26);
   --tag-bdr: rgba(255, 255, 255, 0.42);
 
-  /* Card visual — indigo-to-purple matching hero gradient */
-  --card-bg: linear-gradient(128deg, #4f46e5 0%, #7c3aed 50%, #a855f7 100%);
-  --card-shadow: 0 4px 20px rgba(99, 102, 241, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  /* Card visual */
+  --card-bg: linear-gradient(128deg, #0d2080 0%, #1a3fd4 50%, #2b6fff 100%);
+  --card-shadow: 0 4px 20px rgba(27, 63, 212, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12);
 
-  --wrap-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --wrap-shadow: 0 4px 6px -1px rgba(27, 63, 212, 0.1);
   --wrap-inner: inset 0 1px 0 rgba(255, 255, 255, 0.9);
 
   --topbar-bg: rgba(255, 255, 255, 0.92);
-  --topbar-bdr: #e2e8f0;
-  --btn-bg: rgba(99, 102, 241, 0.06);
-  --btn-bdr: rgba(99, 102, 241, 0.2);
-  --btn-color: #6366f1;
+  --topbar-bdr: #c7d6f5;
+  --btn-bg: rgba(27, 63, 212, 0.06);
+  --btn-bdr: rgba(27, 63, 212, 0.2);
+  --btn-color: #1a3fd4;
 }
 
 /* ══════════════════════════════════════════════════════
-   DARK THEME  (matches hero.css .dark)
+   DARK THEME
 ══════════════════════════════════════════════════════ */
 html.dark {
-  --bg: #0f172a;
-  --surface: #1e293b;
-  --surface2: #1e293b;
-  --surface3: #263349;
-  --border: #334155;
-  --border-focus: #818cf8;
-  --text: #f1f5f9;
-  --text-muted: #94a3b8;
-  --text-dim: #475569;
-  --primary: #818cf8;
-  --primary-soft: rgba(129, 140, 248, 0.18);
-  --primary-glow: rgba(129, 140, 248, 0.15);
-  --primary-dark: #6366f1;
+  --bg: #060a1a;
+  --surface: #0d1530;
+  --surface2: #0d1530;
+  --surface3: #111e40;
+  --border: #1a2d6b;
+  --border-focus: #2b6fff;
+  --text: #ddeaff;
+  --text-muted: #6ab0f5;
+  --text-dim: #1a2d6b;
+  --primary: #2b6fff;
+  --primary-soft: rgba(43, 111, 255, 0.18);
+  --primary-glow: rgba(43, 111, 255, 0.15);
+  --primary-dark: #1a3fd4;
+  --accent: #f5c842;
   --green: #10b981;
   --red: #ef4444;
-  --gradient: linear-gradient(90deg, #818cf8, #c084fc, #f472b6);
+  --gradient: linear-gradient(90deg, #2b6fff, #3d7fff, #6ab0f5);
 
-  /* Panel — dark hero palette */
-  --panel-bg: linear-gradient(148deg, #1e1b4b 0%, #312e81 45%, #4c1d95 100%);
-  --panel-blob1: rgba(129, 140, 248, 0.22);
-  --panel-blob2: rgba(192, 132, 252, 0.14);
+  /* Panel — deep navy */
+  --panel-bg: linear-gradient(148deg, #060a1a 0%, #0d1530 45%, #0d2080 100%);
+  --panel-blob1: rgba(43, 111, 255, 0.22);
+  --panel-blob2: rgba(106, 176, 245, 0.14);
   --plan-text: #ffffff;
   --plan-muted: rgba(255, 255, 255, 0.5);
   --plan-dim: rgba(255, 255, 255, 0.34);
@@ -84,15 +86,15 @@ html.dark {
   --tag-bg: rgba(255, 255, 255, 0.09);
   --tag-bdr: rgba(255, 255, 255, 0.14);
 
-  /* Card visual — dark indigo/purple gradient */
-  --card-bg: linear-gradient(128deg, #312e81 0%, #4338ca 50%, #6d28d9 100%);
-  --card-shadow: 0 4px 20px rgba(99, 102, 241, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  /* Card visual */
+  --card-bg: linear-gradient(128deg, #0d2080 0%, #1a3fd4 50%, #2b6fff 100%);
+  --card-shadow: 0 4px 20px rgba(43, 111, 255, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 
-  --wrap-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  --wrap-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
   --wrap-inner: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 
-  --topbar-bg: rgba(15, 23, 42, 0.92);
-  --topbar-bdr: #334155;
+  --topbar-bg: rgba(6, 10, 26, 0.92);
+  --topbar-bdr: #1a2d6b;
   --btn-bg: rgba(255, 255, 255, 0.06);
   --btn-bdr: rgba(255, 255, 255, 0.1);
   --btn-color: rgba(255, 255, 255, 0.58);
@@ -123,24 +125,24 @@ html.dark {
   transition: background 0.35s ease, color 0.35s ease;
 }
 
-/* Radial mesh — hero-matching indigo/purple/pink tones */
+/* Radial mesh — logo blue tones */
 .bg-mesh {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
   background:
-    radial-gradient(ellipse 85% 55% at 72% -4%, rgba(99, 102, 241, 0.09) 0%, transparent 56%),
-    radial-gradient(ellipse 50% 40% at 4% 94%, rgba(168, 85, 247, 0.05) 0%, transparent 54%),
-    radial-gradient(ellipse 38% 34% at 94% 74%, rgba(236, 72, 153, 0.04) 0%, transparent 54%);
+    radial-gradient(ellipse 85% 55% at 72% -4%, rgba(27, 63, 212, 0.09) 0%, transparent 56%),
+    radial-gradient(ellipse 50% 40% at 4% 94%, rgba(43, 111, 255, 0.05) 0%, transparent 54%),
+    radial-gradient(ellipse 38% 34% at 94% 74%, rgba(106, 176, 245, 0.04) 0%, transparent 54%);
   transition: background 0.35s ease;
 }
 
 html.dark .bg-mesh {
   background:
-    radial-gradient(ellipse 85% 55% at 72% -4%, rgba(129, 140, 248, 0.1) 0%, transparent 56%),
-    radial-gradient(ellipse 50% 40% at 4% 94%, rgba(192, 132, 252, 0.06) 0%, transparent 54%),
-    radial-gradient(ellipse 38% 34% at 94% 74%, rgba(244, 114, 182, 0.05) 0%, transparent 54%);
+    radial-gradient(ellipse 85% 55% at 72% -4%, rgba(43, 111, 255, 0.1) 0%, transparent 56%),
+    radial-gradient(ellipse 50% 40% at 4% 94%, rgba(13, 32, 128, 0.15) 0%, transparent 54%),
+    radial-gradient(ellipse 38% 34% at 94% 74%, rgba(106, 176, 245, 0.05) 0%, transparent 54%);
 }
 
 /* Dot grid */
@@ -226,7 +228,7 @@ html.dark .bg-mesh {
   font-size: 11px;
   font-weight: 800;
   color: #fff;
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.5);
+  box-shadow: 0 2px 8px rgba(27, 63, 212, 0.5);
 }
 
 .scc-topbar-name {
@@ -244,7 +246,7 @@ html.dark .bg-mesh {
   text-transform: uppercase;
   color: var(--primary);
   background: var(--primary-soft);
-  border: 1px solid rgba(99, 102, 241, 0.2);
+  border: 1px solid rgba(27, 63, 212, 0.2);
   border-radius: 50px;
   padding: 1.5px 7px;
 }
@@ -416,7 +418,7 @@ html.dark .bg-mesh {
   width: 4.5px;
   height: 4.5px;
   border-radius: 50%;
-  background: #10b981;
+  background: #f5c842;
   animation: pulse 2s ease-in-out infinite;
 }
 
@@ -488,13 +490,13 @@ html.dark .bg-mesh {
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  background: rgba(16, 185, 129, 0.15);
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background: rgba(245, 200, 66, 0.18);
+  border: 1px solid rgba(245, 200, 66, 0.35);
   border-radius: 50px;
   padding: 2px 7px;
   font-size: 8.5px;
   font-weight: 700;
-  color: #10b981;
+  color: #f5c842;
 }
 
 /* ── Features ── */
@@ -517,13 +519,13 @@ html.dark .bg-mesh {
   width: 13px;
   height: 13px;
   border-radius: 50%;
-  background: rgba(16, 185, 129, 0.15);
-  border: 1px solid rgba(16, 185, 129, 0.32);
+  background: rgba(245, 200, 66, 0.15);
+  border: 1px solid rgba(245, 200, 66, 0.32);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  color: #10b981;
+  color: #f5c842;
 }
 
 /* ── Secure note ── */
@@ -557,7 +559,7 @@ html.dark .bg-mesh {
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.12), transparent);
+  background: linear-gradient(90deg, transparent, rgba(27, 63, 212, 0.12), transparent);
   pointer-events: none;
 }
 
@@ -759,8 +761,8 @@ html.dark .bg-mesh {
 
 .scc-input:focus {
   border-color: var(--border-focus);
-  background: rgba(99, 102, 241, 0.04);
-  box-shadow: 0 0 0 2.5px rgba(99, 102, 241, 0.1);
+  background: rgba(27, 63, 212, 0.04);
+  box-shadow: 0 0 0 2.5px rgba(27, 63, 212, 0.1);
 }
 
 .scc-input:focus ~ .input-icon,
@@ -795,8 +797,8 @@ html.dark .bg-mesh {
 
 /* Info boxes */
 .info-box {
-  background: rgba(99, 102, 241, 0.04);
-  border: 1px solid rgba(99, 102, 241, 0.12);
+  background: rgba(27, 63, 212, 0.04);
+  border: 1px solid rgba(27, 63, 212, 0.12);
   border-radius: 7px;
   padding: 10px 12px;
   font-size: 10.5px;
@@ -806,8 +808,8 @@ html.dark .bg-mesh {
 }
 
 .info-box-center {
-  background: rgba(99, 102, 241, 0.04);
-  border: 1px solid rgba(99, 102, 241, 0.12);
+  background: rgba(27, 63, 212, 0.04);
+  border: 1px solid rgba(27, 63, 212, 0.12);
   border-radius: 7px;
   padding: 14px 12px;
   font-size: 10.5px;
@@ -845,7 +847,7 @@ html.dark .bg-mesh {
   overflow: hidden;
   transition: all 0.25s;
   margin-top: 3px;
-  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  box-shadow: 0 4px 14px rgba(27, 63, 212, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.14);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -879,7 +881,7 @@ html.dark .bg-mesh {
 .pay-btn:hover {
   background: var(--primary-dark);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 24px rgba(27, 63, 212, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 
 .pay-btn:active { transform: translateY(0); }
@@ -981,13 +983,13 @@ html.dark .bg-mesh {
   width: 58px;
   height: 58px;
   border-radius: 50%;
-  background: rgba(16, 185, 129, 0.1);
-  border: 2px solid rgba(16, 185, 129, 0.3);
+  background: rgba(27, 63, 212, 0.1);
+  border: 2px solid rgba(27, 63, 212, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 12px;
-  color: #10b981;
+  color: #2b6fff;
   animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
 }
 
@@ -1018,7 +1020,7 @@ html.dark .bg-mesh {
   font-size: 10.5px;
   color: var(--primary);
   background: var(--primary-soft);
-  border: 1px solid rgba(99, 102, 241, 0.16);
+  border: 1px solid rgba(27, 63, 212, 0.16);
   border-radius: 6px;
   padding: 5px 11px;
   margin-bottom: 16px;

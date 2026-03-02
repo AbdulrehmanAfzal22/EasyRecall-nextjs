@@ -11,7 +11,6 @@ import {
   clearQuizProgress,
 } from "@/lib/quizStore";
 import "./quiz.css";
-
 // ══════════════════════════════════════════════════════════════════════════════
 //  ALERT POPUP SYSTEM — fully self-contained, no external dependencies
 // ══════════════════════════════════════════════════════════════════════════════
