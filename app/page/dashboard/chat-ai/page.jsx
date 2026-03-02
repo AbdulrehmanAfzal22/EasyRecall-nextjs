@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Send, Sparkles, Bot, User, Loader2, RotateCcw, Plus, X, FileText, ImageIcon, Menu, History, MessageSquare, Trash2 } from "lucide-react";
 import { useAuth } from "../../AuthProvider";
 import { saveChatToFirestore, getUserChats, getChatById, deleteChatFromFirestore, subscribeToUserChats } from "@/lib/firebaseStore";
-import { checkAndIncrement, getRemaining } from "../../lib/usageService";
+import { checkAndIncrement, getRemaining } from "@/lib/usageService";
 import "./ai-chat.css";
 
 // ── Usage Progress Bar Component ─────────────────────────────────────────────
@@ -13,13 +13,13 @@ function ChatUsageBar({ usageInfo }) {
 
   const uploadUsed = usageInfo.uploadLimit === Infinity ? 0
     : usageInfo.uploadLimit - usageInfo.uploads;
-  const chatUsed   = usageInfo.chatLimit   === Infinity ? 0
-    : usageInfo.chatLimit   - usageInfo.chats;
+  const chatUsed = usageInfo.chatLimit === Infinity ? 0
+    : usageInfo.chatLimit - usageInfo.chats;
 
-  const uploadPct  = usageInfo.uploadLimit === Infinity ? 0
+  const uploadPct = usageInfo.uploadLimit === Infinity ? 0
     : Math.min(100, Math.round((uploadUsed / usageInfo.uploadLimit) * 100));
-  const chatPct    = usageInfo.chatLimit   === Infinity ? 0
-    : Math.min(100, Math.round((chatUsed   / usageInfo.chatLimit)   * 100));
+  const chatPct = usageInfo.chatLimit === Infinity ? 0
+    : Math.min(100, Math.round((chatUsed / usageInfo.chatLimit) * 100));
 
   const getColor = (pct) =>
     pct >= 90 ? "#ef4444" : pct >= 70 ? "#f97316" : "#6366f1";
@@ -134,26 +134,26 @@ export default function AIChat() {
       timestamp: new Date(),
     },
   ]);
-  const [input,       setInput]       = useState("");
-  const [isLoading,   setIsLoading]   = useState(false);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [attachments, setAttachments] = useState([]);
-  const [isDragging,  setIsDragging]  = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   // History & UI state
-  const [chatHistory,    setChatHistory]    = useState([]);
-  const [currentChatId,  setCurrentChatId]  = useState(null);
-  const [showHistory,    setShowHistory]    = useState(false);
-  const [showModal,      setShowModal]      = useState(false);
-  const [modalConfig,    setModalConfig]    = useState({ title: "", message: "", onConfirm: null });
+  const [chatHistory, setChatHistory] = useState([]);
+  const [currentChatId, setCurrentChatId] = useState(null);
+  const [showHistory, setShowHistory] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [modalConfig, setModalConfig] = useState({ title: "", message: "", onConfirm: null });
   const [loadingHistory, setLoadingHistory] = useState(false);
 
   // ── Usage state ──────────────────────────────────────────────────────────
-  const [usageInfo,  setUsageInfo]  = useState(null);
+  const [usageInfo, setUsageInfo] = useState(null);
   const [limitError, setLimitError] = useState("");
 
   const messagesEndRef = useRef(null);
-  const textareaRef    = useRef(null);
-  const fileInputRef   = useRef(null);
+  const textareaRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   // Load usage when user is ready
   useEffect(() => {
@@ -284,12 +284,12 @@ export default function AIChat() {
     const newAttachments = Array.from(files).map((file) => {
       const isImage = file.type.startsWith("image/");
       return {
-        id:      `${Date.now()}-${Math.random()}`,
+        id: `${Date.now()}-${Math.random()}`,
         file,
-        name:    file.name,
-        type:    isImage ? "image" : "file",
+        name: file.name,
+        type: isImage ? "image" : "file",
         preview: isImage ? URL.createObjectURL(file) : null,
-        size:    file.size,
+        size: file.size,
       };
     });
     setAttachments((prev) => [...prev, ...newAttachments]);
@@ -320,9 +320,9 @@ export default function AIChat() {
   }, [handlePaste]);
 
   // ── Drag & drop ─────────────────────────────────────────────────────
-  const handleDragOver  = (e) => { e.preventDefault(); setIsDragging(true); };
+  const handleDragOver = (e) => { e.preventDefault(); setIsDragging(true); };
   const handleDragLeave = (e) => { if (!e.currentTarget.contains(e.relatedTarget)) setIsDragging(false); };
-  const handleDrop      = (e) => {
+  const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
     if (e.dataTransfer.files?.length) addFiles(e.dataTransfer.files);
@@ -352,11 +352,11 @@ export default function AIChat() {
     }
 
     const userMessage = {
-      id:          Date.now().toString(),
-      role:        "user",
-      content:     input.trim(),
+      id: Date.now().toString(),
+      role: "user",
+      content: input.trim(),
       attachments: attachments.map(({ id, name, type, preview }) => ({ id, name, type, preview })),
-      timestamp:   new Date(),
+      timestamp: new Date(),
     };
 
     setMessages((prev) => [...prev, userMessage]);
@@ -370,8 +370,8 @@ export default function AIChat() {
         "messages",
         JSON.stringify(
           [...messages, userMessage].map((m) => ({
-            role:           m.role,
-            content:        m.content,
+            role: m.role,
+            content: m.content,
             hasAttachments: m.attachments ? m.attachments.length > 0 : false,
           }))
         )
@@ -383,9 +383,9 @@ export default function AIChat() {
       const data = await response.json();
 
       const assistantMessage = {
-        id:        (Date.now() + 1).toString(),
-        role:      "assistant",
-        content:   data.message || data.content || "I apologize, but I couldn't generate a response.",
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: data.message || data.content || "I apologize, but I couldn't generate a response.",
         timestamp: new Date(),
       };
 
@@ -396,9 +396,9 @@ export default function AIChat() {
       setMessages((prev) => [
         ...prev,
         {
-          id:        (Date.now() + 1).toString(),
-          role:      "assistant",
-          content:   "Sorry, I encountered an error. Please try again.",
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: "Sorry, I encountered an error. Please try again.",
           timestamp: new Date(),
         },
       ]);
@@ -427,18 +427,18 @@ export default function AIChat() {
 
   const formatDate = (dateInput) => {
     const date = dateInput?.toDate ? dateInput.toDate() : new Date(dateInput);
-    const now   = new Date();
-    const diff  = now - date;
-    const days  = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const now = new Date();
+    const diff = now - date;
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     if (days === 0) return "Today";
     if (days === 1) return "Yesterday";
-    if (days < 7)  return `${days} days ago`;
+    if (days < 7) return `${days} days ago`;
     return date.toLocaleDateString();
   };
 
   const formatSize = (bytes) => {
-    if (bytes < 1024)             return `${bytes} B`;
-    if (bytes < 1024 * 1024)     return `${(bytes / 1024).toFixed(1)} KB`;
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
