@@ -206,9 +206,22 @@ export default function SkipCashPayment() {
       try { data = text ? JSON.parse(text) : {}; }
       catch { data = { text }; }
 
-      if (!res.ok) { setError("Could not start payment. Please try again."); return; }
-      if (data?.url) { window.location.href = data.url; }
-      else { setError("Payment link not available. Please contact support."); }
+      if (!res.ok) {
+        setError("Could not start payment. Please try again.");
+        return;
+      }
+
+      if (data?.url) {
+        try {
+          // Mark plan as activated on this device so dashboard unlocks
+          localStorage.setItem("er_plan_paid", "true");
+        } catch {
+          // ignore storage errors
+        }
+        window.location.href = data.url;
+      } else {
+        setError("Payment link not available. Please contact support.");
+      }
     } catch {
       setError("Network error while starting payment.");
     } finally {

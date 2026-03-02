@@ -180,6 +180,8 @@ function AuthPageInner() {
     setLoading(true);
 
     try {
+      const redirectTarget = searchParams.get('redirect') || '/page/dashboard/dash-home';
+
       if (isLogin) {
         await signInWithEmailAndPassword(auth, email.trim(), password);
       } else {
@@ -188,7 +190,7 @@ function AuthPageInner() {
           await updateProfile(cred.user, { displayName: name.trim() });
         }
       }
-      router.push('/page/dashboard/dash-home');
+      router.push(redirectTarget);
     } catch (err) {
       console.error('Auth error:', err.code, err.message);
       setGlobalError(friendlyError(err.code));
@@ -203,8 +205,9 @@ function AuthPageInner() {
     setGlobalError('');
     setGoogleLoading(true);
     try {
+      const redirectTarget = searchParams.get('redirect') || '/page/dashboard/dash-home';
       await signInWithPopup(auth, googleProvider);
-      router.push('/page/dashboard/dash-home');
+      router.push(redirectTarget);
     } catch (err) {
       console.error('Google auth error:', err.code, err.message);
       setGlobalError(friendlyError(err.code));

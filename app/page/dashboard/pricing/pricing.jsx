@@ -28,7 +28,9 @@ export default function PricingSection() {
   };
 
   const handlePurchase = (amount) => {
-    router.push(`/page/skipcash?amount=${amount}`);
+    const paymentUrl = `/page/skipcash?amount=${amount}`;
+    const redirectUrl = `/page/signup?redirect=${encodeURIComponent(paymentUrl)}`;
+    router.push(redirectUrl);
   };
 
   const features = [
