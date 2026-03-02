@@ -4,8 +4,8 @@
 
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
+import admin from 'firebase-admin';
 import { getAdminDb } from '../../../../lib/firebaseAdmin';
-import { FieldValue } from 'firebase-admin/firestore';
 
 async function verifySignature(body, signature, secret) {
   const computedSignature = crypto.createHmac('sha256', secret).update(body).digest('hex');
@@ -85,7 +85,7 @@ export async function POST(req) {
         status: 'completed',
         source: 'skipcash',
         metadata: metadata || {},
-        createdAt: FieldValue.serverTimestamp(),
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
       };
 
       await adminDb.collection('users').doc(uid).collection('payments').doc(session_id).set(paymentDoc, { merge: true });
@@ -95,11 +95,11 @@ export async function POST(req) {
         subscription: {
           status: 'active',
           plan: planKey,
-          lastPaymentAt: FieldValue.serverTimestamp(),
+          lastPaymentAt: admin.firestore.FieldValue.serverTimestamp(),
           sessionId: session_id,
           amount,
         },
-        updatedAt: FieldValue.serverTimestamp(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       }, { merge: true });
 
       // Set usage plan and initialize usage doc (uploads: 0, chats: 0)
@@ -121,7 +121,7 @@ export async function POST(req) {
         uid,
         planKey,
         status: 'completed',
-        createdAt: FieldValue.serverTimestamp(),
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
         source: 'skipcash',
       }, { merge: true });
 
@@ -136,7 +136,7 @@ export async function POST(req) {
         sessionId: session_id,
         status: 'failed',
         reason,
-        failedAt: FieldValue.serverTimestamp(),
+        failedAt: admin.firestore.FieldValue.serverTimestamp(),
       }, { merge: true });
       console.warn('Payment failed webhook', { sessionId: session_id, reason });
       return NextResponse.json({ ok: true });

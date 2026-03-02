@@ -4,8 +4,8 @@
 
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
+import admin from 'firebase-admin';
 import { getAdminDb } from '../../../../lib/firebaseAdmin';
-import { FieldValue } from 'firebase-admin/firestore';
 
 function toCents(amount) {
   const n = typeof amount === 'string' ? parseFloat(amount) : Number(amount || 0);
@@ -228,7 +228,7 @@ export async function POST(req) {
           planKey,
           amount,
           email: body.email || '',
-          createdAt: FieldValue.serverTimestamp(),
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
         });
       } catch (err) {
         console.warn('Could not store payment session mapping', { sessionId, err: err.message });
