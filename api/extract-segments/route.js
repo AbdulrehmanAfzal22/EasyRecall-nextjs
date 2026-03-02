@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server";
 import { OpenAI } from "openai";
 
-// Optional: allow longer processing time on platforms that support it
+// Optional: allow longer processing time on platforms that support
 export const maxDuration = 60;
 
 export async function POST(request) {
