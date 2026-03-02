@@ -7,7 +7,7 @@ import { saveChatToFirestore, getUserChats, getChatById, deleteChatFromFirestore
 import { checkAndIncrement, getRemaining } from "@/lib/usageService";
 import "./ai-chat.css";
 
-// ── Usage Progress Bar Component ─────────────────────────────────────────────
+// ── Usage Progress Bar Component  ─────────────────────────────────────────────
 function ChatUsageBar({ usageInfo }) {
   if (!usageInfo) return null;
 
