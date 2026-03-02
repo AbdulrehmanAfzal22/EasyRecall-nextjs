@@ -100,8 +100,11 @@ export default function DashboardLayout({ children }) {
               before you can access the dashboard features.
             </p>
             <button className="upgrade-btn" onClick={handleUpgradeClick}>
-              Upgrade plan to continue
-            </button>
+  Upgrade plan to continue
+</button>
+<button className="upgrade-back-btn" onClick={() => router.push("/")}>
+  ← Back to Home
+</button>
           </div>
         </div>
       )}

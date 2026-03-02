@@ -116,3 +116,31 @@
 .upgrade-btn:hover {
   background: linear-gradient(135deg, #4338ca, #4f46e5);
 }
+
+.upgrade-back-btn {
+  display: block;
+  margin: 10px auto 0;
+  background: none;
+  border: none;
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.upgrade-back-btn:hover {
+  color: #111827;
+  background: #f3f4f6;
+}
+
+.dark .upgrade-back-btn {
+  color: #9ca3af;
+}
+
+.dark .upgrade-back-btn:hover {
+  color: #e5e7eb;
+  background: #1f2937;
+}

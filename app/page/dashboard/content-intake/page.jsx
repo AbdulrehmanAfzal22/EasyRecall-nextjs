@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { FileText, Upload, FileCode, FileJson, BarChart3, Table } from "lucide-react";
 import { auth } from "../../../../lib/firebase";
@@ -7,6 +7,7 @@ import { saveDocument } from "../../../../lib/service";
 import { saveFlashcards } from "@/lib/flashcardStore";
 import { saveQuiz } from "../../../../lib/quizStore";
 import { saveSegments } from "../../../../lib/segmentStore";
+import { checkAndIncrement, getRemaining } from "../../../../lib/usageService";
 import "./content-intake.css";
 
 // ── File type icons and utilities ──────────────────────────────────────────
@@ -35,27 +36,132 @@ const formatSize = (bytes) => {
   return (bytes / (1024 ** 2)).toFixed(1) + " MB";
 };
 
-// Optional safety cap (currently unused; backend handles chunking)
-const MAX_TEXT_LENGTH = 200000;
+// ── Usage Progress Bar Component ────────────────────────────────────────────
+function UsageBar({ usageInfo }) {
+  if (!usageInfo) return null;
+
+  const uploadUsed = usageInfo.uploadLimit === Infinity ? 0
+    : usageInfo.uploadLimit - usageInfo.uploads;
+  const chatUsed   = usageInfo.chatLimit   === Infinity ? 0
+    : usageInfo.chatLimit   - usageInfo.chats;
+
+  const uploadPct  = usageInfo.uploadLimit === Infinity ? 0
+    : Math.min(100, Math.round((uploadUsed / usageInfo.uploadLimit) * 100));
+  const chatPct    = usageInfo.chatLimit   === Infinity ? 0
+    : Math.min(100, Math.round((chatUsed   / usageInfo.chatLimit)   * 100));
+
+  const getColor = (pct) =>
+    pct >= 90 ? "#ef4444" : pct >= 70 ? "#f97316" : "#6366f1";
+
+  return (
+    <div className="ci-usage-bar">
+      <div className="ci-usage-header">
+        <span className="ci-usage-plan">{usageInfo.label} Plan</span>
+        <span className="ci-usage-cycle">🔄 Resets monthly</span>
+      </div>
+
+      <div className="ci-usage-meters">
+        {/* ── Uploads meter ── */}
+        <div className="ci-usage-meter">
+          <div className="ci-usage-meter-label">
+            <span>📁 Uploads</span>
+            <span className="ci-usage-meter-count">
+              {usageInfo.uploads === Infinity
+                ? "∞ remaining"
+                : `${usageInfo.uploads} of ${usageInfo.uploadLimit} remaining`}
+            </span>
+          </div>
+          {usageInfo.uploads !== Infinity && (
+            <>
+              <div className="ci-usage-track">
+                <div
+                  className="ci-usage-fill"
+                  style={{ width: `${uploadPct}%`, background: getColor(uploadPct) }}
+                />
+              </div>
+              <div className="ci-usage-track-labels">
+                <span>{uploadPct}% used</span>
+                {uploadPct >= 80 && (
+                  <span className="ci-usage-warn">
+                    {usageInfo.uploads === 0 ? "⚠ Limit reached" : `⚠ ${usageInfo.uploads} left`}
+                  </span>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* ── Chats meter ── */}
+        <div className="ci-usage-meter">
+          <div className="ci-usage-meter-label">
+            <span>💬 Chats</span>
+            <span className="ci-usage-meter-count">
+              {usageInfo.chats === Infinity
+                ? "∞ remaining"
+                : `${usageInfo.chats} of ${usageInfo.chatLimit} remaining`}
+            </span>
+          </div>
+          {usageInfo.chats !== Infinity && (
+            <>
+              <div className="ci-usage-track">
+                <div
+                  className="ci-usage-fill"
+                  style={{ width: `${chatPct}%`, background: getColor(chatPct) }}
+                />
+              </div>
+              <div className="ci-usage-track-labels">
+                <span>{chatPct}% used</span>
+                {chatPct >= 80 && (
+                  <span className="ci-usage-warn">
+                    {usageInfo.chats === 0 ? "⚠ Limit reached" : `⚠ ${usageInfo.chats} left`}
+                  </span>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      {(usageInfo.uploads === 0 || usageInfo.chats === 0) && usageInfo.uploads !== Infinity && (
+        <button
+          className="ci-usage-upgrade-btn"
+          onClick={() => window.location.href = "/page/pricing"}
+        >
+          ✦ Upgrade Plan →
+        </button>
+      )}
+    </div>
+  );
+}
 
 export default function ContentIntake() {
   const router = useRouter();
   const inputRef = useRef();
 
-  const [inputMode,   setInputMode]   = useState("file");
-  const [pastedText,  setPastedText]  = useState("");
-  const [files,       setFiles]       = useState([]);
-  const [rawFiles,    setRawFiles]    = useState([]);
-  const [numCards,    setNumCards]    = useState(10);
-  const [drag,        setDrag]        = useState(false);
-  const [dragCount,   setDragCount]   = useState(0);
-  const [generating,  setGenerating]  = useState(false);
-  const [genProgress, setGenProgress] = useState(0);
-  const [done,        setDone]        = useState(false);
-  const [cardCount,   setCardCount]   = useState(0);
+  const [inputMode,    setInputMode]    = useState("file");
+  const [pastedText,   setPastedText]   = useState("");
+  const [files,        setFiles]        = useState([]);
+  const [rawFiles,     setRawFiles]     = useState([]);
+  const [numCards,     setNumCards]     = useState(10);
+  const [drag,         setDrag]         = useState(false);
+  const [dragCount,    setDragCount]    = useState(0);
+  const [generating,   setGenerating]   = useState(false);
+  const [genProgress,  setGenProgress]  = useState(0);
+  const [done,         setDone]         = useState(false);
+  const [cardCount,    setCardCount]    = useState(0);
   const [segmentCount, setSegmentCount] = useState(0);
-  const [error,       setError]       = useState("");
-  const [saving,      setSaving]      = useState(false);
+  const [error,        setError]        = useState("");
+  const [saving,       setSaving]       = useState(false);
+
+  // ── Usage state ──────────────────────────────────────────────────────────
+  const [usageInfo, setUsageInfo] = useState(null);
+
+  useEffect(() => {
+    const uid   = auth.currentUser?.uid;
+    const email = auth.currentUser?.email;
+    if (!uid) return;
+    getRemaining(uid, email).then(setUsageInfo).catch(console.error);
+  }, []);
 
   // ── Drag / drop ────────────────────────────────────────────────────────
   const handleDragEnter = useCallback((e) => {
@@ -101,6 +207,26 @@ export default function ContentIntake() {
   const handleGenerate = async () => {
     setError(""); setGenerating(true); setGenProgress(0); setSaving(false);
 
+    // ── Check upload limit BEFORE processing ──────────────────────────
+    const uid   = auth.currentUser?.uid;
+    const email = auth.currentUser?.email;
+
+    if (uid) {
+      const check = await checkAndIncrement(uid, email, "uploads");
+      if (!check.allowed) {
+        setError(
+          `You've reached your ${check.label} plan upload limit (${check.limit} uploads/month). ` +
+          `Upgrade your plan to continue.`
+        );
+        setGenerating(false);
+        // Refresh usage display
+        getRemaining(uid, email).then(setUsageInfo).catch(console.error);
+        return;
+      }
+      // Refresh displayed usage after incrementing
+      getRemaining(uid, email).then(setUsageInfo).catch(console.error);
+    }
+
     let p = 0;
     const ticker = setInterval(() => {
       p += Math.random() * 8 + 3;
@@ -121,10 +247,6 @@ export default function ContentIntake() {
         }
         if (!combined.trim()) throw new Error("Files appear to be empty or unreadable.");
       }
-
-      // NOTE: We no longer hard-block large content here.
-      // The API route chunks large text into smaller pieces before
-      // calling OpenAI, so big uploads are handled server-side.
 
       // ── Fire both APIs in parallel ──
       const [flashRes, segRes] = await Promise.allSettled([
@@ -176,7 +298,6 @@ export default function ContentIntake() {
       }
 
       // ── Firebase save ──
-      const uid = auth.currentUser?.uid;
       if (uid) {
         setSaving(true);
         try {
@@ -214,6 +335,8 @@ export default function ContentIntake() {
     ? pastedText.trim().length > 0
     : files.length > 0;
 
+  const uploadLimitReached = usageInfo && usageInfo.uploads === 0 && usageInfo.uploads !== Infinity;
+
   const wordCount = pastedText.trim() ? pastedText.trim().split(/\s+/).length : 0;
 
   // ── Render ─────────────────────────────────────────────────────────────
@@ -237,6 +360,9 @@ export default function ContentIntake() {
             Upload files or paste text. We extract topics, key concepts, flashcards and a full quiz automatically.
           </p>
         </div>
+
+        {/* ── Usage Bar ────────────────────────────────────────────────── */}
+        <UsageBar usageInfo={usageInfo} />
 
         {!done ? (
           <>
@@ -385,9 +511,16 @@ export default function ContentIntake() {
 
             {/* ── Generate button ── */}
             {canGenerate && !generating && (
-              <button className="ci-generate-btn" onClick={handleGenerate}>
+              <button
+                className={`ci-generate-btn${uploadLimitReached ? " ci-generate-btn--disabled" : ""}`}
+                onClick={uploadLimitReached ? undefined : handleGenerate}
+                disabled={!!uploadLimitReached}
+                title={uploadLimitReached ? "Upload limit reached — upgrade your plan" : undefined}
+              >
                 <span className="ci-generate-btn-icon">⚡</span>
-                Generate Flashcards + Quiz + Segments
+                {uploadLimitReached
+                  ? "Upload limit reached — Upgrade to continue"
+                  : "Generate Flashcards + Quiz + Segments"}
                 <span className="ci-generate-btn-arrow">→</span>
               </button>
             )}
@@ -415,7 +548,16 @@ export default function ContentIntake() {
             {/* ── Error ── */}
             {error && (
               <div className="ci-error-box">
-                <span className="ci-error-icon">⚠</span>{error}
+                <span className="ci-error-icon">⚠</span>
+                <span>{error}</span>
+                {error.includes("limit") && (
+                  <button
+                    className="ci-error-upgrade-btn"
+                    onClick={() => window.location.href = "/page/pricing"}
+                  >
+                    Upgrade →
+                  </button>
+                )}
               </div>
             )}
           </>
