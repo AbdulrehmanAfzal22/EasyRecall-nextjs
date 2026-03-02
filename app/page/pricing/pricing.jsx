@@ -4,8 +4,12 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import "./pricing.css";
 
+// Import your auth hook — adjust path if needed
+import { useAuth } from "../AuthProvider.jsx";
+
 export default function PricingSection() {
   const router = useRouter();
+  const { user, loading } = useAuth();
   const [themeDark, setThemeDark] = useState(false);
 
   useEffect(() => {
@@ -16,7 +20,6 @@ export default function PricingSection() {
   const handleThemeToggle = () => {
     const html = document.documentElement;
     const newIsDark = !themeDark;
-
     if (newIsDark) {
       html.classList.add("dark");
       localStorage.setItem("theme", "dark");
@@ -28,9 +31,19 @@ export default function PricingSection() {
   };
 
   const handlePurchase = (amount) => {
+    // Still loading auth state — wait
+    if (loading) return;
+
     const paymentUrl = `/page/skipcash?amount=${amount}`;
-    const redirectUrl = `/page/signup?redirect=${encodeURIComponent(paymentUrl)}`;
-    router.push(redirectUrl);
+
+    if (user) {
+      // ✅ Already logged in (coming from dashboard) — go straight to SkipCash
+      router.push(paymentUrl);
+    } else {
+      // 🔒 Not logged in (coming from landing page) — sign up first, then SkipCash
+      const redirectUrl = `/page/signup?redirect=${encodeURIComponent(paymentUrl)}`;
+      router.push(redirectUrl);
+    }
   };
 
   const features = [
@@ -82,8 +95,12 @@ export default function PricingSection() {
               </div>
             </div>
 
-            <button className="start-button" onClick={() => handlePurchase(4.99)}>
-              Get Started Monthly
+            <button
+              className="start-button"
+              onClick={() => handlePurchase(4.99)}
+              disabled={loading}
+            >
+              {loading ? "Loading..." : "Get Started Monthly"}
             </button>
           </div>
 
@@ -117,8 +134,12 @@ export default function PricingSection() {
               </div>
             </div>
 
-            <button className="start-button" onClick={() => handlePurchase(9.99)}>
-              Get Started Yearly
+            <button
+              className="start-button"
+              onClick={() => handlePurchase(9.99)}
+              disabled={loading}
+            >
+              {loading ? "Loading..." : "Get Started Yearly"}
             </button>
           </div>
         </div>

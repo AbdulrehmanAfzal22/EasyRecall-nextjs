@@ -1,36 +1,45 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import Sidebar from "./sidebar/page";
 import "./layout-sidebar.css";
 import "./dash-home/dashboard.css";
+import { useAuth } from "../AuthProvider.jsx";
+import { useRouter } from "next/navigation";
 
 const PLAN_FLAG_KEY = "er_plan_paid";
 
+const OWNER_EMAILS = [
+  "musa@gmail.com",
+  // add more owner/admin emails here if needed
+];
+
 export default function DashboardLayout({ children }) {
-  // Auth check and redirect
-  const { user, loading } = require("../AuthProvider.jsx").useAuth();
-  const router =
-    typeof window !== "undefined" ? require("next/navigation").useRouter() : null;
+  const { user, loading } = useAuth();
+  const router = useRouter();
 
   const [isDark, setIsDark] = useState(false);
   const [hasActivePlan, setHasActivePlan] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   useEffect(() => {
-    if (!loading && !user && router) {
+    if (!loading && !user) {
       router.replace("/");
     }
   }, [user, loading, router]);
 
   useEffect(() => {
-    // Read theme from HTML class (set by root layout script)
     const isDarkMode = document.documentElement.classList.contains("dark");
     setIsDark(isDarkMode);
   }, []);
 
   useEffect(() => {
     if (!loading && user) {
+      const isOwner = OWNER_EMAILS.includes(user.email?.toLowerCase());
+      if (isOwner) {
+        setHasActivePlan(true);
+        setShowUpgradeModal(false);
+        return;
+      }
       let paid = false;
       try {
         paid = localStorage.getItem(PLAN_FLAG_KEY) === "true";
@@ -38,16 +47,23 @@ export default function DashboardLayout({ children }) {
         paid = false;
       }
       setHasActivePlan(paid);
-      if (!paid) {
-        setShowUpgradeModal(true);
-      }
+      setShowUpgradeModal(!paid);
     }
   }, [loading, user]);
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (showUpgradeModal && !hasActivePlan) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [showUpgradeModal, hasActivePlan]);
 
   const toggleTheme = () => {
     const html = document.documentElement;
     const newIsDark = !isDark;
-
     if (newIsDark) {
       html.classList.add("dark");
       localStorage.setItem("theme", "dark");
@@ -59,8 +75,6 @@ export default function DashboardLayout({ children }) {
   };
 
   const handleUpgradeClick = () => {
-    if (!router) return;
-    // Navigate to a full pricing page so the user can choose a plan
     router.push("/page/pricing");
   };
 
@@ -70,22 +84,27 @@ export default function DashboardLayout({ children }) {
 
       <main className="dashboard-content">
         {children}
-
-        {showUpgradeModal && !hasActivePlan && (
-          <div className="upgrade-overlay">
-            <div className="upgrade-modal">
-              <h2 className="upgrade-title">Upgrade your plan to use EasyRecall</h2>
-              <p className="upgrade-text">
-                Your account is created, but you need to activate a paid plan
-                before you can access the dashboard features.
-              </p>
-              <button className="upgrade-btn" onClick={handleUpgradeClick}>
-                Upgrade plan to continue
-              </button>
-            </div>
-          </div>
-        )}
       </main>
+
+      {/*
+        ✅ Overlay lives here — OUTSIDE <main> — so that
+        overflow:auto on .dashboard-content does NOT create
+        a stacking context that traps position:fixed children.
+      */}
+      {showUpgradeModal && !hasActivePlan && (
+        <div className="upgrade-overlay">
+          <div className="upgrade-modal">
+            <h2 className="upgrade-title">Upgrade your plan to use EasyRecall</h2>
+            <p className="upgrade-text">
+              Your account is created, but you need to activate a paid plan
+              before you can access the dashboard features.
+            </p>
+            <button className="upgrade-btn" onClick={handleUpgradeClick}>
+              Upgrade plan to continue
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
