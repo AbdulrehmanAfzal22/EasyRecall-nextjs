@@ -53,7 +53,7 @@ export async function POST(req) {
     const amount = Number(body?.amount ?? 0);
 
     // Only allow hardcoded amounts for safety
-    const allowed = [0.09, 9.99];
+    const allowed = [4.99, 9.99];
     if (!allowed.includes(amount)) {
       console.warn('Invalid amount requested', { amount, allowed });
       return NextResponse.json({ error: 'invalid_amount', amount }, { status: 400 });
@@ -133,29 +133,45 @@ export async function POST(req) {
       hasSecret: !!SECRET,
     });
 
-    // Call Skipcash API to create session with timeout
+    // Call Skipcash API — 30s timeout, retry once on timeout/network error
     let response;
+    const fetchOptions = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-KeyID': KEYID,
+        'Authorization': signature,
+      },
+      body: JSON.stringify(sessionData),
+    };
+
     try {
-      response = await fetchWithTimeout(SKIPCASH_API, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-KeyID': KEYID,
-          'Authorization': signature, // Base64 HMAC-SHA256 in Authorization header
-        },
-        body: JSON.stringify(sessionData),
-      }, 10000);
+      response = await fetchWithTimeout(SKIPCASH_API, fetchOptions, 30000);
     } catch (fetchErr) {
-      console.error('Fetch to Skipcash API failed', {
-        url: SKIPCASH_API,
-        error: fetchErr.message,
-        code: fetchErr.code,
-        name: fetchErr.name,
-      });
-      return NextResponse.json(
-        { error: 'api_unreachable', detail: fetchErr.message },
-        { status: 502 }
-      );
+      // On timeout/network error, retry once
+      if (fetchErr.name === 'AbortError' || fetchErr.code === 20) {
+        console.warn('Skipcash API timed out, retrying once...', { url: SKIPCASH_API });
+        try {
+          response = await fetchWithTimeout(SKIPCASH_API, fetchOptions, 30000);
+        } catch (retryErr) {
+          console.error('Skipcash API failed after retry', { error: retryErr.message });
+          return NextResponse.json(
+            { error: 'api_unreachable', detail: retryErr.message },
+            { status: 502 }
+          );
+        }
+      } else {
+        console.error('Fetch to Skipcash API failed', {
+          url: SKIPCASH_API,
+          error: fetchErr.message,
+          code: fetchErr.code,
+          name: fetchErr.name,
+        });
+        return NextResponse.json(
+          { error: 'api_unreachable', detail: fetchErr.message },
+          { status: 502 }
+        );
+      }
     }
 
 
