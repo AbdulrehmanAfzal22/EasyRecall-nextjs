@@ -51,9 +51,13 @@ export async function POST(req) {
   try {
     const body = await req.json();
     const amount = Number(body?.amount ?? 0);
+    const plan = body?.plan || "monthly"; // "monthly" or "yearly"
+    const userId = body?.userId || null;
+    const userEmail = body?.userEmail || "customer@example.com";
+    const userName = body?.userName || "Customer";
 
     // Only allow hardcoded amounts for safety
-    const allowed = [4.99, 9.99];
+    const allowed = [1.00, 2.00];
     if (!allowed.includes(amount)) {
       console.warn('Invalid amount requested', { amount, allowed });
       return NextResponse.json({ error: 'invalid_amount', amount }, { status: 400 });
@@ -67,12 +71,14 @@ export async function POST(req) {
     // ───────────────────────────────────────────────────
     if (MODE === 'mock') {
       const mockSessionId = `mock-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-      const mockCheckoutUrl = `${origin}/skipcash-mock.html?amount=${amount}&sessionId=${mockSessionId}&return_url=${encodeURIComponent(`${origin}/dashboard/pricing`)}`;
+      const mockCheckoutUrl = `${origin}/skipcash-mock.html?amount=${amount}&sessionId=${mockSessionId}&return_url=${encodeURIComponent(`${origin}/dashboard?skipcash_status=success&plan=${plan}`)}&plan=${plan}&userId=${userId || ''}`;
 
       console.log('✓ MOCK MODE: Returning simulated checkout', {
         mode: 'mock',
         sessionId: mockSessionId,
         amount,
+        plan,
+        userId,
         url: mockCheckoutUrl,
       });
 
@@ -105,21 +111,23 @@ export async function POST(req) {
     }
 
     // Build correct payload per Skipcash /api/v1/payments docs
+    const returnUrl = `${origin}/page/dashboard?skipcash_status=success&plan=${plan}`;
     const sessionData = {
-      Uid: crypto.randomUUID(),
+      Uid: userId || crypto.randomUUID(),
       KeyId: KEYID,
       Amount: amount.toFixed(2),
-      FirstName: body.firstName || 'Customer',
-      LastName: body.lastName || 'User',
+      FirstName: userName.split(' ')[0] || 'Customer',
+      LastName: userName.split(' ')[1] || 'User',
       Phone: body.phone || '+97400000000',
-      Email: body.email || 'customer@example.com',
+      Email: userEmail,
       Street: body.street || 'PO Box 000',
       City: body.city || 'Doha',
       State: body.state || 'DA',
       Country: body.country || 'QA',
       PostalCode: body.postalCode || '00000',
       TransactionId: body.transactionId || `order-${Date.now()}`,
-      Custom1: body.custom1 || 'EasyRecall Premium Subscription',
+      Custom1: `EasyRecall Premium Subscription - ${plan === 'yearly' ? 'Yearly ($2.00)' : 'Monthly ($1.00)'} - Plan: ${plan}`,
+      ReturnUrl: returnUrl,
     };
 
     // Generate signature for authentication

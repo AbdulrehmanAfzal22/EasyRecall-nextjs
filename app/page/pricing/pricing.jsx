@@ -30,11 +30,11 @@ export default function PricingSection() {
     setThemeDark(newIsDark);
   };
 
-  const handlePurchase = (amount) => {
+  const handlePurchase = (amount, planId) => {
     // Still loading auth state — wait
     if (loading) return;
 
-    const paymentUrl = `/page/skipcash?amount=${amount}`;
+    const paymentUrl = `/page/skipcash?amount=${amount}&plan=${planId}`;
 
     if (user) {
       // ✅ Already logged in (coming from dashboard) — go straight to SkipCash
@@ -74,7 +74,7 @@ export default function PricingSection() {
 
             <div className="price-block">
               <span className="currency">$</span>
-              <span className="amount">4.99</span>
+              <span className="amount">1.00</span>
               <span className="billing-period">/mo</span>
             </div>
 
@@ -97,7 +97,7 @@ export default function PricingSection() {
 
             <button
               className="start-button"
-              onClick={() => handlePurchase(4.99)}
+              onClick={() => handlePurchase(1.00, "monthly")}
               disabled={loading}
             >
               {loading ? "Loading..." : "Get Started Monthly"}
@@ -113,7 +113,7 @@ export default function PricingSection() {
 
             <div className="price-block">
               <span className="currency">$</span>
-              <span className="amount">9.99</span>
+              <span className="amount">2.00</span>
               <span className="billing-period">/yr</span>
             </div>
 
@@ -136,7 +136,7 @@ export default function PricingSection() {
 
             <button
               className="start-button"
-              onClick={() => handlePurchase(9.99)}
+              onClick={() => handlePurchase(2.00, "yearly")}
               disabled={loading}
             >
               {loading ? "Loading..." : "Get Started Yearly"}

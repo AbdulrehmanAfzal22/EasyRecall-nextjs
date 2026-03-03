@@ -42,14 +42,86 @@ export default function DashboardLayout({ children }) {
       }
       let paid = false;
       try {
-        paid = localStorage.getItem(PLAN_FLAG_KEY) === "true";
+        // First check Firebase subscription
+        const checkSubscription = async () => {
+          try {
+            const { doc: firebaseDoc, getDoc } = await import("firebase/firestore");
+            const { db } = await import("../../../lib/firebase");
+            const userRef = firebaseDoc(db, "users", user.uid);
+            const userSnap = await getDoc(userRef);
+            
+            if (userSnap.exists()) {
+              const subData = userSnap.data().subscription;
+              if (subData && subData.status === 'active') {
+                paid = true;
+              }
+            }
+          } catch (err) {
+            console.warn("Could not fetch subscription from Firebase:", err);
+          }
+
+          // Fallback to localStorage
+          if (!paid) {
+            paid = localStorage.getItem(PLAN_FLAG_KEY) === "true";
+          }
+
+          setHasActivePlan(paid);
+          setShowUpgradeModal(!paid);
+        };
+        
+        checkSubscription();
       } catch {
         paid = false;
+        setHasActivePlan(false);
+        setShowUpgradeModal(true);
       }
-      setHasActivePlan(paid);
-      setShowUpgradeModal(!paid);
     }
   }, [loading, user]);
+  
+  // If user is redirected back from SkipCash with a success flag, mark paid and clean URL
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const status = params.get('skipcash_status');
+      const plan = params.get('plan') || 'monthly';
+      if (status === 'success' && user?.uid) {
+        console.log('💳 PAYMENT SUCCESS - Resetting usage immediately', { userId: user.uid, plan });
+        
+        try { localStorage.setItem(PLAN_FLAG_KEY, 'true'); } catch {}
+        // Set flag that payment just happened - child pages will detect this
+        try { localStorage.setItem('payment_just_completed', 'true'); } catch {}
+        
+        // IMMEDIATELY reset usage - don't wait for webhook
+        fetch('/api/reset-usage', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: user.uid,
+            plan: plan,
+          }),
+        })
+          .then(res => res.json())
+          .then(data => {
+            console.log('✅ DEBUG: Usage reset response:', data);
+            // Force a quick refresh to show updated usage
+            setTimeout(() => {
+              window.location.href = '/page/dashboard';
+            }, 500);
+          })
+          .catch(err => {
+            console.error('❌ ERROR resetting usage:', err);
+            // Still navigate even if reset failed
+            setTimeout(() => {
+              window.location.href = '/page/dashboard';
+            }, 500);
+          });
+        
+        return; // Exit early to let the redirect happen
+      }
+    } catch (err) {
+      console.error('Dashboard payment detection error:', err);
+    }
+  }, [router, user?.uid]);
 
   // Lock body scroll when modal is open
   useEffect(() => {

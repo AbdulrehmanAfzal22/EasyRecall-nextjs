@@ -40,9 +40,12 @@ export async function POST(req) {
   try {
     const body = await req.json();
     const amount = Number(body?.amount ?? 0);
+    const plan = body?.plan || 'monthly';
+    const userId = body?.userId || null;
 
+    const plan = body?.plan || 'monthly';
     // Only allow hardcoded amounts for safety
-    const allowed = [4.99, 9.99];
+    const allowed = [1.00, 2.00];
     if (!allowed.includes(amount)) {
       console.warn('Invalid amount requested', { amount, allowed });
       return NextResponse.json({ error: 'invalid_amount', amount }, { status: 400 });
@@ -56,7 +59,7 @@ export async function POST(req) {
     // ───────────────────────────────────────────────────
     if (MODE === 'mock') {
       const mockSessionId = `mock-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-      const mockCheckoutUrl = `${origin}/skipcash-mock.html?amount=${amount}&sessionId=${mockSessionId}&return_url=${encodeURIComponent(`${origin}/dashboard/pricing`)}`;
+      const mockCheckoutUrl = `${origin}/skipcash-mock.html?amount=${amount}&sessionId=${mockSessionId}&return_url=${encodeURIComponent(`${origin}/page/dashboard?skipcash_status=success&plan=${body.plan || 'monthly'}`)}`;
 
       console.log('✓ MOCK MODE: Returning simulated checkout', {
         mode: 'mock',

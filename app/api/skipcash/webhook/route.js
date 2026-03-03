@@ -13,6 +13,26 @@ async function verifySignature(body, signature, secret) {
   return computedSignature === signature;
 }
 
+// Extract plan from Custom1 field (e.g., "EasyRecall Premium Subscription - Yearly ($9.99) - Plan: yearly")
+function extractPlanFromCustom1(custom1) {
+  if (!custom1) return 'monthly';
+  if (custom1.includes('yearly') || custom1.includes('Yearly')) return 'yearly';
+  if (custom1.includes('monthly') || custom1.includes('Monthly')) return 'monthly';
+  return 'monthly';
+}
+
+// Get subscription expiration date based on plan
+function getSubscriptionExpiration(plan) {
+  const now = new Date();
+  if (plan === 'yearly') {
+    now.setDate(now.getDate() + 365);
+  } else {
+    // Monthly plan
+    now.setDate(now.getDate() + 30);
+  }
+  return new Date(now.getTime()); // Ensure it's a proper Date object for Firestore
+}
+
 export async function POST(req) {
   try {
     // Read raw body for signature verification
@@ -46,40 +66,73 @@ export async function POST(req) {
     // Handle different event types
     if (event.type === 'payment.succeeded') {
       const { session_id, amount, currency, customer_id, metadata } = event;
+      
+      // Extract plan from Custom1 field
+      const custom1 = metadata?.Custom1 || '';
+      const plan = extractPlanFromCustom1(custom1);
+      const expiresAt = getSubscriptionExpiration(plan);
 
       // Record the payment in Firestore
-      // Assuming you have a "payments" collection
       const paymentDoc = {
         sessionId: session_id,
         amount,
         currency,
         customerId: customer_id,
         metadata,
+        plan,
         status: 'completed',
         createdAt: serverTimestamp(),
+        expiresAt,
         source: 'skipcash',
       };
 
       const paymentRef = doc(db, 'payments', session_id);
       await setDoc(paymentRef, paymentDoc, { merge: true });
 
-      // Optionally, update user subscription status in Firestore
+      // Update user subscription status in Firestore
       if (customer_id) {
         const userRef = doc(db, 'users', customer_id);
+        
+        // Update main user subscription doc
         await updateDoc(userRef, {
           subscription: {
             status: 'active',
-            plan: metadata?.plan || 'premium',
+            plan: plan,
+            paidAt: serverTimestamp(),
             lastPaymentAt: serverTimestamp(),
+            expiresAt,
             sessionId: session_id,
+            amount,
           },
+          'er_plan_paid': true,
         }).catch((err) => {
           // User may not exist yet; log but don't fail
           console.warn('Could not update user subscription', { customerId: customer_id, err });
         });
+
+        // Also update the usage document with the new plan and reset counters
+        const now = new Date();
+        const cycleKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        const usageRef = doc(db, 'users', customer_id, 'usage', cycleKey);
+        
+        // Reset usage counters to 0 and set the new plan - COMPLETE OVERWRITE (no merge)
+        await setDoc(usageRef, {
+          uploads: 0,
+          chats: 0,
+          plan: plan,
+          createdAt: serverTimestamp(),
+        }).catch((err) => {
+          console.warn('Could not update usage for new subscription', { customerId: customer_id, err });
+        });
       }
 
-      console.log('Payment recorded', { sessionId: session_id, amount });
+      console.log('Payment recorded and subscription activated', { 
+        sessionId: session_id, 
+        amount, 
+        plan,
+        customerId: customer_id,
+        expiresAt,
+      });
       return NextResponse.json({ ok: true });
     }
 
@@ -87,7 +140,7 @@ export async function POST(req) {
       const { session_id, reason } = event;
       console.warn('Payment failed webhook', { sessionId: session_id, reason });
 
-      // You could record the failure or send an alert
+      // Record the failure
       const failureDoc = {
         sessionId: session_id,
         status: 'failed',

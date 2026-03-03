@@ -3,7 +3,7 @@
     const res = await fetch('http://localhost:3000/api/skipcash/create-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount: 4.99 }),
+      body: JSON.stringify({ amount: 1.00 }),
     });
     const text = await res.text();
     console.log('STATUS', res.status, res.statusText);

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Moon, Sun } from "lucide-react";
+import { useAuth } from "../AuthProvider.jsx";
 import "./skipcash.css";
 
 /* ══════════════════════════════════════
@@ -124,6 +125,7 @@ const TAB_BTN_TEXT = {
 export default function SkipCashPayment() {
   const router       = useRouter();
   const searchParams = useSearchParams();
+  const { user, loading: authLoading } = useAuth();
 
   /* ── Theme — synced with your existing navbar system ── */
   const [isDark, setIsDark] = useState(false);
@@ -148,7 +150,8 @@ export default function SkipCashPayment() {
 
   /* ── Payment state ── */
   const [activeTab,    setActiveTab]    = useState("card");
-  const [amount,       setAmount]       = useState(4.99);
+  const [amount,       setAmount]       = useState(1.00);
+  const [plan,         setPlan]         = useState("monthly");
   const [cardNumber,   setCardNumber]   = useState("");
   const [cardHolder,   setCardHolder]   = useState("");
   const [cardNetwork,  setCardNetwork]  = useState("VISA");
@@ -161,7 +164,10 @@ export default function SkipCashPayment() {
 
   useEffect(() => {
     const amt = Number(searchParams.get("amount"));
-    if (!isNaN(amt) && (amt === 4.99 || amt === 9.99)) setAmount(amt);
+    if (!isNaN(amt) && (amt === 1.00 || amt === 2.00)) setAmount(amt);
+    
+    const planParam = searchParams.get("plan");
+    if (planParam === "monthly" || planParam === "yearly") setPlan(planParam);
   }, [searchParams]);
 
   /* ── Card number formatting ── */
@@ -199,7 +205,13 @@ export default function SkipCashPayment() {
       const res  = await fetch("/api/skipcash/create-session", {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ amount }),
+        body:    JSON.stringify({ 
+          amount, 
+          plan,
+          userId: user?.uid,
+          userEmail: user?.email,
+          userName: user?.displayName || cardHolder,
+        }),
       });
       const text = await res.text();
       let data;

@@ -37,7 +37,7 @@ const formatSize = (bytes) => {
 };
 
 // ── Usage Progress Bar Component ────────────────────────────────────────────
-function UsageBar({ usageInfo }) {
+function UsageBar({ usageInfo, onReset }) {
   if (!usageInfo) return null;
 
   const uploadUsed = usageInfo.uploadLimit === Infinity ? 0
@@ -122,14 +122,32 @@ function UsageBar({ usageInfo }) {
         </div>
       </div>
 
-      {(usageInfo.uploads === 0 || usageInfo.chats === 0) && usageInfo.uploads !== Infinity && (
+      <div style={{ display: 'flex', gap: '10px' }}>
+        {(usageInfo.uploads === 0 || usageInfo.chats === 0) && usageInfo.uploads !== Infinity && (
+          <button
+            className="ci-usage-upgrade-btn"
+            onClick={() => window.location.href = "/page/pricing"}
+            style={{ flex: 1 }}
+          >
+            ✦ Upgrade Plan →
+          </button>
+        )}
         <button
-          className="ci-usage-upgrade-btn"
-          onClick={() => window.location.href = "/page/pricing"}
+          onClick={onReset}
+          style={{
+            padding: '10px 15px',
+            background: '#666',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontSize: '12px',
+            whiteSpace: 'nowrap',
+          }}
         >
-          ✦ Upgrade Plan →
+          🔄 Refresh
         </button>
-      )}
+      </div>
     </div>
   );
 }
@@ -156,12 +174,49 @@ export default function ContentIntake() {
   // ── Usage state ──────────────────────────────────────────────────────────
   const [usageInfo, setUsageInfo] = useState(null);
 
-  useEffect(() => {
+  // Function to refresh usage
+  const refreshUsage = useCallback(() => {
     const uid   = auth.currentUser?.uid;
     const email = auth.currentUser?.email;
     if (!uid) return;
     getRemaining(uid, email).then(setUsageInfo).catch(console.error);
   }, []);
+
+  useEffect(() => {
+    refreshUsage();
+  }, [refreshUsage]);
+
+  // Detect payment return and refresh usage
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const status = params.get('skipcash_status');
+      if (status === 'success') {
+        console.log('📁 Content intake: Payment success detected, refreshing usage in 3s');
+        // Wait for webhook to process, then refresh
+        const timer = setTimeout(() => {
+          console.log('🔄 Content intake: Refreshing usage now');
+          refreshUsage();
+        }, 3000);
+        return () => clearTimeout(timer);
+      }
+    } catch (err) {
+      console.error('Error detecting payment:', err);
+    }
+  }, [refreshUsage]);
+
+  // Also refresh when page becomes visible (tab focus)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        console.log('👀 Content intake: Page became visible, refreshing usage');
+        refreshUsage();
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [refreshUsage]);
 
   // ── Drag / drop ────────────────────────────────────────────────────────
   const handleDragEnter = useCallback((e) => {
@@ -221,6 +276,8 @@ export default function ContentIntake() {
         setGenerating(false);
         // Refresh usage display
         getRemaining(uid, email).then(setUsageInfo).catch(console.error);
+        // Redirect to pricing page
+        setTimeout(() => router.push("/page/pricing"), 1500);
         return;
       }
       // Refresh displayed usage after incrementing
@@ -513,7 +570,7 @@ export default function ContentIntake() {
             {canGenerate && !generating && (
               <button
                 className={`ci-generate-btn${uploadLimitReached ? " ci-generate-btn--disabled" : ""}`}
-                onClick={uploadLimitReached ? undefined : handleGenerate}
+                onClick={uploadLimitReached ? () => router.push("/page/pricing") : handleGenerate}
                 disabled={!!uploadLimitReached}
                 title={uploadLimitReached ? "Upload limit reached — upgrade your plan" : undefined}
               >

@@ -13,7 +13,7 @@ export async function POST(req) {
     const amount = Number(body?.amount ?? 0);
 
     // Only allow hardcoded amounts for safety
-    const allowed = [4.99, 9.99];
+    const allowed = [1.00, 2.00];
     if (!allowed.includes(amount)) {
       return NextResponse.json({ error: 'invalid_amount', amount }, { status: 400 });
     }
@@ -54,7 +54,7 @@ export async function POST(req) {
     const sessionData = {
       Uid: crypto.randomUUID(),
       KeyId: KEYID,
-      Amount: amount.toFixed(2), // String with 2 decimals: "4.99"
+      Amount: amount.toFixed(2), // String with 2 decimals: "1.00"
       FirstName: body.firstName || 'Customer',
       LastName: body.lastName || 'User',
       Phone: body.phone || '+97400000000',

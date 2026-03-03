@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Send, Sparkles, Bot, User, Loader2, RotateCcw, Plus, X, FileText, ImageIcon, Menu, History, MessageSquare, Trash2 } from "lucide-react";
 import { useAuth } from "../../AuthProvider";
 import { saveChatToFirestore, getUserChats, getChatById, deleteChatFromFirestore, subscribeToUserChats } from "@/lib/firebaseStore";
@@ -107,6 +108,7 @@ function ChatUsageBar({ usageInfo }) {
 
 export default function AIChat() {
   const { user, loading } = useAuth();
+  const router = useRouter();
 
   // Show loading while checking authentication
   if (loading) {
@@ -155,11 +157,48 @@ export default function AIChat() {
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  // Load usage when user is ready
-  useEffect(() => {
+  // Function to refresh usage
+  const refreshUsage = useCallback(() => {
     if (!user) return;
     getRemaining(user.uid, user.email).then(setUsageInfo).catch(console.error);
   }, [user]);
+
+  // Load usage when user is ready
+  useEffect(() => {
+    refreshUsage();
+  }, [refreshUsage]);
+
+  // Detect payment return and refresh usage
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const status = params.get('skipcash_status');
+      if (status === 'success') {
+        console.log('💬 Chat: Payment success detected, refreshing usage in 3s');
+        // Wait for webhook to process, then refresh
+        const timer = setTimeout(() => {
+          console.log('🔄 Chat: Refreshing usage now');
+          refreshUsage();
+        }, 3000);
+        return () => clearTimeout(timer);
+      }
+    } catch (err) {
+      console.error('Error detecting payment:', err);
+    }
+  }, [refreshUsage]);
+
+  // Also refresh when page becomes visible (tab focus)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        console.log('👀 Chat: Page became visible, refreshing usage');
+        refreshUsage();
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [refreshUsage]);
 
   // Load chat history from Firebase when user is available
   useEffect(() => {
@@ -341,6 +380,8 @@ export default function AIChat() {
       );
       // Refresh usage display
       getRemaining(user.uid, user.email).then(setUsageInfo).catch(console.error);
+      // Redirect to pricing page
+      setTimeout(() => router.push("/page/pricing"), 1500);
       return;
     }
     // Refresh displayed usage after incrementing
@@ -689,7 +730,12 @@ export default function AIChat() {
                   disabled={isLoading || chatLimitReached}
                 />
 
-                <button className="chat-send-btn" onClick={handleSend} disabled={!canSend}>
+                <button 
+                  className="chat-send-btn" 
+                  onClick={chatLimitReached ? () => router.push("/page/pricing") : handleSend} 
+                  disabled={!canSend && !chatLimitReached}
+                  title={chatLimitReached ? "Message limit reached — click to upgrade" : ""}
+                >
                   {isLoading ? <Loader2 size={20} className="chat-loading-icon" /> : <Send size={20} />}
                 </button>
               </div>
