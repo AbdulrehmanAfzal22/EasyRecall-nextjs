@@ -107,7 +107,7 @@ export default function DashboardLayout({ children }) {
         .then(data => {
           console.log("✅ Usage Reset:", data);
 
-          // Clean URL without reload
+          // Clean URL without r load
           router.replace("/page/dashboard/dash-home");
         })
         .catch(err => {
