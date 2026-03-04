@@ -59,7 +59,7 @@ export async function POST(req) {
     // ───────────────────────────────────────────────────
     if (MODE === 'mock') {
       const mockSessionId = `mock-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-      const mockCheckoutUrl = `${origin}/skipcash-mock.html?amount=${amount}&sessionId=${mockSessionId}&return_url=${encodeURIComponent(`${origin}/page/dashboard?skipcash_status=success&plan=${body.plan || 'monthly'}`)}`;
+      const mockCheckoutUrl = `${origin}/skipcash-mock.html?amount=${amount}&sessionId=${mockSessionId}&return_url=${encodeURIComponent(`${origin}/page/dashboard/dash-home?skipcash_status=success&plan=${body.plan || 'monthly'}`)}`;
 
       console.log('✓ MOCK MODE: Returning simulated checkout', {
         mode: 'mock',

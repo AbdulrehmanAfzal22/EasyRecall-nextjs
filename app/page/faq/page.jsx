@@ -19,8 +19,8 @@ const faqData = {
     {
       question: "What file formats are supported?",
       answer:
-        "EasyRecall supports PDF, DOCX, TXT, PPTX, and image files (JPG, PNG). You can also paste text directly or import from Google Docs and Notion.",
-    },
+        "EasyRecall supports PDF, DOCX, TXT, PPTX, and image files (JPG, PNG).",
+     },
     {
       question: "Do I need to create an account to get started?",
       answer:

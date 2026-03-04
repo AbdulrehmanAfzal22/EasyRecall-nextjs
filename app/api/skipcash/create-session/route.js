@@ -111,7 +111,7 @@ export async function POST(req) {
     }
 
     // Build correct payload per Skipcash /api/v1/payments docs
-    const returnUrl = `${origin}/page/dashboard?skipcash_status=success&plan=${plan}`;
+    const returnUrl = `${origin}/page/dashboard/dash-home?skipcash_status=success&plan=${plan}`;
     const sessionData = {
       Uid: userId || crypto.randomUUID(),
       KeyId: KEYID,
