@@ -35,15 +35,18 @@ This document outlines the complete subscription system with two pricing tiers:
 - Sets `er_plan_paid` flag for instant access
 
 ### 4. **Subscription Hook** (`app/hooks/useSubscription.js`)
-- Fetches subscription data from Firebase
+- Listens to the user document in Firestore via `onSnapshot`
 - Returns: `{ subscription, loading, error }`
 - Handles Firestore Timestamp conversion
-- Checks for expired subscriptions
+- Automatically updates when the webhook or optimistic update writes to Firestore
+- Flags subscriptions as `expired` when `expiresAt` passes
 
 ### 5. **Dashboard** (`app/page/dashboard/layout.jsx`)
-- Checks Firebase subscription first
-- Falls back to localStorage
-- Shows upgrade modal if no active plan
+- Uses the realtime subscription hook to determine plan status
+- No longer relies on localStorage caching
+- Shows upgrade modal whenever there is no active (and unexpired) plan
+- Optimistically hides the modal on redirect while the listener updates
+
 
 ### 6. **Usage Tracking** (`lib/usageService.js`)
 - Tracks uploads and chats per billing cycle
@@ -113,7 +116,7 @@ payments/{sessionId}
 ```
 1. Go to http://localhost:3000 (or your app URL)
 2. Sign up with a test email (e.g., test@example.com)
-3. You'll see the upgrade modal
+3. You'll see the upgrade modal (no localStorage flag is involved)
 ```
 
 #### 2. Choose Plan & Checkout

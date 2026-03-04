@@ -224,12 +224,8 @@ export default function SkipCashPayment() {
       }
 
       if (data?.url) {
-        try {
-          // Mark plan as activated on this device so dashboard unlocks
-          localStorage.setItem("er_plan_paid", "true");
-        } catch {
-          // ignore storage errors
-        }
+        // we no longer cache a flag in localStorage; the dashboard listens
+        // to Firestore changes instead. just navigate to the payment page.
         window.location.href = data.url;
       } else {
         setError("Payment link not available. Please contact support.");

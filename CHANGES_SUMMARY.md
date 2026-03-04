@@ -49,16 +49,16 @@ A fully functional subscription system with two tiers ($1.00 and $9.99) that:
 
 ### 6. ✨ New: Subscription Hook
 **File**: `app/hooks/useSubscription.js`
-- Fetches subscription from Firebase
-- Returns `{ subscription, loading, error }`
+- Listens to `users/{uid}` in Firestore via `onSnapshot`
+- Returns `{ subscription, loading, error }` in real time
 - Handles Firestore timestamp conversion
-- Checks for expired subscriptions
+- Marks plans as `expired` when `expiresAt` passes
 
 ### 7. ✏️ Dashboard Layout
 **File**: `app/page/dashboard/layout.jsx`
-- Now checks Firebase for active subscription
-- Falls back to localStorage if needed
-- Shows upgrade modal only if no active plan
+- Uses realtime subscription hook to determine plan status
+- No longer uses localStorage cache
+- Shows upgrade modal only if there is no active (unexpired) plan
 
 ### 8. ✨ New: Mock Webhook Endpoint (Debug)
 **File**: `app/api/debug/mock-webhook/route.js`

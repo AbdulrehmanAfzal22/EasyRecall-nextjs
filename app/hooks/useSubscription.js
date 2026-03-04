@@ -1,12 +1,17 @@
 import { useState, useEffect } from 'react';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { useAuth } from '../page/AuthProvider';
 
 /**
- * useSubscription - Hook to fetch user subscription details from Firebase
+ * useSubscription - Hook to subscribe to realtime updates of the
+ * user's subscription document.
  * Returns: { subscription, loading, error }
  * subscription = { status, plan, paidAt, expiresAt, sessionId, amount }
+ *
+ * This replaces the previous one‑time fetch with an onSnapshot listener so
+ * UI can react immediately when the webhook/optimistic update writes the
+ * record.
  */
 export function useSubscription() {
   const { user, loading: authLoading } = useAuth();
@@ -23,47 +28,42 @@ export function useSubscription() {
       return;
     }
 
-    const fetchSubscription = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+    setLoading(true);
+    const userRef = doc(db, 'users', user.uid);
 
-        const userRef = doc(db, 'users', user.uid);
-        const userSnap = await getDoc(userRef);
+    const unsubscribe = onSnapshot(
+      userRef,
+      (snap) => {
+        const data = snap.data();
+        if (data?.subscription) {
+          const subData = { ...data.subscription };
 
-        if (userSnap.exists() && userSnap.data().subscription) {
-          const subData = userSnap.data().subscription;
-          
-          // Convert Firestore Timestamp to Date if needed
-          if (subData.expiresAt && typeof subData.expiresAt === 'object' && 'toDate' in subData.expiresAt) {
-            subData.expiresAt = subData.expiresAt.toDate();
-          }
-          if (subData.paidAt && typeof subData.paidAt === 'object' && 'toDate' in subData.paidAt) {
-            subData.paidAt = subData.paidAt.toDate();
-          }
-          if (subData.lastPaymentAt && typeof subData.lastPaymentAt === 'object' && 'toDate' in subData.lastPaymentAt) {
-            subData.lastPaymentAt = subData.lastPaymentAt.toDate();
-          }
+          // convert Firestore timestamps to Date objects
+          ['expiresAt', 'paidAt', 'lastPaymentAt'].forEach((field) => {
+            if (subData[field] && typeof subData[field] === 'object' && 'toDate' in subData[field]) {
+              subData[field] = subData[field].toDate();
+            }
+          });
 
-          // Check if subscription is expired
+          // normalize expired state
           if (subData.expiresAt && new Date() > new Date(subData.expiresAt)) {
-            setSubscription({ ...subData, status: 'expired' });
-          } else {
-            setSubscription(subData);
+            subData.status = 'expired';
           }
+
+          setSubscription(subData);
         } else {
           setSubscription(null);
         }
-      } catch (err) {
-        console.error('Error fetching subscription:', err);
+        setLoading(false);
+      },
+      (err) => {
+        console.error('Subscription listener error:', err);
         setError(err.message);
-        setSubscription(null);
-      } finally {
         setLoading(false);
       }
-    };
+    );
 
-    fetchSubscription();
+    return unsubscribe;
   }, [user, authLoading]);
 
   return { subscription, loading, error };
