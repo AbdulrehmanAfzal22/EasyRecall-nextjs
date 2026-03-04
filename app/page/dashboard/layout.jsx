@@ -53,12 +53,14 @@ export default function DashboardLayout({ children }) {
           return;
         }
 
+        let firestoreChecked = false;
         try {
           const { doc, getDoc } = await import("firebase/firestore");
           const { db } = await import("../../../lib/firebase");
           const userRef = doc(db, "users", user.uid);
           const userSnap = await getDoc(userRef);
 
+          firestoreChecked = true;
           if (userSnap.exists()) {
             const subData = userSnap.data().subscription;
             if (subData?.status === "active") {
@@ -66,12 +68,35 @@ export default function DashboardLayout({ children }) {
             }
           }
         } catch (err) {
-          console.warn("Subscription check failed:", err);
+          // if Firestore lookup fails we allow localStorage as a backup. this
+          // keeps the dashboard usable while offline or if the import/SDK
+          // throws, but prevents a bad localStorage value from overriding a
+          // *successful* server response.
+          console.warn("Subscription check failed (will fall back to cache):", err);
         }
 
-        // Fallback localStorage
+        if (!firestoreChecked) {
+          // Use the cache when the lookup failed completely.
+          try {
+            paid = localStorage.getItem(PLAN_FLAG_KEY) === "true";
+          } catch {}
+        } else if (!paid) {
+          // Firestore said 'not active'. we still allow the local flag to
+          // temporarily override if we just came from a successful payment
+          // redirect (the flag is set by the skipcash effect above). this
+          // covers the 5–10s gap before the webhook writes the record.
+          try {
+            if (localStorage.getItem(PLAN_FLAG_KEY) === "true") {
+              paid = true;
+              console.log("Using cached plan flag while waiting for webhook");
+            }
+          } catch {}
+        }
+
+        // Only clear the cache when we definitely know the user isn't
+        // subscribed (ie. not paid after applying any local override).
         if (!paid) {
-          paid = localStorage.getItem(PLAN_FLAG_KEY) === "true";
+          try { localStorage.removeItem(PLAN_FLAG_KEY); } catch {}
         }
 
         setHasActivePlan(paid);
@@ -84,6 +109,18 @@ export default function DashboardLayout({ children }) {
 
   /* ─────────────────────────────────────────────
      4️⃣ Handle SkipCash Success
+
+     When the payment provider redirects back with a successful status we
+     still haven’t received the webhook (it can take several seconds).  The
+     subscription check above may already have run and determined that the
+     user is unpaid, which results in the upgrade modal reappearing while the
+     customer is staring at the dashboard.  To prevent that we:
+
+     • mark the local cache flag
+     • immediately mark the layout state as paid
+     • hide the modal
+     • optionally write a lightweight ‘optimistic’ subscription record so
+       Firestore reflects the success before the webhook arrives
   ───────────────────────────────────────────── */
   useEffect(() => {
     const status = searchParams.get("skipcash_status");
@@ -94,6 +131,21 @@ export default function DashboardLayout({ children }) {
 
       localStorage.setItem(PLAN_FLAG_KEY, "true");
       localStorage.setItem("payment_just_completed", "true");
+
+      // immediately unlock the UI so the overlay disappears
+      setHasActivePlan(true);
+      setShowUpgradeModal(false);
+
+      // optimistic server update: if the webhook hasn’t fired yet this
+      // ensures future subscription checks will see the active flag.
+      fetch("/api/skipcash/mark-paid", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.uid, plan }),
+      }).catch((err) => {
+        // ignore; webhook will still do the work later
+        console.warn("optimistic subscription update failed", err);
+      });
 
       fetch("/api/reset-usage", {
         method: "POST",
