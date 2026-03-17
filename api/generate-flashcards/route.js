@@ -100,6 +100,7 @@ export async function POST(request) {
 Each flashcard:
 - "question": Clear, focused question testing one concept
 - "answer": Concise accurate answer (1–3 sentences)
+- "reference": Short reference to the relevant section, fact, or page in the study material (e.g., a heading, section title, or quoted phrase)
 
 Order: foundational → complex.
 
@@ -107,7 +108,7 @@ Study Material:
 ${cleanContent}
 
 Return ONLY valid JSON:
-{ "flashcards": [{ "question": "...", "answer": "..." }] }`,
+{ "flashcards": [{ "question": "...", "answer": "...", "reference": "..." }] }`,
             }],
             temperature: 0.5,
             max_tokens: 4000,
@@ -128,6 +129,7 @@ Requirements:
 MCQ: 4 options (A/B/C/D), exactly one correct answer, plausible distractors
 True/False: clear factual statements, balanced mix of true/false
 Short Answer: questions answerable in 1–3 sentences, include a model answer for scoring
+For every question, also include a "reference" field: a short reference to the relevant section, fact, or page in the study material (e.g., a heading, section title, or quoted phrase).
 
 Study Material:
 ${cleanContent}
@@ -140,7 +142,8 @@ Return ONLY valid JSON — no markdown:
       "question": "...",
       "options": ["A. ...", "B. ...", "C. ...", "D. ..."],
       "correct": "A",
-      "explanation": "Brief explanation of why this is correct"
+      "explanation": "Brief explanation of why this is correct",
+      "reference": "..."
     }
   ],
   "trueFalse": [
@@ -148,7 +151,8 @@ Return ONLY valid JSON — no markdown:
       "id": "tf_1",
       "statement": "...",
       "correct": true,
-      "explanation": "..."
+      "explanation": "...",
+      "reference": "..."
     }
   ],
   "shortAnswer": [
@@ -156,7 +160,8 @@ Return ONLY valid JSON — no markdown:
       "id": "sa_1",
       "question": "...",
       "modelAnswer": "...",
-      "keyPoints": ["key point 1", "key point 2", "key point 3"]
+      "keyPoints": ["key point 1", "key point 2", "key point 3"],
+      "reference": "..."
     }
   ]
 }`,

@@ -2,8 +2,8 @@
 
 .how {
   padding: 100px 20px;
-  background: var(--bg);
-  color: var(--text);
+  background: var(--faq-bg);
+  color: var(--faq-text);
   box-sizing: border-box;
   margin-top: -150px;
 }
@@ -18,14 +18,14 @@
 .how-header h2 {
   font-size: clamp(1.75rem, 4vw, 2.25rem);
   line-height: 1.2;
-  color: var(--text);
+  color: var(--faq-text);
   margin-bottom: 15px;
   font-weight: 700;
 }
 
 .how-header p {
   font-size: clamp(0.9rem, 2vw, 1rem);
-  color: var(--text-muted);
+  color: var(--faq-text-muted);
   line-height: 1.6;
 }
 
@@ -45,8 +45,8 @@
   flex: 1 1 260px;
   padding: 2rem;
   border-radius: 12px;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: var(--faq-contact-bg);
+  border: 1px solid var(--faq-divider);
   transition: box-shadow 0.3s ease, transform 0.3s ease, background 0.2s;
   box-sizing: border-box;
 }
@@ -65,7 +65,7 @@
 
 .step-number {
   color: white;
-  background: var(--primary);
+  background: var(--faq-accent);
   border-radius: 12px;
   display: flex;
   justify-content: center;
@@ -95,12 +95,12 @@
   line-height: 1.4;
   font-weight: 600;
   margin-bottom: 12px;
-  color: var(--text);
+  color: var(--faq-text);
 }
 
 .step p {
   font-size: clamp(0.875rem, 1.5vw, 0.9375rem);
-  color: var(--text-muted);
+  color: var(--faq-text-muted);
   margin-bottom: 20px;
   line-height: 1.625;
 }
@@ -117,11 +117,11 @@
   gap: 10px;
   font-size: clamp(0.8125rem, 1.5vw, 0.875rem);
   margin-bottom: 12px;
-  color: var(--text-muted);
+  color: var(--faq-text-muted);
 }
 
 .step ul li svg {
-  color: var(--primary);
+  color: var(--faq-accent);
   flex-shrink: 0;
 }
 

@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import "./pricing.css";
+import "./price.css";
 
 // Import your auth hook — adjust path if needed
 import { useAuth } from "../AuthProvider.jsx";
 
-export default function PricingSection() {
+export default function SubscriptionPricing() {
   const router = useRouter();
   const { user, loading } = useAuth();
   const [themeDark, setThemeDark] = useState(false);

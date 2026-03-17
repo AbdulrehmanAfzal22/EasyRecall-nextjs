@@ -578,9 +578,18 @@ export default function QuizPage() {
                         className={`qz-sa-textarea ${locked ? "qz-sa-textarea--locked" : ""}`}
                         placeholder="Type your answer here…"
                         value={locked ? ans.answer : (saInputs[q.id] || "")}
-                        onChange={(e) => !locked && setSaInputs((prev) => ({ ...prev, [q.id]: e.target.value }))}
+                        onChange={e => {
+                          if (!locked) {
+                            setSaInputs(prev => ({ ...prev, [q.id]: e.target.value }));
+                            // Auto-expand textarea
+                            const ta = e.target;
+                            ta.style.height = "auto";
+                            ta.style.height = (ta.scrollHeight) + "px";
+                          }
+                        }}
                         disabled={locked}
                         rows={3}
+                        style={{overflowY: 'hidden', minHeight: 60, maxHeight: 300}}
                       />
                       {!locked && (
                         <button

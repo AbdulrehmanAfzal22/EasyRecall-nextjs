@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import Pricing from "./pricing";
-import "./pricing.css";
+import Pricing from "./pricing"
+import "./price.css";
 
 export default function PricingPage() {
   const router = useRouter();

@@ -1,37 +1,23 @@
-/* hero.css */
+/* hero.css - aligned with FAQ color theme */
 
+/* ─── Local variables for values with no FAQ equivalent ── */
 :root {
-  --bg: #ffffff;
-  --text: #07122e;
-  --text-muted: #3a5080;
-  --primary: #1a3fd4;
-  --primary-dark: #0d2080;
-  --accent: #f5c842;
-  --gradient: linear-gradient(90deg, #1a3fd4, #2b6fff, #6ab0f5);
-  --surface: #f0f4ff;
-  --border: #c7d6f5;
-  --shadow-sm: 0 4px 6px -1px rgba(13, 32, 128, 0.12);
+  --gradient:   linear-gradient(90deg, #1a3fd4, #2b6fff, #6ab0f5);
+  --accent:     #f5c842;
+  --shadow-sm:  0 4px 6px -1px rgba(13, 32, 128, 0.12);
 }
 
 .dark {
-  --bg: #060a1a;
-  --text: #ddeaff;
-  --text-muted: #6ab0f5;
-  --primary: #2b6fff;
-  --primary-dark: #1a3fd4;
-  --accent: #f5c842;
-  --gradient: linear-gradient(90deg, #2b6fff, #3d7fff, #6ab0f5);
-  --surface: #0d1530;
-  --border: #1a2d6b;
-  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --gradient:   linear-gradient(90deg, #2b6fff, #3d7fff, #6ab0f5);
+  --shadow-sm:  0 4px 6px -1px rgba(0, 0, 0, 0.4);
 }
 
 /* ─── Base ────────────────────────────────────────────── */
 
 .hero {
   position: relative;
-  background: var(--bg);
-  color: var(--text);
+  background: var(--faq-bg);
+  color: var(--faq-text);
   padding: 80px 24px 120px;
   overflow: hidden;
 }
@@ -49,7 +35,7 @@
   right: 32px;
   background: none;
   border: none;
-  color: var(--text-muted);
+  color: var(--faq-text-muted);
   cursor: pointer;
   padding: 8px;
   border-radius: 8px;
@@ -58,7 +44,7 @@
 
 .theme-toggle:hover {
   background: rgba(27, 63, 212, 0.1);
-  color: var(--primary);
+  color: var(--faq-accent);
 }
 
 /* ─── Layout grid ─────────────────────────────────────── */
@@ -91,7 +77,7 @@
   padding: 6px 14px;
   border-radius: 999px;
   background: rgba(27, 63, 212, 0.1);
-  color: var(--primary);
+  color: var(--faq-accent);
   border: 1px solid rgba(27, 63, 212, 0.22);
   white-space: nowrap;
 }
@@ -134,7 +120,7 @@
 .subtitle {
   font-size: clamp(1rem, 1.5vw, 1.25rem);
   line-height: 1.6;
-  color: var(--text-muted);
+  color: var(--faq-text-muted);
   margin-bottom: 32px;
 }
 
@@ -145,7 +131,7 @@
   align-items: center;
   gap: 12px;
   margin-bottom: 40px;
-  color: var(--text-muted);
+  color: var(--faq-text-muted);
   font-size: 0.95rem;
   flex-wrap: wrap;
 }
@@ -158,14 +144,14 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: var(--primary);
+  background: var(--faq-accent);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
   font-size: 14px;
-  border: 2px solid var(--bg);
+  border: 2px solid var(--faq-bg);
   flex-shrink: 0;
 }
 
@@ -173,8 +159,8 @@
   margin-left: -10px;
 }
 
-.avatar:nth-child(2) { background: #2b6fff; }
-.avatar:nth-child(3) { background: #6ab0f5; }
+.avatar:nth-child(2) { background: var(--faq-accent); }
+.avatar:nth-child(3) { background: var(--faq-text-muted); }
 
 /* ─── CTA group ───────────────────────────────────────── */
 
@@ -196,18 +182,17 @@
 }
 
 .btn.primary {
-  background: var(--primary);
+  background: var(--faq-accent);
   color: white;
   box-shadow: 0 4px 14px rgba(27, 63, 212, 0.3);
 }
 
 .btn.primary:hover {
-  background: var(--primary-dark);
+  background: var(--faq-accent-hover);
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(27, 63, 212, 0.42);
 }
 
-/* Accent gold CTA variant */
 .btn.accent {
   background: var(--accent);
   color: #07122e;
@@ -222,8 +207,8 @@
 
 .btn.secondary {
   background: transparent;
-  border: 1px solid var(--border);
-  color: var(--text);
+  border: 1px solid var(--faq-divider);
+  color: var(--faq-text);
 }
 
 .btn.secondary:hover {
@@ -242,10 +227,10 @@
 
 .mockup-container {
   position: relative;
-  background: linear-gradient(135deg, #0d2080 0%, #060a1a 100%);
+  background: var(--faq-bg);
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: var(--shadow-sm), 0 0 0 1px var(--border);
+  box-shadow: var(--shadow-sm), 0 0 0 1px var(--faq-divider);
   aspect-ratio: 16 / 10;
   max-height: 520px;
   width: 100%;
@@ -260,7 +245,7 @@
   color: white;
   text-align: center;
   padding: 40px;
-  background: linear-gradient(135deg, #0d2080, #1a3fd4);
+  background: var(--faq-bg);
   font-size: 1.1rem;
 }
 
@@ -291,7 +276,7 @@
   position: absolute;
   top: 24px;
   left: 24px;
-  background: rgba(6, 10, 26, 0.7);
+  background: var(--faq-bg);
   backdrop-filter: blur(8px);
   color: white;
   padding: 8px 16px;
@@ -308,251 +293,79 @@
   position: absolute;
   bottom: 20px;
   right: 20px;
-  background: rgba(6, 10, 26, 0.7);
+  background: var(--faq-bg);
   backdrop-filter: blur(10px);
-  color: #6ab0f5;
+  color: var(--faq-text-muted);
   padding: 6px 14px;
   border-radius: 999px;
   font-size: 0.85rem;
   z-index: 2;
-  border: 1px solid rgba(43, 111, 255, 0.3);
+  border: 1px solid var(--faq-sidebar-pill-active-border);
 }
 
 /* ═══════════════════════════════════════════════════════
    RESPONSIVE BREAKPOINTS
 ═══════════════════════════════════════════════════════ */
 
-/* ── Large desktop (1400px+) ──────────────────────────── */
 @media (min-width: 1400px) {
-  .hero {
-    padding: 100px 40px 140px;
-  }
-
-  .content-grid {
-    gap: 80px;
-  }
+  .hero { padding: 100px 40px 140px; }
+  .content-grid { gap: 80px; }
 }
 
-/* ── Standard laptop / desktop (1025px – 1399px) ─────── */
 @media (min-width: 1025px) and (max-width: 1399px) {
-  .hero {
-    padding: 80px 32px 120px;
-  }
-
-  .content-grid {
-    gap: 56px;
-  }
-
-  .headline {
-    font-size: 3rem;
-  }
+  .hero { padding: 80px 32px 120px; }
+  .content-grid { gap: 56px; }
+  .headline { font-size: 3rem; }
 }
 
-/* ── Tablet landscape / small laptop (769px – 1024px) ─── */
 @media (max-width: 1024px) {
-  .content-grid {
-    grid-template-columns: 1fr;
-    gap: 48px;
-  }
-
-  .left-content {
-    max-width: 100%;
-    text-align: center;
-  }
-
-  .badges {
-    justify-content: center;
-  }
-
-  .trust {
-    justify-content: center;
-  }
-
-  .cta-group {
-    justify-content: center;
-  }
-
-  .right-content {
-    order: -1;
-    max-width: 720px;
-    margin: 0 auto;
-    width: 100%;
-  }
-
-  .mockup-container {
-    max-height: 400px;
-  }
+  .content-grid { grid-template-columns: 1fr; gap: 48px; }
+  .left-content { max-width: 100%; text-align: center; }
+  .badges { justify-content: center; }
+  .trust { justify-content: center; }
+  .cta-group { justify-content: center; }
+  .right-content { order: -1; max-width: 720px; margin: 0 auto; width: 100%; }
+  .mockup-container { max-height: 400px; }
 }
 
-/* ── Tablet portrait (641px – 768px) ─────────────────── */
 @media (max-width: 768px) {
-  .hero {
-    margin-top: 30px;
-    padding: 60px 20px 80px;
-  }
-
-  .content-grid {
-    gap: 40px;
-  }
-
-  .mockup-container {
-    max-height: 340px;
-    border-radius: 16px;
-  }
-
-  .floating-label {
-    top: 16px;
-    left: 16px;
-    font-size: 0.8rem;
-    padding: 6px 12px;
-  }
-
-  .status-badge {
-    bottom: 14px;
-    right: 14px;
-    font-size: 0.78rem;
-    padding: 5px 12px;
-  }
-
-  .trust {
-    gap: 10px;
-    font-size: 0.875rem;
-  }
-
-  .avatar {
-    width: 30px;
-    height: 30px;
-    font-size: 12px;
-  }
-
-  .badge {
-    font-size: 13px;
-    padding: 5px 12px;
-  }
+  .hero { margin-top: 30px; padding: 60px 20px 80px; }
+  .content-grid { gap: 40px; }
+  .mockup-container { max-height: 340px; border-radius: 16px; }
+  .floating-label { top: 16px; left: 16px; font-size: 0.8rem; padding: 6px 12px; }
+  .status-badge { bottom: 14px; right: 14px; font-size: 0.78rem; padding: 5px 12px; }
+  .trust { gap: 10px; font-size: 0.875rem; }
+  .avatar { width: 30px; height: 30px; font-size: 12px; }
+  .badge { font-size: 13px; padding: 5px 12px; }
 }
 
-/* ── Mobile large (481px – 640px) ────────────────────── */
 @media (max-width: 640px) {
-  .hero {
-    padding: 52px 16px 72px;
-  }
-
-  .cta-group {
-    flex-direction: column;
-    gap: 12px;
-    width: 100%;
-  }
-
-  .btn {
-    width: 100%;
-    text-align: center;
-    padding: 14px 24px;
-  }
-
-  .mockup-container {
-    max-height: 260px;
-    border-radius: 14px;
-  }
-
-  .video-placeholder {
-    font-size: 0.95rem;
-    padding: 24px;
-  }
+  .hero { padding: 52px 16px 72px; }
+  .cta-group { flex-direction: column; gap: 12px; width: 100%; }
+  .btn { width: 100%; text-align: center; padding: 14px 24px; }
+  .mockup-container { max-height: 260px; border-radius: 14px; }
+  .video-placeholder { font-size: 0.95rem; padding: 24px; }
 }
 
-/* ── Mobile standard (361px – 480px) ─────────────────── */
 @media (max-width: 480px) {
-  .hero {
-    padding: 44px 14px 64px;
-  }
-
-  .theme-toggle {
-    top: 16px;
-    right: 16px;
-  }
-
-  .badges {
-    gap: 8px;
-    margin-bottom: 20px;
-  }
-
-  .badge {
-    font-size: 12px;
-    padding: 4px 10px;
-  }
-
-  .trust {
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 28px;
-    font-size: 0.85rem;
-    text-align: center;
-  }
-
-  .mockup-container {
-    max-height: 220px;
-    border-radius: 12px;
-  }
-
-  .floating-label {
-    top: 12px;
-    left: 12px;
-    font-size: 0.72rem;
-    padding: 5px 10px;
-    gap: 6px;
-  }
-
-  .status-badge {
-    bottom: 10px;
-    right: 10px;
-    font-size: 0.72rem;
-    padding: 4px 10px;
-  }
-
-  .subtitle {
-    margin-bottom: 24px;
-  }
+  .hero { padding: 44px 14px 64px; }
+  .theme-toggle { top: 16px; right: 16px; }
+  .badges { gap: 8px; margin-bottom: 20px; }
+  .badge { font-size: 12px; padding: 4px 10px; }
+  .trust { flex-direction: column; align-items: center; gap: 8px; margin-bottom: 28px; font-size: 0.85rem; text-align: center; }
+  .mockup-container { max-height: 220px; border-radius: 12px; }
+  .floating-label { top: 12px; left: 12px; font-size: 0.72rem; padding: 5px 10px; gap: 6px; }
+  .status-badge { bottom: 10px; right: 10px; font-size: 0.72rem; padding: 4px 10px; }
+  .subtitle { margin-bottom: 24px; }
 }
 
-/* ── Mobile small (≤360px) ───────────────────────────── */
 @media (max-width: 360px) {
-  .hero {
-    padding: 40px 12px 56px;
-  }
-
-  .content-grid {
-    gap: 28px;
-  }
-
-  .badges {
-    gap: 6px;
-    margin-bottom: 16px;
-  }
-
-  .badge {
-    font-size: 11px;
-    padding: 4px 9px;
-  }
-
-  .btn {
-    font-size: 0.92rem;
-    padding: 13px 20px;
-  }
-
-  .avatar {
-    width: 26px;
-    height: 26px;
-    font-size: 11px;
-  }
-
-  .mockup-container {
-    max-height: 190px;
-    border-radius: 10px;
-  }
-
-  .floating-label,
-  .status-badge {
-    display: none;
-  }
+  .hero { padding: 40px 12px 56px; }
+  .content-grid { gap: 28px; }
+  .badges { gap: 6px; margin-bottom: 16px; }
+  .badge { font-size: 11px; padding: 4px 9px; }
+  .btn { font-size: 0.92rem; padding: 13px 20px; }
+  .avatar { width: 26px; height: 26px; font-size: 11px; }
+  .mockup-container { max-height: 190px; border-radius: 10px; }
+  .floating-label, .status-badge { display: none; }
 }
