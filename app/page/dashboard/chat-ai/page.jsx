@@ -107,6 +107,7 @@ function ChatUsageBar({ usageInfo }) {
 }
 
 export default function AIChat() {
+  const sendingRef = useRef(false);
   const { user, loading } = useAuth();
   const router = useRouter();
 
@@ -369,7 +370,8 @@ export default function AIChat() {
 
   // ── Send ─────────────────────────────────────────────────────────────
   const handleSend = async () => {
-    if ((!input.trim() && attachments.length === 0) || isLoading) return;
+    if ((!input.trim() && attachments.length === 0) || isLoading || sendingRef.current) return;
+    sendingRef.current = true;
 
     // ── Check chat limit BEFORE sending ──────────────────────────────
     setLimitError("");
@@ -445,6 +447,7 @@ export default function AIChat() {
       ]);
     } finally {
       setIsLoading(false);
+      sendingRef.current = false;
     }
   };
 
@@ -725,15 +728,18 @@ export default function AIChat() {
                   placeholder={chatLimitReached ? "Message limit reached — upgrade to continue…" : "Ask anything..."}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
+                  onKeyDown={e => {
+                    if (isLoading || chatLimitReached) return;
+                    handleKeyDown(e);
+                  }}
                   rows={1}
                   disabled={isLoading || chatLimitReached}
                 />
 
                 <button 
                   className="chat-send-btn" 
-                  onClick={chatLimitReached ? () => router.push("/page/pricing") : handleSend} 
-                  disabled={!canSend && !chatLimitReached}
+                  onClick={chatLimitReached ? () => router.push("/page/pricing") : (!isLoading && !chatLimitReached ? handleSend : undefined)} 
+                  disabled={!canSend || isLoading || chatLimitReached}
                   title={chatLimitReached ? "Message limit reached — click to upgrade" : ""}
                 >
                   {isLoading ? <Loader2 size={20} className="chat-loading-icon" /> : <Send size={20} />}
