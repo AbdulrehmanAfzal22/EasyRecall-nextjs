@@ -97,7 +97,7 @@ function ChatUsageBar({ usageInfo }) {
       {(usageInfo.chats === 0 || usageInfo.uploads === 0) && usageInfo.chats !== Infinity && (
         <button
           className="chat-usage-upgrade-btn"
-          onClick={() => window.location.href = "/page/pricing"}
+          onClick={() => window.location.href = "/page/subscription"}
         >
           ✦ Upgrade Plan →
         </button>
@@ -383,7 +383,7 @@ export default function AIChat() {
       // Refresh usage display
       getRemaining(user.uid, user.email).then(setUsageInfo).catch(console.error);
       // Redirect to pricing page
-      setTimeout(() => router.push("/page/pricing"), 1500);
+      setTimeout(() => router.push("/page/subscription"), 1500);
       return;
     }
     // Refresh displayed usage after incrementing
@@ -706,7 +706,7 @@ export default function AIChat() {
               {limitError && (
                 <div className="chat-limit-error">
                   <span>⚠ {limitError}</span>
-                  <button onClick={() => window.location.href = "/page/pricing"}>
+                  <button onClick={() => window.location.href = "/page/subscription"}>
                     Upgrade →
                   </button>
                 </div>
@@ -738,7 +738,7 @@ export default function AIChat() {
 
                 <button 
                   className="chat-send-btn" 
-                  onClick={chatLimitReached ? () => router.push("/page/pricing") : (!isLoading && !chatLimitReached ? handleSend : undefined)} 
+                  onClick={chatLimitReached ? () => router.push("/page/subscription") : (!isLoading && !chatLimitReached ? handleSend : undefined)} 
                   disabled={!canSend || isLoading || chatLimitReached}
                   title={chatLimitReached ? "Message limit reached — click to upgrade" : ""}
                 >

@@ -126,7 +126,7 @@ function UsageBar({ usageInfo, onReset }) {
         {(usageInfo.uploads === 0 || usageInfo.chats === 0) && usageInfo.uploads !== Infinity && (
           <button
             className="ci-usage-upgrade-btn"
-            onClick={() => window.location.href = "/page/pricing"}
+            onClick={() => window.location.href = "/page/subscription"}
             style={{ flex: 1 }}
           >
             ✦ Upgrade Plan →
@@ -277,7 +277,7 @@ export default function ContentIntake() {
         // Refresh usage display
         getRemaining(uid, email).then(setUsageInfo).catch(console.error);
         // Redirect to pricing page
-        setTimeout(() => router.push("/page/pricing"), 1500);
+        setTimeout(() => router.push("/page/subscription"), 1500);
         return;
       }
       // Refresh displayed usage after incrementing
@@ -570,7 +570,7 @@ export default function ContentIntake() {
             {canGenerate && !generating && (
               <button
                 className={`ci-generate-btn${uploadLimitReached ? " ci-generate-btn--disabled" : ""}`}
-                onClick={uploadLimitReached ? () => router.push("/page/pricing") : handleGenerate}
+                onClick={uploadLimitReached ? () => router.push("/page/subscription") : handleGenerate}
                 disabled={!!uploadLimitReached}
                 title={uploadLimitReached ? "Upload limit reached — upgrade your plan" : undefined}
               >
@@ -610,7 +610,7 @@ export default function ContentIntake() {
                 {error.includes("limit") && (
                   <button
                     className="ci-error-upgrade-btn"
-                    onClick={() => window.location.href = "/page/pricing"}
+                    onClick={() => window.location.href = "/page/subscription"}
                   >
                     Upgrade →
                   </button>
